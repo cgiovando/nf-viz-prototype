@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>2x2 Water-Food Nexus - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.5rem; max-width: 1280px; margin: 0 auto; }
+    .viz-header { margin: 0 0 1rem; }
+    .viz-header h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.3rem;
+      color: var(--c-accent-dark);
+    }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    @media (min-width: 1000px) {
+      .layout { grid-template-columns: minmax(0, 1fr) 280px; align-items: start; }
+    }
+
+    .plot-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 1rem 1rem 0.5rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    #plot { width: 100%; min-height: 560px; }
+    #plot svg { display: block; max-width: 100%; height: auto; }
+
+    /* quadrant label overlay (positioned by JS) */
+    .q-label {
+      position: absolute;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 700;
+      color: rgba(26, 39, 51, 0.55);
+      pointer-events: none;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.7);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sidebar h2 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 0 0 0.6rem;
+      color: var(--c-muted);
+      font-weight: 600;
+    }
+    .panel {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .selected-country {
+      min-height: 80px;
+    }
+    .selected-country.empty .empty-msg { color: var(--c-muted); font-size: 0.85rem; margin: 0; }
+    .selected-country .name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 0.15rem;
+      color: var(--c-text);
+    }
+    .selected-country .region {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin: 0 0 0.5rem;
+    }
+    .selected-country .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem 1rem;
+      font-size: 0.85rem;
+    }
+    .selected-country .stats dt { color: var(--c-muted); margin: 0; }
+    .selected-country .stats dd { margin: 0; font-weight: 600; }
+
+    .quadrant-counts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .qc {
+      padding: 0.55rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+    }
+    .qc .n {
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: block;
+      line-height: 1.1;
+    }
+    .qc .lbl { color: var(--c-muted); font-size: 0.72rem; }
+    .qc.q1 { background: var(--q1-bg); }
+    .qc.q2 { background: var(--q2-bg); }
+    .qc.q3 { background: var(--q3-bg); }
+    .qc.q4 { background: var(--q4-bg); }
+
+    .case-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.25rem 0.6rem;
+      font-size: 0.82rem;
+    }
+    .case-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      color: var(--c-text);
+    }
+    .case-list li:hover { color: var(--c-accent); }
+    .case-list .iso {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.7rem;
+      color: var(--c-muted);
+    }
+    .case-list .q-pill {
+      margin-left: auto;
+      font-size: 0.65rem;
+      padding: 1px 5px;
+      border-radius: 99px;
+      color: #fff;
+      font-weight: 700;
+    }
+    .case-list .q-pill.q1 { background: #469e6e; }
+    .case-list .q-pill.q2 { background: #c46b3b; }
+    .case-list .q-pill.q3 { background: #ad323c; }
+    .case-list .q-pill.q4 { background: #6a8aa8; }
+
+    .legend-regions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.7rem;
+      font-size: 0.78rem;
+    }
+    .legend-regions span { display: flex; align-items: center; gap: 0.3rem; }
+    .legend-regions .swatch {
+      width: 10px; height: 10px; border-radius: 50%;
+      display: inline-block;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--c-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Different countries, different choices</h1>
+      <p>186 countries plotted on the water-food nexus framework: freshwater stress (x) vs net food trade position (y), point size by population, color by region. The 12 case studies are highlighted with a darker outline.</p>
+    </header>
+
+    <div class="layout">
+      <div class="plot-card">
+        <div id="plot"></div>
+        <p class="footer-note">
+          Source: WRI Aqueduct (baseline water stress, % of available freshwater used) + FAOSTAT FBS 2019 (food balance sheets, kcal). Data extraction: <code>data/countries_2x2.json</code>. Quadrants per Figure 3.1 of the published <em>Nourish and Flourish</em> report. Thresholds: water stress &ge; 40% (high), net imports &gt; 0 (importer).
+        </p>
+      </div>
+
+      <aside class="sidebar">
+        <div class="panel selected-country empty" id="selected">
+          <h2>Selected country</h2>
+          <p class="empty-msg">Hover or click a point to see country profile.</p>
+        </div>
+
+        <div class="panel">
+          <h2>Quadrant counts</h2>
+          <div class="quadrant-counts" id="quadrant-counts"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Case studies (chapter 4)</h2>
+          <ul class="case-list" id="case-list"></ul>
+        </div>
+
+        <div class="panel">
+          <h2>Regions</h2>
+          <div class="legend-regions" id="legend-regions"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    // ----- load + prep data ---------------------------------------------------
+
+    const raw = await fetch("../data/countries_2x2.json").then(r => r.json());
+
+    // Convert net_imports_pct from fraction to percentage points for axis display
+    const data = raw.map(r => ({
+      ...r,
+      net_imports_display: (r.net_imports_pct ?? 0) * 100,    // > 0 = importer
+      net_export_display: (r.net_export_pct ?? 0) * 100,
+      water_stress_display: r.water_stress_baseline,           // 0-100 already
+      pop_millions: (r.population ?? 0) / 1e6,
+    }));
+
+    // Region color scale (12 distinct, palette friendly)
+    const regions = Array.from(new Set(data.map(d => d.region))).sort();
+    const regionColors = d3.scaleOrdinal()
+      .domain(regions)
+      .range([
+        "#1a73a7", "#469e6e", "#c46b3b", "#ad323c",
+        "#6a8aa8", "#7a3b8c", "#b8860b", "#118ab2",
+        "#06796a", "#9c4a7c", "#3a6e9d", "#a35e2c",
+      ]);
+
+    // ----- main plot ----------------------------------------------------------
+
+    function renderPlot() {
+      const el = document.getElementById("plot");
+      const width = el.clientWidth;
+      const height = Math.max(540, Math.min(720, width * 0.65));
+
+      const plot = Plot.plot({
+        width, height,
+        marginLeft: 70, marginBottom: 50, marginTop: 36, marginRight: 36,
+        x: {
+          label: "Freshwater stress  (% of available water withdrawn)  →",
+          domain: [0, 100],
+          grid: true,
+        },
+        y: {
+          label: "↑ net importer   ·   net food trade position   ·   net exporter ↓",
+          // net imports % - empirical range roughly -3% to +9%. Pad a bit.
+          domain: [-3, 10],
+          grid: true,
+          tickFormat: d => `${d > 0 ? "+" : ""}${d.toFixed(1)}%`,
+          labelAnchor: "center",
+        },
+        color: {
+          legend: false,  // we render our own legend in the sidebar
+          domain: regions,
+          range: regions.map(r => regionColors(r)),
+        },
+        marks: [
+          // Quadrant background tints (low-stress left, high-stress right; importer top, exporter bottom)
+          Plot.rect([{}], { x1: 0,  x2: 40,  y1: -3, y2: 0,  fill: "#469e6e", fillOpacity: 0.05 }), // Q1 lower-left
+          Plot.rect([{}], { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", fillOpacity: 0.06 }), // Q2 lower-right
+          Plot.rect([{}], { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", fillOpacity: 0.07 }), // Q3 upper-right
+          Plot.rect([{}], { x1: 0,  x2: 40,  y1: 0,  y2: 10, fill: "#6a8aa8", fillOpacity: 0.06 }), // Q4 upper-left
+
+          // Threshold rules
+          Plot.ruleX([40], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
+          Plot.ruleY([0],  { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
+
+          // Quadrant labels - placed inside each quadrant, away from edges
+          Plot.text(
+            [
+              { x: 20,  y: 9.3, label: "Q4  water-rich importer" },
+              { x: 70,  y: 9.3, label: "Q3  water-stressed importer" },
+              { x: 20,  y: -2.6, label: "Q1  water-rich exporter" },
+              { x: 70,  y: -2.6, label: "Q2  water-stressed exporter" },
+            ],
+            { x: "x", y: "y", text: "label",
+              textAnchor: "middle",
+              fill: "#1a2733", fillOpacity: 0.55,
+              fontSize: 11, fontWeight: 700 }
+          ),
+
+          // Non-case-study points
+          Plot.dot(data.filter(d => !d.is_case_study), {
+            x: "water_stress_display",
+            y: "net_imports_display",
+            r: d => Math.max(3, Math.sqrt(d.pop_millions) * 1.2),
+            fill: d => regionColors(d.region),
+            fillOpacity: 0.55,
+            stroke: "#fff",
+            strokeWidth: 0.6,
+            channels: { country: "country", iso3: "iso3" },
+            tip: true,
+            title: d => `${d.country} (${d.iso3})\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nQuadrant: ${d.quadrant}`,
+          }),
+
+          // Case-study points (rendered on top, with darker stroke)
+          Plot.dot(data.filter(d => d.is_case_study), {
+            x: "water_stress_display",
+            y: "net_imports_display",
+            r: d => Math.max(5, Math.sqrt(d.pop_millions) * 1.2),
+            fill: d => regionColors(d.region),
+            fillOpacity: 0.85,
+            stroke: "#1a2733",
+            strokeWidth: 1.6,
+            tip: true,
+            title: d => `${d.country} (${d.iso3}) - case study\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nQuadrant: ${d.quadrant}`,
+          }),
+
+          // Case-study labels
+          Plot.text(data.filter(d => d.is_case_study), {
+            x: "water_stress_display",
+            y: "net_imports_display",
+            text: "iso3",
+            dy: -10,
+            fontSize: 10,
+            fontWeight: 700,
+            fill: "#1a2733",
+            stroke: "#fff",
+            strokeWidth: 3,
+          }),
+
+          Plot.frame({ stroke: "#d8dee5" }),
+        ],
+      });
+
+      el.replaceChildren(plot);
+
+      // Wire pointer events on dots -> sidebar selected country panel.
+      // Plot renders dots as <circle> inside g[aria-label="dot"] groups; data
+      // index aligns with the dot order in each group, in the order we passed
+      // the data to Plot.dot. We rebuild the lookup using the same filters.
+      const nonCase = data.filter(d => !d.is_case_study);
+      const cases = data.filter(d => d.is_case_study);
+      const dotGroups = plot.querySelectorAll('g[aria-label="dot"]');
+      // first dot group = non-case-study (rendered first), second = case studies.
+      [nonCase, cases].forEach((dataset, gi) => {
+        const group = dotGroups[gi];
+        if (!group) return;
+        const circles = group.querySelectorAll("circle");
+        circles.forEach((circle, i) => {
+          const d = dataset[i];
+          if (!d) return;
+          circle.style.cursor = "pointer";
+          circle.addEventListener("pointerenter", () => showSelected(d));
+          circle.addEventListener("focus", () => showSelected(d));
+        });
+      });
+
+      return plot;
+    }
+
+    // ----- sidebar widgets ----------------------------------------------------
+
+    function renderQuadrantCounts() {
+      const counts = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+      data.forEach(d => { if (d.quadrant) counts[d.quadrant]++; });
+      const labels = {
+        Q1: "Water-rich exporter",
+        Q2: "Water-stressed exporter",
+        Q3: "Water-stressed importer",
+        Q4: "Water-rich importer",
+      };
+      const el = document.getElementById("quadrant-counts");
+      el.innerHTML = ["Q1","Q2","Q3","Q4"].map(q =>
+        `<div class="qc ${q.toLowerCase()}">
+           <span class="n">${counts[q]}</span>
+           <span class="lbl"><strong>${q}</strong> &middot; ${labels[q]}</span>
+         </div>`
+      ).join("");
+    }
+
+    function renderCaseList() {
+      const cases = data.filter(d => d.is_case_study).sort((a,b) => a.country.localeCompare(b.country));
+      const el = document.getElementById("case-list");
+      el.innerHTML = cases.map(c =>
+        `<li data-iso="${c.iso3}">
+           <span>${c.country}</span>
+           <span class="iso">${c.iso3}</span>
+           <span class="q-pill ${c.quadrant.toLowerCase()}">${c.quadrant}</span>
+         </li>`
+      ).join("");
+      el.querySelectorAll("li").forEach(li => {
+        li.addEventListener("mouseenter", () => {
+          const iso = li.dataset.iso;
+          const c = data.find(d => d.iso3 === iso);
+          if (c) showSelected(c);
+        });
+      });
+    }
+
+    function renderLegend() {
+      const el = document.getElementById("legend-regions");
+      el.innerHTML = regions.map(r =>
+        `<span><span class="swatch" style="background:${regionColors(r)}"></span>${r}</span>`
+      ).join("");
+    }
+
+    function showSelected(d) {
+      const el = document.getElementById("selected");
+      el.classList.remove("empty");
+      el.innerHTML = `
+        <h2>Selected country</h2>
+        <p class="name">${d.country} <span class="iso" style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--c-muted); font-weight:400;">${d.iso3}</span></p>
+        <p class="region">${d.region}</p>
+        <dl class="stats">
+          <dt>Water stress</dt><dd>${d.water_stress_display.toFixed(0)}%</dd>
+          <dt>Net imports</dt><dd>${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}%</dd>
+          <dt>Position</dt><dd>${d.is_importer ? "importer" : "exporter"}</dd>
+          <dt>Population</dt><dd>${d.pop_millions.toFixed(1)}M</dd>
+          <dt>Quadrant</dt><dd>${d.quadrant}</dd>
+          <dt>Case study</dt><dd>${d.is_case_study ? "yes" : "no"}</dd>
+        </dl>
+      `;
+    }
+
+    // ----- init ---------------------------------------------------------------
+
+    renderQuadrantCounts();
+    renderCaseList();
+    renderLegend();
+    renderPlot();
+
+    // re-render plot on resize for responsiveness
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(renderPlot, 200);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nourish and Flourish - Viz Prototypes</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="page-header">
+    <div class="container">
+      <p class="eyebrow">World Bank Water GP - prototype gallery</p>
+      <h1>Nourish and Flourish</h1>
+      <p class="lede">Interactive visualization concepts for the StoryMap.</p>
+      <p class="meta">Based on <em>Water Solutions to Feed 10 Billion People on a Livable Planet</em> (World Bank, 2025).
+        <a href="https://openknowledge.worldbank.org/entities/publication/2807ed57-114f-42f9-b455-12625354383c">Read the report &rarr;</a>
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-text">
+        <h2>HERO - Different countries, different choices</h2>
+        <p>The 2x2 water-food nexus framework, plotted with real data. 186 countries on freshwater stress (x) vs net food trade position (y), sized by population, colored by region. The 12 case studies are highlighted.</p>
+        <p><a class="primary-cta" href="viz/quadrant-2x2.html">Open the 2x2 prototype &rarr;</a></p>
+      </div>
+      <div class="hero-frame">
+        <iframe src="viz/quadrant-2x2.html" loading="lazy" title="2x2 country scatter prototype"></iframe>
+      </div>
+    </section>
+
+    <section>
+      <h2>Other viz - planned, not yet built</h2>
+      <p class="muted">Each card represents one of the embeds called out in the StoryMap blueprint. Cards marked &ldquo;planned&rdquo; will be built next; the goal of this prototype gallery is to align with Natasha and the author team on the hero before scaling out.</p>
+      <ul class="viz-grid">
+        <li class="card">
+          <h3>1B - Food x water global map</h3>
+          <p>Kcal/capita choropleth with WRI water stress overlay. Reveals which food-secure countries are highly water-stressed.</p>
+          <p class="status status-planned">planned</p>
+        </li>
+        <li class="card">
+          <h3>2B - Green/blue virtual water shares</h3>
+          <p>Stacked bar by country: green vs blue water in imports vs exports. Likely Flourish.</p>
+          <p class="status status-planned">planned</p>
+        </li>
+        <li class="card">
+          <h3>3B - Quadrant choropleth</h3>
+          <p>Companion world map colored by Q1-Q4. Geographic frame for the same data as the hero.</p>
+          <p class="status status-planned">planned</p>
+        </li>
+        <li class="card">
+          <h3>3C - Future water stress trajectory</h3>
+          <p>Per-country fan chart: baseline + BAU/OPT/PES at 2030/2050/2080. Reveals which Q1 countries will become Q3 by 2050.</p>
+          <p class="status status-planned">planned</p>
+        </li>
+        <li class="card">
+          <h3>5B - Investment gap</h3>
+          <p>Waffle or stacked bar comparing $24-70B/yr needed vs $490B/yr in repurposable subsidies. Plus AgriConnect callout.</p>
+          <p class="status status-planned">planned</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="meta-block">
+      <h2>About this prototype</h2>
+      <p>Built with vanilla HTML + <a href="https://observablehq.com/plot/">Observable Plot</a> for the hero scatter. No build step. Static files only, hosted on GitHub Pages.</p>
+      <p>Data extraction lives in the parent project. See <a href="data/schema.md">data/schema.md</a> for column-by-column documentation including a sign-convention gotcha on the &ldquo;Net Food Imports (%)&rdquo; column.</p>
+      <p class="muted">Cristiano Giovando &middot; April 2026 &middot; <a href="https://github.com/cgiovando/nf-viz-prototype">source on GitHub</a></p>
+    </section>
+  </main>
+</body>
+</html>
