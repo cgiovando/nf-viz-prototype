@@ -46,26 +46,41 @@ Source: `Nourish_and_Flourish_Dashboard/Nourish_and_Flourish_Dash_Data.xlsx` she
 | `net_export_pct` | computed | same as `net_food_imports_pct` (positive = net exporter) but unambiguously named |
 | `net_imports_pct` | computed | `-net_export_pct`, so positive = net importer (use this on viz y-axis if you want importer at top) |
 | `is_importer` | computed | true if `net_export_pct < 0` |
-| `is_case_study` | computed | true if ISO3 is one of the 12 case studies with ISO3 (Sahel is regional, excluded) |
-| `quadrant` | computed | Q1-Q4 per Figure 3.1 framework. Q1 = water-rich exporter, Q2 = water-stressed exporter, Q3 = water-stressed importer, Q4 = water-rich importer. Thresholds: water stress 40%, net export 0%. |
+| `is_case_study` | computed | true if ISO3 is one of the 14 case studies in the report (Sahel is a separate regional grouping, no ISO3) |
+| `context` | computed | Context 1-4 per the report's Figure 3.1 framework (see below). |
+| `quadrant` | computed | Alias of `context` for backward compatibility. |
 
 ## Sign convention warning
 
 The source column `Net Food Imports (%)` is misleadingly named in the Excel file. It carries the same sign as `(Exports - Imports) / Production`, i.e. **positive = NET EXPORTER**, negative = net importer. Verified by spot-check (USA, France, Chile = positive / exporters; Jordan, China, Netherlands = negative / importers). Use the derived `net_export_pct` / `net_imports_pct` / `is_importer` fields downstream to avoid confusion.
 
-## Case studies (12 of 13 - Sahel is regional, no single ISO3)
+## Context labels (from the published report, Figure 3.1)
 
-| ISO3 | Country |
-|---|---|
-| UGA | Uganda |
-| MLI | Mali |
-| SEN | Senegal |
-| IND | India |
-| PAK | Pakistan |
-| CHN | China |
-| CHL | Chile |
-| PER | Peru |
-| FRA | France |
-| ESP | Spain |
-| MAR | Morocco |
-| JOR | Jordan |
+| Code | Label | Meaning |
+|---|---|---|
+| C1 | Water-secure food importers   | low water stress + net food importer |
+| C2 | Water-secure food exporters   | low water stress + net food exporter |
+| C3 | Water-stressed food exporters | high water stress + net food exporter |
+| C4 | Water-stressed food importers | high water stress + net food importer |
+
+Thresholds: water stress 40% (WRI Aqueduct "high stress" cutoff); net export 0% (importer vs exporter).
+
+## Case studies (14 + Sahel region; per chapter 4 of the report)
+
+| ISO3 | Country | Context (per report) |
+|---|---|---|
+| BDI | Burundi | C1 |
+| MLI | Mali | C1 |
+| SEN | Senegal | C1 |
+| UGA | Uganda | C1 |
+| FRA | France | C2 |
+| PER | Peru | C2 |
+| UKR | Ukraine | C2 |
+| CHL | Chile | C3 |
+| IND | India | C3 |
+| PAK | Pakistan | C3 |
+| JOR | Jordan | C4 |
+| MAR | Morocco | C4 |
+| ESP | Spain | C4 |
+| UZB | Uzbekistan | C4 |
+| - | Sahel region (Burkina Faso, Chad, Mali, Mauritania, Niger, Senegal) | C1 (regional grouping, narrative-only) |

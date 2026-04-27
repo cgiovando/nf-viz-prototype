@@ -38,7 +38,8 @@
     "net_imports_pct": 0.03202488035293522,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 2,
@@ -79,7 +80,8 @@
     "net_imports_pct": 0.026066405356875023,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 3,
@@ -120,7 +122,8 @@
     "net_imports_pct": 0.056034947201034475,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 6,
@@ -161,7 +164,8 @@
     "net_imports_pct": 0.017720965175583945,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 9,
@@ -202,7 +206,8 @@
     "net_imports_pct": 0.08494633001046001,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 10,
@@ -243,7 +248,8 @@
     "net_imports_pct": -0.05666349287530199,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 11,
@@ -284,7 +290,8 @@
     "net_imports_pct": 0.02574766152664043,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 13,
@@ -325,7 +332,8 @@
     "net_imports_pct": -0.05393398440994599,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 14,
@@ -366,7 +374,8 @@
     "net_imports_pct": 0.012144252844584168,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 15,
@@ -407,7 +416,8 @@
     "net_imports_pct": 0.02256197829143431,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 17,
@@ -448,7 +458,8 @@
     "net_imports_pct": 0.06735425616992363,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 18,
@@ -489,7 +500,8 @@
     "net_imports_pct": 0.1003034315220046,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 19,
@@ -530,7 +542,8 @@
     "net_imports_pct": 0.019248480567224318,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 20,
@@ -571,7 +584,8 @@
     "net_imports_pct": 0.05752449000425477,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 21,
@@ -612,7 +626,8 @@
     "net_imports_pct": -0.012745362464311905,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 22,
@@ -653,7 +668,8 @@
     "net_imports_pct": 0.042082431144661765,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 23,
@@ -694,7 +710,8 @@
     "net_imports_pct": -0.022116313808646332,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 24,
@@ -735,7 +752,8 @@
     "net_imports_pct": 0.026167240421060466,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 26,
@@ -776,7 +794,8 @@
     "net_imports_pct": 0.049195704022256745,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 27,
@@ -817,7 +836,8 @@
     "net_imports_pct": -0.001513557774574311,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 29,
@@ -858,7 +878,8 @@
     "net_imports_pct": 0.05298218063382282,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 30,
@@ -899,7 +920,8 @@
     "net_imports_pct": 0.0933655241928392,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 32,
@@ -940,7 +962,8 @@
     "net_imports_pct": -0.02299360566197559,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 36,
@@ -981,7 +1004,8 @@
     "net_imports_pct": -0.05942618049436664,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 37,
@@ -1022,7 +1046,8 @@
     "net_imports_pct": 0.01034819229458222,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 38,
@@ -1062,8 +1087,9 @@
     "net_export_pct": -0.003553470718947801,
     "net_imports_pct": 0.003553470718947801,
     "is_importer": true,
-    "is_case_study": false,
-    "quadrant": "Q4"
+    "is_case_study": true,
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 39,
@@ -1104,7 +1130,8 @@
     "net_imports_pct": 0.07181552398828475,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 40,
@@ -1145,7 +1172,8 @@
     "net_imports_pct": -0.002471689656595487,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 41,
@@ -1186,7 +1214,8 @@
     "net_imports_pct": 0.0077897101499070365,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 42,
@@ -1227,7 +1256,8 @@
     "net_imports_pct": -0.07154864959384792,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 45,
@@ -1268,7 +1298,8 @@
     "net_imports_pct": 0.0035494116000753203,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 46,
@@ -1309,7 +1340,8 @@
     "net_imports_pct": 0.004867111531459189,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 47,
@@ -1350,7 +1382,8 @@
     "net_imports_pct": -0.007951821545174632,
     "is_importer": false,
     "is_case_study": true,
-    "quadrant": "Q2"
+    "context": "C3",
+    "quadrant": "C3"
   },
   {
     "fid": 48,
@@ -1390,8 +1423,9 @@
     "net_export_pct": -0.011276401839984745,
     "net_imports_pct": 0.011276401839984745,
     "is_importer": true,
-    "is_case_study": true,
-    "quadrant": "Q3"
+    "is_case_study": false,
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 51,
@@ -1432,7 +1466,8 @@
     "net_imports_pct": 0.009851464910895119,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 52,
@@ -1473,7 +1508,8 @@
     "net_imports_pct": 0.03207006117165832,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 53,
@@ -1514,7 +1550,8 @@
     "net_imports_pct": 0.019325578515041207,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 54,
@@ -1555,7 +1592,8 @@
     "net_imports_pct": 0.00435506152704264,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 56,
@@ -1596,7 +1634,8 @@
     "net_imports_pct": -0.043711145604653286,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 57,
@@ -1637,7 +1676,8 @@
     "net_imports_pct": 0.0029948498134730207,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 58,
@@ -1678,7 +1718,8 @@
     "net_imports_pct": 0.01002608191515034,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 59,
@@ -1719,7 +1760,8 @@
     "net_imports_pct": 0.01756691911786764,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 61,
@@ -1760,7 +1802,8 @@
     "net_imports_pct": 0.07567959404419283,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 62,
@@ -1801,7 +1844,8 @@
     "net_imports_pct": -0.0046239413723467545,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 63,
@@ -1842,7 +1886,8 @@
     "net_imports_pct": -0.020479153706473106,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 64,
@@ -1883,7 +1928,8 @@
     "net_imports_pct": 0.10310144667492627,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 65,
@@ -1924,7 +1970,8 @@
     "net_imports_pct": 0.030105853067936457,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 66,
@@ -1965,7 +2012,8 @@
     "net_imports_pct": 0.01563427854299505,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 67,
@@ -2006,7 +2054,8 @@
     "net_imports_pct": -0.033328960860922074,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 68,
@@ -2047,7 +2096,8 @@
     "net_imports_pct": 0.02378890939292433,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 69,
@@ -2088,7 +2138,8 @@
     "net_imports_pct": 0.016798646544631587,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 72,
@@ -2129,7 +2180,8 @@
     "net_imports_pct": -0.02891777769911973,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 73,
@@ -2170,7 +2222,8 @@
     "net_imports_pct": -0.0037318431373630796,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 74,
@@ -2211,7 +2264,8 @@
     "net_imports_pct": 0.00737550031479979,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 77,
@@ -2252,7 +2306,8 @@
     "net_imports_pct": 0.004944273302131077,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 78,
@@ -2293,7 +2348,8 @@
     "net_imports_pct": 0.029272377000783365,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 79,
@@ -2334,7 +2390,8 @@
     "net_imports_pct": -0.02038553449113625,
     "is_importer": false,
     "is_case_study": true,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 81,
@@ -2375,7 +2432,8 @@
     "net_imports_pct": 0.05768955840935678,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 83,
@@ -2416,7 +2474,8 @@
     "net_imports_pct": 0.035762997151734775,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 84,
@@ -2457,7 +2516,8 @@
     "net_imports_pct": 0.06033514412523643,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 85,
@@ -2498,7 +2558,8 @@
     "net_imports_pct": 0.044451322692167325,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 86,
@@ -2539,7 +2600,8 @@
     "net_imports_pct": 0.017615245981605382,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 87,
@@ -2580,7 +2642,8 @@
     "net_imports_pct": 0.01170485105617401,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 90,
@@ -2621,7 +2684,8 @@
     "net_imports_pct": 0.019442348342502754,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 92,
@@ -2662,7 +2726,8 @@
     "net_imports_pct": 0.061855024574486245,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 95,
@@ -2703,7 +2768,8 @@
     "net_imports_pct": -0.00928170618450227,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 97,
@@ -2744,7 +2810,8 @@
     "net_imports_pct": 0.019735386045234133,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 98,
@@ -2785,7 +2852,8 @@
     "net_imports_pct": 0.008124614603976349,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 99,
@@ -2826,7 +2894,8 @@
     "net_imports_pct": -0.014235495457026067,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 100,
@@ -2867,7 +2936,8 @@
     "net_imports_pct": 0.034446042771950104,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 102,
@@ -2908,7 +2978,8 @@
     "net_imports_pct": 4.374674787120052e-05,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 103,
@@ -2949,7 +3020,8 @@
     "net_imports_pct": -0.05635012631683725,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 104,
@@ -2990,7 +3062,8 @@
     "net_imports_pct": -0.17317186983657493,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 105,
@@ -3031,7 +3104,8 @@
     "net_imports_pct": -0.001616714587466014,
     "is_importer": false,
     "is_case_study": true,
-    "quadrant": "Q2"
+    "context": "C3",
+    "quadrant": "C3"
   },
   {
     "fid": 106,
@@ -3072,7 +3146,8 @@
     "net_imports_pct": -0.0017230616169496419,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 107,
@@ -3113,7 +3188,8 @@
     "net_imports_pct": 0.018423955016586287,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 108,
@@ -3154,7 +3230,8 @@
     "net_imports_pct": 0.07646708301648733,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 109,
@@ -3195,7 +3272,8 @@
     "net_imports_pct": 0.028232963620697788,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 111,
@@ -3236,7 +3314,8 @@
     "net_imports_pct": 0.07429758240126924,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 112,
@@ -3277,7 +3356,8 @@
     "net_imports_pct": 0.0242320933062837,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 113,
@@ -3318,7 +3398,8 @@
     "net_imports_pct": 0.03843222975524183,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 114,
@@ -3359,7 +3440,8 @@
     "net_imports_pct": 0.06379118971641355,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 116,
@@ -3400,7 +3482,8 @@
     "net_imports_pct": 0.08502137908128579,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 118,
@@ -3441,7 +3524,8 @@
     "net_imports_pct": -0.020137494737811266,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 119,
@@ -3482,7 +3566,8 @@
     "net_imports_pct": 0.013745500063870666,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 120,
@@ -3523,7 +3608,8 @@
     "net_imports_pct": -0.09326421318638979,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 121,
@@ -3564,7 +3650,8 @@
     "net_imports_pct": 0.09937358505723375,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 122,
@@ -3605,7 +3692,8 @@
     "net_imports_pct": 0.01411665093446843,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 123,
@@ -3646,7 +3734,8 @@
     "net_imports_pct": -0.014138855578811282,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 124,
@@ -3687,7 +3776,8 @@
     "net_imports_pct": -0.054720879091999776,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 125,
@@ -3728,7 +3818,8 @@
     "net_imports_pct": 0.052367763448818654,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 126,
@@ -3769,7 +3860,8 @@
     "net_imports_pct": 0.055740342502097716,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 127,
@@ -3810,7 +3902,8 @@
     "net_imports_pct": 0.02873617531928162,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 128,
@@ -3851,7 +3944,8 @@
     "net_imports_pct": 0.09599224833526152,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 130,
@@ -3892,7 +3986,8 @@
     "net_imports_pct": -0.06207823197241569,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 131,
@@ -3933,7 +4028,8 @@
     "net_imports_pct": 0.034622254125074865,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 132,
@@ -3974,7 +4070,8 @@
     "net_imports_pct": 0.008312273596203089,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 134,
@@ -4015,7 +4112,8 @@
     "net_imports_pct": -5.7015243887223726e-05,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 135,
@@ -4056,7 +4154,8 @@
     "net_imports_pct": 0.0046720859642549,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 136,
@@ -4097,7 +4196,8 @@
     "net_imports_pct": 0.0714093867860242,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 137,
@@ -4138,7 +4238,8 @@
     "net_imports_pct": 0.008633587685115733,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 138,
@@ -4179,7 +4280,8 @@
     "net_imports_pct": 0.09329864413759237,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 139,
@@ -4220,7 +4322,8 @@
     "net_imports_pct": -0.03082744202681734,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 141,
@@ -4261,7 +4364,8 @@
     "net_imports_pct": 0.052682852252864516,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 142,
@@ -4302,7 +4406,8 @@
     "net_imports_pct": 0.007994898691373388,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 144,
@@ -4343,7 +4448,8 @@
     "net_imports_pct": 0.01357651315614391,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 145,
@@ -4384,7 +4490,8 @@
     "net_imports_pct": -0.04309062191779575,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 146,
@@ -4425,7 +4532,8 @@
     "net_imports_pct": -0.04660658898646531,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 148,
@@ -4466,7 +4574,8 @@
     "net_imports_pct": 0.02598222344040363,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 149,
@@ -4507,7 +4616,8 @@
     "net_imports_pct": 0.08101413267237066,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 151,
@@ -4548,7 +4658,8 @@
     "net_imports_pct": 0.028997387138173222,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 152,
@@ -4589,7 +4700,8 @@
     "net_imports_pct": 0.012836845291693344,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 153,
@@ -4630,7 +4742,8 @@
     "net_imports_pct": -0.005804785771389802,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 154,
@@ -4671,7 +4784,8 @@
     "net_imports_pct": 0.031123037828919627,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 155,
@@ -4712,7 +4826,8 @@
     "net_imports_pct": 0.07028848639318781,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 156,
@@ -4753,7 +4868,8 @@
     "net_imports_pct": 0.014095013832812598,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 157,
@@ -4794,7 +4910,8 @@
     "net_imports_pct": 0.041740466185972734,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 158,
@@ -4835,7 +4952,8 @@
     "net_imports_pct": 0.08621180445724534,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 159,
@@ -4876,7 +4994,8 @@
     "net_imports_pct": -0.08687975684905831,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 160,
@@ -4917,7 +5036,8 @@
     "net_imports_pct": -0.005424598476589056,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 161,
@@ -4958,7 +5078,8 @@
     "net_imports_pct": 0.011074963126925165,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 162,
@@ -4999,7 +5120,8 @@
     "net_imports_pct": 0.008594346178793082,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 165,
@@ -5040,7 +5162,8 @@
     "net_imports_pct": 0.008876137886651522,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 166,
@@ -5081,7 +5204,8 @@
     "net_imports_pct": 0.0186435938331359,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 168,
@@ -5122,7 +5246,8 @@
     "net_imports_pct": 0.06827533776112199,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 169,
@@ -5163,7 +5288,8 @@
     "net_imports_pct": 0.08837955670013074,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 170,
@@ -5204,7 +5330,8 @@
     "net_imports_pct": -0.0010879975641439861,
     "is_importer": false,
     "is_case_study": true,
-    "quadrant": "Q2"
+    "context": "C3",
+    "quadrant": "C3"
   },
   {
     "fid": 173,
@@ -5245,7 +5372,8 @@
     "net_imports_pct": 0.0245649591178807,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 174,
@@ -5286,7 +5414,8 @@
     "net_imports_pct": -0.0008730996216780497,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 175,
@@ -5327,7 +5456,8 @@
     "net_imports_pct": -0.08925109958325746,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 176,
@@ -5368,7 +5498,8 @@
     "net_imports_pct": 0.00011040388290846119,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 177,
@@ -5409,7 +5540,8 @@
     "net_imports_pct": 0.011284647542942828,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 179,
@@ -5450,7 +5582,8 @@
     "net_imports_pct": -0.010909031473918184,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 180,
@@ -5491,7 +5624,8 @@
     "net_imports_pct": 0.05479965121765458,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 182,
@@ -5532,7 +5666,8 @@
     "net_imports_pct": 0.13987334148139693,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 184,
@@ -5573,7 +5708,8 @@
     "net_imports_pct": -0.019576926799151212,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 185,
@@ -5614,7 +5750,8 @@
     "net_imports_pct": -0.006118876432921683,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 186,
@@ -5655,7 +5792,8 @@
     "net_imports_pct": 0.009055037616936627,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 191,
@@ -5696,7 +5834,8 @@
     "net_imports_pct": 0.07195580927201634,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 192,
@@ -5737,7 +5876,8 @@
     "net_imports_pct": 0.059535801857528756,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 195,
@@ -5778,7 +5918,8 @@
     "net_imports_pct": 0.05492840109564336,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 196,
@@ -5819,7 +5960,8 @@
     "net_imports_pct": 0.02874429242603389,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 198,
@@ -5860,7 +6002,8 @@
     "net_imports_pct": 0.028869077017588,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 199,
@@ -5901,7 +6044,8 @@
     "net_imports_pct": 0.1104710852546391,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 200,
@@ -5942,7 +6086,8 @@
     "net_imports_pct": 0.03137106206399502,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 201,
@@ -5983,7 +6128,8 @@
     "net_imports_pct": -0.03445391108861815,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 202,
@@ -6024,7 +6170,8 @@
     "net_imports_pct": -0.005023868167445573,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 203,
@@ -6065,7 +6212,8 @@
     "net_imports_pct": 0.017920510222055805,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 206,
@@ -6106,7 +6254,8 @@
     "net_imports_pct": 0.000344506730178584,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 207,
@@ -6147,7 +6296,8 @@
     "net_imports_pct": 0.046303038962148386,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 208,
@@ -6188,7 +6338,8 @@
     "net_imports_pct": -0.0013277685885195616,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 209,
@@ -6229,7 +6380,8 @@
     "net_imports_pct": 0.04587039685642034,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 210,
@@ -6270,7 +6422,8 @@
     "net_imports_pct": -0.0017695684054290423,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q2"
+    "context": "C3",
+    "quadrant": "C3"
   },
   {
     "fid": 212,
@@ -6311,7 +6464,8 @@
     "net_imports_pct": 0.06414930652672182,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 213,
@@ -6352,7 +6506,8 @@
     "net_imports_pct": 0.00931714475176196,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 214,
@@ -6393,7 +6548,8 @@
     "net_imports_pct": 0.011440368151809575,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 215,
@@ -6434,7 +6590,8 @@
     "net_imports_pct": 0.022513900559417176,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 216,
@@ -6475,7 +6632,8 @@
     "net_imports_pct": 0.013413343472220805,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 217,
@@ -6516,7 +6674,8 @@
     "net_imports_pct": 0.012069231445946049,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 219,
@@ -6557,7 +6716,8 @@
     "net_imports_pct": 0.0334517351285506,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 220,
@@ -6598,7 +6758,8 @@
     "net_imports_pct": 0.03971520218522,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 221,
@@ -6639,7 +6800,8 @@
     "net_imports_pct": 0.029315639251567764,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 222,
@@ -6680,7 +6842,8 @@
     "net_imports_pct": 0.02366446997062217,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 223,
@@ -6721,7 +6884,8 @@
     "net_imports_pct": 0.00041826431550122975,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 224,
@@ -6762,7 +6926,8 @@
     "net_imports_pct": -0.02599261782888608,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q2"
+    "context": "C3",
+    "quadrant": "C3"
   },
   {
     "fid": 225,
@@ -6803,7 +6968,8 @@
     "net_imports_pct": 0.05236885642780962,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 226,
@@ -6844,7 +7010,8 @@
     "net_imports_pct": 0.01840491371311967,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 228,
@@ -6885,7 +7052,8 @@
     "net_imports_pct": 0.032829608770923155,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 229,
@@ -6926,7 +7094,8 @@
     "net_imports_pct": 0.07460497017564854,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 230,
@@ -6967,7 +7136,8 @@
     "net_imports_pct": 0.04094590855354161,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 231,
@@ -7008,7 +7178,8 @@
     "net_imports_pct": 0.011451690844321957,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 232,
@@ -7049,7 +7220,8 @@
     "net_imports_pct": 0.012738808792413354,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 234,
@@ -7090,7 +7262,8 @@
     "net_imports_pct": -0.04208632011226887,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 235,
@@ -7131,7 +7304,8 @@
     "net_imports_pct": 0.0007552191401749033,
     "is_importer": true,
     "is_case_study": true,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 236,
@@ -7171,8 +7345,9 @@
     "net_export_pct": 0.0712292266695713,
     "net_imports_pct": -0.0712292266695713,
     "is_importer": false,
-    "is_case_study": false,
-    "quadrant": "Q1"
+    "is_case_study": true,
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 237,
@@ -7213,7 +7388,8 @@
     "net_imports_pct": 0.11318263587262262,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 238,
@@ -7254,7 +7430,8 @@
     "net_imports_pct": 0.044745229972140026,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 239,
@@ -7295,7 +7472,8 @@
     "net_imports_pct": -0.014205948308665027,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q2"
+    "context": "C3",
+    "quadrant": "C3"
   },
   {
     "fid": 241,
@@ -7336,7 +7514,8 @@
     "net_imports_pct": -0.16092155274189446,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 243,
@@ -7376,8 +7555,9 @@
     "net_export_pct": -0.008862405228152955,
     "net_imports_pct": 0.008862405228152955,
     "is_importer": true,
-    "is_case_study": false,
-    "quadrant": "Q3"
+    "is_case_study": true,
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 244,
@@ -7418,7 +7598,8 @@
     "net_imports_pct": -0.013883239893915659,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 246,
@@ -7459,7 +7640,8 @@
     "net_imports_pct": 0.028461627437922268,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   },
   {
     "fid": 247,
@@ -7500,7 +7682,8 @@
     "net_imports_pct": -0.008412388530828391,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 249,
@@ -7541,7 +7724,8 @@
     "net_imports_pct": 0.06991267402785635,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q3"
+    "context": "C4",
+    "quadrant": "C4"
   },
   {
     "fid": 250,
@@ -7582,7 +7766,8 @@
     "net_imports_pct": -0.0038678956199029012,
     "is_importer": false,
     "is_case_study": false,
-    "quadrant": "Q1"
+    "context": "C2",
+    "quadrant": "C2"
   },
   {
     "fid": 251,
@@ -7623,6 +7808,7 @@
     "net_imports_pct": 0.015653121668609795,
     "is_importer": true,
     "is_case_study": false,
-    "quadrant": "Q4"
+    "context": "C1",
+    "quadrant": "C1"
   }
 ]

@@ -111,10 +111,10 @@
       line-height: 1.1;
     }
     .qc .lbl { color: var(--c-muted); font-size: 0.72rem; }
-    .qc.q1 { background: var(--q1-bg); }
-    .qc.q2 { background: var(--q2-bg); }
-    .qc.q3 { background: var(--q3-bg); }
-    .qc.q4 { background: var(--q4-bg); }
+    .qc.c1 { background: var(--q4-bg); } /* C1 = water-secure importer (cool blue) */
+    .qc.c2 { background: var(--q1-bg); } /* C2 = water-secure exporter (green) */
+    .qc.c3 { background: var(--q2-bg); } /* C3 = water-stressed exporter (orange) */
+    .qc.c4 { background: var(--q3-bg); } /* C4 = water-stressed importer (red) */
 
     .case-list {
       list-style: none;
@@ -146,10 +146,10 @@
       color: #fff;
       font-weight: 700;
     }
-    .case-list .q-pill.q1 { background: #469e6e; }
-    .case-list .q-pill.q2 { background: #c46b3b; }
-    .case-list .q-pill.q3 { background: #ad323c; }
-    .case-list .q-pill.q4 { background: #6a8aa8; }
+    .case-list .q-pill.c1 { background: #6a8aa8; } /* water-secure importer */
+    .case-list .q-pill.c2 { background: #469e6e; } /* water-secure exporter */
+    .case-list .q-pill.c3 { background: #c46b3b; } /* water-stressed exporter */
+    .case-list .q-pill.c4 { background: #ad323c; } /* water-stressed importer */
 
     .legend-regions {
       display: flex;
@@ -176,14 +176,14 @@
   <div class="viz-page">
     <header class="viz-header">
       <h1>Different countries, different choices</h1>
-      <p>186 countries plotted on the water-food nexus framework: freshwater stress (x) vs net food trade position (y), point size by population, color by region. The 12 case studies are highlighted with a darker outline.</p>
+      <p>186 countries plotted on the report's water-food nexus framework (Figure 3.1, "Four local contexts"): freshwater stress (x) vs net food trade position (y), point size by population, color by region. The 14 case study countries called out in chapter 4 are highlighted with a darker outline.</p>
     </header>
 
     <div class="layout">
       <div class="plot-card">
         <div id="plot"></div>
         <p class="footer-note">
-          Source: WRI Aqueduct (baseline water stress, % of available freshwater used) + FAOSTAT FBS 2019 (food balance sheets, kcal). Data extraction: <code>data/countries_2x2.json</code>. Quadrants per Figure 3.1 of the published <em>Nourish and Flourish</em> report. Thresholds: water stress &ge; 40% (high), net imports &gt; 0 (importer).
+          Source: WRI Aqueduct (baseline water stress, % of available freshwater used) + FAOSTAT FBS 2019 (food balance sheets, kcal). Data extraction: <code>data/countries_2x2.json</code>. Context labels per Figure 3.1 of the published <em>Nourish and Flourish</em> report ("Four local contexts defined by water-food nexus framework"). Thresholds applied here: water stress &ge; 40% (high stress, WRI Aqueduct cutoff), net food imports &gt; 0 (importer). Borderline countries near a threshold may land in a different context here than in the report's narrative classification (e.g. Peru sits within ~0.01% of the importer/exporter line).
         </p>
       </div>
 
@@ -194,7 +194,7 @@
         </div>
 
         <div class="panel">
-          <h2>Quadrant counts</h2>
+          <h2>Context counts</h2>
           <div class="quadrant-counts" id="quadrant-counts"></div>
         </div>
 
@@ -267,23 +267,28 @@
           range: regions.map(r => regionColors(r)),
         },
         marks: [
-          // Quadrant background tints (low-stress left, high-stress right; importer top, exporter bottom)
-          Plot.rect([{}], { x1: 0,  x2: 40,  y1: -3, y2: 0,  fill: "#469e6e", fillOpacity: 0.05 }), // Q1 lower-left
-          Plot.rect([{}], { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", fillOpacity: 0.06 }), // Q2 lower-right
-          Plot.rect([{}], { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", fillOpacity: 0.07 }), // Q3 upper-right
-          Plot.rect([{}], { x1: 0,  x2: 40,  y1: 0,  y2: 10, fill: "#6a8aa8", fillOpacity: 0.06 }), // Q4 upper-left
+          // Context background tints (low-stress left, high-stress right; importer top, exporter bottom)
+          // Context 1 (water-secure importer)   = upper-left   - cool blue
+          // Context 2 (water-secure exporter)   = lower-left   - green
+          // Context 3 (water-stressed exporter) = lower-right  - orange
+          // Context 4 (water-stressed importer) = upper-right  - red
+          Plot.rect([{}], { x1: 0,  x2: 40,  y1: 0,  y2: 10, fill: "#6a8aa8", fillOpacity: 0.06 }), // C1
+          Plot.rect([{}], { x1: 0,  x2: 40,  y1: -3, y2: 0,  fill: "#469e6e", fillOpacity: 0.05 }), // C2
+          Plot.rect([{}], { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", fillOpacity: 0.06 }), // C3
+          Plot.rect([{}], { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", fillOpacity: 0.07 }), // C4
 
           // Threshold rules
           Plot.ruleX([40], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
           Plot.ruleY([0],  { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
 
-          // Quadrant labels - placed inside each quadrant, away from edges
+          // Context labels - placed inside each context block, away from edges.
+          // Naming matches the report's Figure 3.1 ("Four local contexts").
           Plot.text(
             [
-              { x: 20,  y: 9.3, label: "Q4  water-rich importer" },
-              { x: 70,  y: 9.3, label: "Q3  water-stressed importer" },
-              { x: 20,  y: -2.6, label: "Q1  water-rich exporter" },
-              { x: 70,  y: -2.6, label: "Q2  water-stressed exporter" },
+              { x: 20,  y: 9.3, label: "Context 1  water-secure importer" },
+              { x: 70,  y: 9.3, label: "Context 4  water-stressed importer" },
+              { x: 20,  y: -2.6, label: "Context 2  water-secure exporter" },
+              { x: 70,  y: -2.6, label: "Context 3  water-stressed exporter" },
             ],
             { x: "x", y: "y", text: "label",
               textAnchor: "middle",
@@ -302,7 +307,7 @@
             strokeWidth: 0.6,
             channels: { country: "country", iso3: "iso3" },
             tip: true,
-            title: d => `${d.country} (${d.iso3})\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nQuadrant: ${d.quadrant}`,
+            title: d => `${d.country} (${d.iso3})\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
           }),
 
           // Case-study points (rendered on top, with darker stroke)
@@ -315,7 +320,7 @@
             stroke: "#1a2733",
             strokeWidth: 1.6,
             tip: true,
-            title: d => `${d.country} (${d.iso3}) - case study\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nQuadrant: ${d.quadrant}`,
+            title: d => `${d.country} (${d.iso3}) - case study\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
           }),
 
           // Case-study labels
@@ -364,19 +369,19 @@
     // ----- sidebar widgets ----------------------------------------------------
 
     function renderQuadrantCounts() {
-      const counts = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
-      data.forEach(d => { if (d.quadrant) counts[d.quadrant]++; });
+      const counts = { C1: 0, C2: 0, C3: 0, C4: 0 };
+      data.forEach(d => { if (d.context) counts[d.context]++; });
       const labels = {
-        Q1: "Water-rich exporter",
-        Q2: "Water-stressed exporter",
-        Q3: "Water-stressed importer",
-        Q4: "Water-rich importer",
+        C1: "Water-secure importer",
+        C2: "Water-secure exporter",
+        C3: "Water-stressed exporter",
+        C4: "Water-stressed importer",
       };
       const el = document.getElementById("quadrant-counts");
-      el.innerHTML = ["Q1","Q2","Q3","Q4"].map(q =>
-        `<div class="qc ${q.toLowerCase()}">
-           <span class="n">${counts[q]}</span>
-           <span class="lbl"><strong>${q}</strong> &middot; ${labels[q]}</span>
+      el.innerHTML = ["C1","C2","C3","C4"].map(c =>
+        `<div class="qc ${c.toLowerCase()}">
+           <span class="n">${counts[c]}</span>
+           <span class="lbl"><strong>${c}</strong> &middot; ${labels[c]}</span>
          </div>`
       ).join("");
     }
@@ -388,7 +393,7 @@
         `<li data-iso="${c.iso3}">
            <span>${c.country}</span>
            <span class="iso">${c.iso3}</span>
-           <span class="q-pill ${c.quadrant.toLowerCase()}">${c.quadrant}</span>
+           <span class="q-pill ${(c.context || '').toLowerCase()}">${c.context || '?'}</span>
          </li>`
       ).join("");
       el.querySelectorAll("li").forEach(li => {
@@ -419,7 +424,7 @@
           <dt>Net imports</dt><dd>${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}%</dd>
           <dt>Position</dt><dd>${d.is_importer ? "importer" : "exporter"}</dd>
           <dt>Population</dt><dd>${d.pop_millions.toFixed(1)}M</dd>
-          <dt>Quadrant</dt><dd>${d.quadrant}</dd>
+          <dt>Context</dt><dd>${d.context || '?'}</dd>
           <dt>Case study</dt><dd>${d.is_case_study ? "yes" : "no"}</dd>
         </dl>
       `;
