@@ -159,6 +159,12 @@ h3 {
   background: #e8eef3;
   color: #5a6a78;
 }
+.status-live {
+  background: rgba(70, 158, 110, 0.18);
+  color: #1f6c45;
+}
+.card h3 a { color: var(--c-text); }
+.card h3 a:hover { color: var(--c-accent); text-decoration: none; }
 
 .muted { color: var(--c-muted); font-size: 0.92rem; }
 

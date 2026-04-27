@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Food x water world map - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.5rem; max-width: 1280px; margin: 0 auto; }
+    .viz-header h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.3rem;
+      color: var(--c-accent-dark);
+    }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 1.25rem 0 0.75rem;
+      align-items: center;
+    }
+    .controls .group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+    }
+    .controls input[type="checkbox"] { accent-color: var(--c-accent); }
+    .controls label { cursor: pointer; }
+
+    .map-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    #map { width: 100%; }
+    #map svg { display: block; max-width: 100%; height: auto; }
+
+    .country-tip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(26, 39, 51, 0.94);
+      color: #fff;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      max-width: 240px;
+      transform: translate(8px, -50%);
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 5;
+    }
+    .country-tip.show { opacity: 1; }
+    .country-tip strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+    .country-tip dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.6rem; }
+    .country-tip dt { color: rgba(255,255,255,0.7); margin: 0; }
+    .country-tip dd { margin: 0; font-weight: 600; }
+
+    .legend-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (min-width: 720px) { .legend-row { grid-template-columns: 1fr 1fr; } }
+    .legend-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+    }
+    .legend-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--c-muted);
+      font-weight: 600;
+    }
+    .scale-bar {
+      display: flex;
+      height: 14px;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--c-border);
+    }
+    .scale-bar div { flex: 1; }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      margin-top: 0.3rem;
+    }
+    .stripe-key {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .stripe-swatch {
+      width: 30px; height: 14px;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(173, 50, 60, 0),
+        rgba(173, 50, 60, 0) 3px,
+        rgba(173, 50, 60, 0.65) 3px,
+        rgba(173, 50, 60, 0.65) 5px
+      );
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--c-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Food supply and water stress, country by country</h1>
+      <p>Choropleth: food supply per person (kcal / capita / day, FAOSTAT 2019). Hatched overlay: high freshwater stress (WRI Aqueduct &ge; 40%). Where the two layers combine, the policy challenge is hardest.</p>
+    </header>
+
+    <div class="controls">
+      <div class="group">
+        <input type="checkbox" id="toggle-stress" checked />
+        <label for="toggle-stress">Show water stress overlay</label>
+      </div>
+      <div class="group">
+        <input type="checkbox" id="toggle-cases" />
+        <label for="toggle-cases">Mark case study countries</label>
+      </div>
+    </div>
+
+    <div class="map-card">
+      <div id="map"></div>
+      <div class="country-tip" id="tip"></div>
+    </div>
+
+    <div class="legend-row">
+      <div class="legend-card">
+        <h3>Food supply (kcal / capita / day, thousands)</h3>
+        <div class="scale-bar" id="scale-bar"></div>
+        <div class="scale-labels"><span>1.5</span><span>2.5</span><span>3.5</span><span>&ge; 4.0</span></div>
+      </div>
+      <div class="legend-card">
+        <h3>Water stress overlay</h3>
+        <div class="stripe-key">
+          <span class="stripe-swatch"></span>
+          <span>WRI baseline water stress &ge; 40% (high stress)</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      Sources: FAOSTAT food balance sheets 2019 (food supply kcal); WRI Aqueduct (baseline water stress, % of available freshwater used). Country boundaries: Natural Earth via the World Atlas TopoJSON CDN. <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    import * as topojson from "https://cdn.jsdelivr.net/npm/topojson-client@3/+esm";
+
+    const data = await fetch("../data/dashboard.json").then(r => r.json());
+    const world = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(r => r.json());
+
+    // World Atlas uses ISO numeric (3-digit string with leading zeros). Our
+    // dashboard.json has m49 like "'004" (apostrophe-prefixed). Normalize both.
+    function cleanM49(v) {
+      if (v == null) return null;
+      const s = String(v).replace(/[^0-9]/g, "");
+      return s.padStart(3, "0");
+    }
+    // Our `iso3` is a 3-letter code; for joining to world-atlas use M49 numeric
+    // (world-atlas country features use the M49 3-digit code as `id`).
+    const byM49 = new Map();
+    for (const r of data) {
+      const code = cleanM49(r.m49);
+      if (code) byM49.set(code, r);
+    }
+
+    const countries = topojson.feature(world, world.objects.countries);
+
+    // Build color scale for food supply (kcal/capita/day in thousands)
+    const foodValues = data
+      .map(d => d.food_supply_kcal_per_capita_day)
+      .filter(v => v != null && v > 0);
+    const foodScale = d3.scaleSequential()
+      .domain([1.5, 4.0])
+      .interpolator(d3.interpolateYlGnBu)
+      .clamp(true);
+
+    // Render scale bar
+    const sb = document.getElementById("scale-bar");
+    const stops = 10;
+    sb.innerHTML = "";
+    for (let i = 0; i < stops; i++) {
+      const t = i / (stops - 1);
+      const v = 1.5 + t * (4.0 - 1.5);
+      const div = document.createElement("div");
+      div.style.background = foodScale(v);
+      sb.appendChild(div);
+    }
+
+    function render() {
+      const showStress = document.getElementById("toggle-stress").checked;
+      const showCases = document.getElementById("toggle-cases").checked;
+
+      const el = document.getElementById("map");
+      const width = el.clientWidth;
+      const height = Math.max(400, width * 0.5);
+
+      const projection = d3.geoNaturalEarth1()
+        .fitExtent([[8, 8], [width - 8, height - 8]], countries);
+      const path = d3.geoPath(projection);
+
+      const svg = d3.create("svg")
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("width", width)
+        .attr("height", height)
+        .style("background", "#f7f9fb");
+
+      // Stripe pattern for water stress overlay
+      const defs = svg.append("defs");
+      defs.append("pattern")
+        .attr("id", "stress-stripes")
+        .attr("width", 5)
+        .attr("height", 5)
+        .attr("patternUnits", "userSpaceOnUse")
+        .attr("patternTransform", "rotate(45)")
+        .append("rect")
+          .attr("width", 2.4)
+          .attr("height", 5)
+          .attr("fill", "#ad323c")
+          .attr("fill-opacity", 0.55);
+
+      // Country fills (food supply)
+      const g = svg.append("g");
+      g.selectAll("path")
+        .data(countries.features)
+        .join("path")
+        .attr("d", path)
+        .attr("fill", d => {
+          const r = byM49.get(String(d.id).padStart(3, "0"));
+          const v = r?.food_supply_kcal_per_capita_day;
+          return v != null && v > 0 ? foodScale(v) : "#e3e8ed";
+        })
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 0.4)
+        .style("cursor", "pointer")
+        .on("pointerenter", function(event, d) {
+          d3.select(this).attr("stroke", "#1a2733").attr("stroke-width", 1.2).raise();
+          showTip(event, d);
+        })
+        .on("pointermove", showTip)
+        .on("pointerleave", function() {
+          d3.select(this).attr("stroke", "#fff").attr("stroke-width", 0.4);
+          hideTip();
+        });
+
+      // Water stress overlay (hatch on top of countries with bws_raw >= 40)
+      if (showStress) {
+        g.append("g")
+          .selectAll("path")
+          .data(countries.features.filter(d => {
+            const r = byM49.get(String(d.id).padStart(3, "0"));
+            return r && r.water_stress_baseline != null && r.water_stress_baseline >= 40;
+          }))
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "url(#stress-stripes)")
+          .attr("stroke", "none")
+          .style("pointer-events", "none");
+      }
+
+      // Case-study highlights
+      if (showCases) {
+        g.append("g")
+          .selectAll("path")
+          .data(countries.features.filter(d => {
+            const r = byM49.get(String(d.id).padStart(3, "0"));
+            return r && r.is_case_study;
+          }))
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "none")
+          .attr("stroke", "#0f4f78")
+          .attr("stroke-width", 1.8)
+          .style("pointer-events", "none");
+      }
+
+      function showTip(event, d) {
+        const tip = document.getElementById("tip");
+        const r = byM49.get(String(d.id).padStart(3, "0"));
+        const food = r?.food_supply_kcal_per_capita_day;
+        const stress = r?.water_stress_baseline;
+        const region = r?.region || "";
+        tip.innerHTML = `
+          <strong>${r?.country || d.properties?.name || "Unknown"}</strong>
+          ${region ? `<div style="opacity:0.7;font-size:0.78rem;margin-bottom:0.3rem;">${region}</div>` : ""}
+          <dl>
+            <dt>Food supply</dt><dd>${food != null ? `${food.toFixed(2)}k kcal/day` : "n/a"}</dd>
+            <dt>Water stress</dt><dd>${stress != null ? `${stress.toFixed(0)}%` : "n/a"}</dd>
+            ${r?.quadrant ? `<dt>Quadrant</dt><dd>${r.quadrant}</dd>` : ""}
+            ${r?.is_case_study ? `<dt></dt><dd style="color:#7fc6e8;">case study</dd>` : ""}
+          </dl>`;
+        tip.style.left = (event.offsetX + 12) + "px";
+        tip.style.top = event.offsetY + "px";
+        tip.classList.add("show");
+      }
+      function hideTip() {
+        document.getElementById("tip").classList.remove("show");
+      }
+
+      el.replaceChildren(svg.node());
+    }
+
+    document.getElementById("toggle-stress").addEventListener("change", render);
+    document.getElementById("toggle-cases").addEventListener("change", render);
+
+    render();
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 200);
+    });
+  </script>
+</body>
+</html>

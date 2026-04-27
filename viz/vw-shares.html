@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Virtual water shares - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .viz-header h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.3rem;
+      color: var(--c-accent-dark);
+    }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1.25rem 0 0.5rem;
+    }
+    .controls button {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+      padding: 0.35rem 0.85rem;
+      font: inherit;
+      font-size: 0.82rem;
+      color: var(--c-text);
+      cursor: pointer;
+    }
+    .controls button.active {
+      background: var(--c-accent);
+      color: #fff;
+      border-color: var(--c-accent);
+    }
+    .controls button:hover:not(.active) { border-color: var(--c-accent); color: var(--c-accent); }
+
+    .legend-line {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: var(--c-muted);
+      margin: 0.5rem 0 1rem;
+    }
+    .legend-line span { display: flex; align-items: center; gap: 0.4rem; }
+    .legend-line .swatch {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border-radius: 3px;
+    }
+
+    .plot-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    #plot { width: 100%; }
+    #plot svg { display: block; max-width: 100%; height: auto; }
+
+    .insights {
+      background: #f7f9fb;
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .insights h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c-muted);
+    }
+    .insights ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      font-size: 0.92rem;
+      color: var(--c-text);
+    }
+    .insights li { margin-bottom: 0.35rem; }
+    .insights li strong { color: var(--c-accent-dark); }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--c-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Green and blue water embedded in food trade</h1>
+      <p>The water that grew the food a country imports or exports - split between rain-fed (green) and irrigation (blue). 2019, million m&sup3;.</p>
+    </header>
+
+    <div class="controls" id="controls">
+      <button data-mode="top" class="active">Top 15 traders</button>
+      <button data-mode="cases">Case studies</button>
+    </div>
+
+    <div class="legend-line">
+      <span><span class="swatch" style="background:#469e6e"></span>Green water (rain-fed)</span>
+      <span><span class="swatch" style="background:#1a73a7"></span>Blue water (irrigation)</span>
+      <span style="color:var(--c-text)">&larr; imports &nbsp;|&nbsp; exports &rarr;</span>
+    </div>
+
+    <div class="plot-card">
+      <div id="plot"></div>
+    </div>
+
+    <div class="insights">
+      <h3>What to notice</h3>
+      <ul id="insights">
+        <li><strong>USA, Brazil, Argentina</strong> are the world's largest <em>green water exporters</em> - feed and grain shipped abroad represents enormous quantities of rain-fed soil moisture.</li>
+        <li><strong>China</strong> imports massive quantities of <em>green water</em> via food and feed - a deliberate strategy that effectively rents farmland (and rainfall) abroad.</li>
+        <li><strong>Pakistan, India</strong> are large <em>blue water exporters</em> - their agricultural exports embed enormous quantities of irrigation water from already-stressed aquifers and rivers.</li>
+        <li><strong>Japan, Germany, Korea</strong> are major net <em>green water importers</em> - their food security strategy is built around imported calories.</li>
+      </ul>
+    </div>
+
+    <p class="footer-note">
+      Source: VW_Data sheet from <code>Nourish_and_Flourish_Dash_Data.xlsx</code> (FAOSTAT FBS 2019 + virtual water content factors). Bars show gross trade flows; net position can be inferred from the import-export balance. <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
+
+    const raw = await fetch("../data/dashboard.json").then(r => r.json());
+
+    // Filter rows with usable VW data
+    const valid = raw.filter(r =>
+      r.iso3 &&
+      (r.vw_green_import_2019_mcm || r.vw_green_export_2019_mcm ||
+       r.vw_blue_import_2019_mcm || r.vw_blue_export_2019_mcm)
+    );
+
+    const totalVW = r => (r.vw_green_import_2019_mcm || 0)
+                      + (r.vw_green_export_2019_mcm || 0)
+                      + (r.vw_blue_import_2019_mcm || 0)
+                      + (r.vw_blue_export_2019_mcm || 0);
+
+    const topCountries = [...valid].sort((a, b) => totalVW(b) - totalVW(a)).slice(0, 15);
+    const caseCountries = valid.filter(r => r.is_case_study)
+                               .sort((a, b) => totalVW(b) - totalVW(a));
+
+    function reshape(countries) {
+      // 4 segments per country, imports as NEGATIVE x to get diverging bar
+      const out = [];
+      for (const c of countries) {
+        out.push({ country: c.country, type: "Green water", direction: "import",
+                   value: -(c.vw_green_import_2019_mcm || 0) });
+        out.push({ country: c.country, type: "Green water", direction: "export",
+                   value: (c.vw_green_export_2019_mcm || 0) });
+        out.push({ country: c.country, type: "Blue water",  direction: "import",
+                   value: -(c.vw_blue_import_2019_mcm || 0) });
+        out.push({ country: c.country, type: "Blue water",  direction: "export",
+                   value: (c.vw_blue_export_2019_mcm || 0) });
+      }
+      return out;
+    }
+
+    let mode = "top";
+    function render() {
+      const countries = mode === "top" ? topCountries : caseCountries;
+      const data = reshape(countries);
+
+      // Country order: by total trade volume desc (so largest at top)
+      const yOrder = countries.map(c => c.country);
+
+      const el = document.getElementById("plot");
+      const width = el.clientWidth;
+      const rowHeight = 32;
+      const height = countries.length * rowHeight + 80;
+
+      const plot = Plot.plot({
+        width, height,
+        marginLeft: 130, marginRight: 30, marginTop: 26, marginBottom: 36,
+        x: {
+          label: "← imports                                  exports →",
+          grid: true,
+          tickFormat: d => {
+            const a = Math.abs(d);
+            if (a >= 1e6) return `${(a/1e6).toFixed(1)}M`;
+            if (a >= 1e3) return `${(a/1e3).toFixed(0)}k`;
+            return `${a}`;
+          },
+        },
+        y: { label: null, domain: yOrder },
+        color: {
+          domain: ["Green water", "Blue water"],
+          range: ["#469e6e", "#1a73a7"],
+          legend: false,
+        },
+        marks: [
+          Plot.barX(data, {
+            x: "value",
+            y: "country",
+            fill: "type",
+            stroke: "#fff",
+            strokeWidth: 0.5,
+            tip: true,
+            title: d => `${d.country}\n${d.type} - ${d.direction}\n${Math.abs(d.value).toLocaleString()} million m³`,
+          }),
+          Plot.ruleX([0], { stroke: "#1a2733", strokeOpacity: 0.5 }),
+          Plot.frame({ stroke: "#d8dee5" }),
+        ],
+      });
+
+      el.replaceChildren(plot);
+    }
+
+    // Wire toggle buttons
+    document.querySelectorAll("#controls button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#controls button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        mode = btn.dataset.mode;
+        render();
+      });
+    });
+
+    render();
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 200);
+    });
+  </script>
+</body>
+</html>

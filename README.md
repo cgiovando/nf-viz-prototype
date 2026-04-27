@@ -19,12 +19,27 @@ These pages are designed to be embedded as iframes inside an ArcGIS StoryMap. Ea
 
 | Slot | Page | Status |
 |---|---|---|
-| 3A | `viz/quadrant-2x2.html` - HERO 2x2 country scatter | in progress |
-| 1B | `viz/food-water-map.html` - food x water world map | planned |
-| 2B | `viz/vw-shares.html` - green/blue virtual water shares | planned |
-| 3B | `viz/quadrant-map.html` - quadrant choropleth | planned |
-| 3C | `viz/water-stress-trajectory.html` - future stress fan chart | planned |
-| 5B | `viz/investment-gap.html` - investment gap waffle | planned |
+| 3A | `viz/quadrant-2x2.html` - HERO 2x2 country scatter | live |
+| 1B | `viz/food-water-map.html` - food x water world map | live |
+| 2B | `viz/vw-shares.html` - green/blue virtual water shares | live |
+| 5B | `viz/investment-gap.html` - investment gap | live |
+| 3B | quadrant choropleth | deferred (subsumed by 1B) |
+| 3C | `viz/water-stress-trajectory.html` - future stress fan | planned |
+
+## Photo credits
+
+Cover and chapter media in the linked StoryMap use Wikimedia Commons photos under CC BY-SA / public-domain licenses. Attribution is listed in the StoryMap credits and includes:
+
+- *Aerial view of center pivot irrigation* - Workman, CC BY-SA 3.0
+- *The Earth seen from Apollo 17* - NASA, public domain
+- *Bali, paddy field 8* - Schnobby, CC BY-SA 3.0
+- *Smallholder Farmer / Smallholder Maize* - Flickr / public domain
+- *Drip irrigation machine* - MOHANRAJ VIMAL, CC BY-SA 4.0
+- *Woman harvesting wheat (India)* - Yann Forget, CC BY-SA 3.0
+- *Sahel forest near Kayes Mali* - NOAA, public domain
+- *Sunnyside irrigation canal (1902)* - Library of Congress, no restrictions
+
+Final production assets will be sourced by World Bank communications.
 
 ## Data
 
