@@ -7,7 +7,7 @@ These pages are designed to be embedded as iframes inside an ArcGIS StoryMap. Ea
 ## Live URLs
 
 - **Gallery (this site):** https://cgiovando.github.io/nf-viz-prototype/
-- **Hero - 2x2 water-food nexus:** https://cgiovando.github.io/nf-viz-prototype/viz/quadrant-2x2.html
+- **2x2 water-food nexus (interactive scatter):** https://cgiovando.github.io/nf-viz-prototype/viz/quadrant-2x2.html
 
 ## Source report
 
@@ -19,7 +19,7 @@ These pages are designed to be embedded as iframes inside an ArcGIS StoryMap. Ea
 
 | Slot | Page | Status |
 |---|---|---|
-| 3A | `viz/quadrant-2x2.html` - HERO 2x2 country scatter | live |
+| 3A | `viz/quadrant-2x2.html` - 2x2 country scatter | live |
 | 1B | `viz/food-water-map.html` - food x water world map | live |
 | 2B | `viz/vw-shares.html` - green/blue virtual water shares | live |
 | 5B | `viz/investment-gap.html` - investment gap | live |
@@ -45,7 +45,7 @@ Final production assets will be sourced by World Bank communications.
 
 Pre-cleaned data from the report's dashboard files lives in `data/`. See `data/schema.md` for the full column reference and an important sign-convention warning.
 
-- `data/countries_2x2.json` - 186 countries with valid water stress + net food trade + population (the rows the 2x2 hero plots)
+- `data/countries_2x2.json` - 186 countries with valid water stress + net food trade + population (the rows plotted in the 2x2 scatter)
 - `data/dashboard.json` - all 251 source rows with all 34 columns
 - `data/schema.md` - column reference
 
