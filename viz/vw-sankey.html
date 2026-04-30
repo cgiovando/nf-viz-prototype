@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sectoral virtual water flows - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12"></script>
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.35rem; margin: 0 0 0.25rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.92rem; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      align-items: center;
+      margin: 1rem 0 0.6rem;
+      padding: 0.65rem 0.85rem;
+      background: #f7f9fb;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .toolbar label { font-weight: 600; color: var(--c-text); margin-right: 0.3rem; }
+    .toolbar select, .toolbar .seg-btn {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 0.32rem 0.55rem;
+      font-size: 0.83rem;
+      color: var(--c-text);
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .toolbar select:hover, .toolbar .seg-btn:hover { border-color: var(--c-accent); }
+    .toolbar .seg-group { display: inline-flex; gap: 0; }
+    .toolbar .seg-btn {
+      border-radius: 0;
+      border-right-width: 0;
+    }
+    .toolbar .seg-btn:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+    .toolbar .seg-btn:last-child { border-right-width: 1px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+    .toolbar .seg-btn.active { background: var(--c-accent-dark); color: #fff; border-color: var(--c-accent-dark); }
+
+    .chart-wrap {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    #chart { width: 100%; height: 600px; display: block; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+    .summary .box {
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 0.5rem 0.7rem;
+      background: #f7f9fb;
+    }
+    .summary .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--c-muted);
+      margin: 0 0 0.15rem;
+      font-weight: 600;
+    }
+    .summary .value { font-size: 1.05rem; font-weight: 700; margin: 0; color: var(--c-text); }
+    .summary .sub { font-size: 0.74rem; color: var(--c-muted); margin: 0; }
+
+    .node-label {
+      font-size: 11px;
+      font-weight: 600;
+      fill: var(--c-text);
+      pointer-events: none;
+    }
+    .node-label.muted { fill: var(--c-muted); font-weight: 500; }
+    .country-node-label { font-size: 13px; font-weight: 700; }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 0.7rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--c-border);
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--c-muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Sectoral virtual water flows</h1>
+      <p>Where a country's virtual water enters or leaves the economy by sector. Drawn from the GTAP MRIO sectoral dataset (Taheripour and Chepeliev) - referenced in the report but not previously visualized.</p>
+    </header>
+
+    <div class="toolbar">
+      <label for="country">Country</label>
+      <select id="country"></select>
+
+      <span class="seg-group" role="group" aria-label="Direction">
+        <button class="seg-btn active" data-dir="export" type="button">Exports</button>
+        <button class="seg-btn" data-dir="import" type="button">Imports</button>
+      </span>
+
+      <span class="seg-group" role="group" aria-label="Water type">
+        <button class="seg-btn active" data-water="total" type="button">Total</button>
+        <button class="seg-btn" data-water="green" type="button">Green</button>
+        <button class="seg-btn" data-water="blue" type="button">Blue</button>
+      </span>
+
+      <label style="display:inline-flex; align-items:center; gap:0.3rem;">
+        <input type="checkbox" id="food-only" /> Food-relevant sectors only
+      </label>
+    </div>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 1100 600" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <p class="footer-note">
+      Source: Taheripour and Chepeliev GTAP MRIO sectoral virtual water dataset, 2019 baseline. Top sectors shown; smaller sectors aggregated as "Other sectors" where applicable. Green water = soil moisture from rainfall; blue water = surface and groundwater. Volumes in million cubic meters (MCM). <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    const flows = await fetch("../data/vw_flows_2019.json").then(r => r.json());
+    const yearly = await fetch("../data/vw_country_year.json").then(r => r.json());
+
+    // Pull list of focus countries (those that appear in vw_flows_2019)
+    const focusIso3 = Array.from(new Set(flows.map(d => d.iso3))).filter(Boolean).sort();
+    const focusByIso3 = new Map();
+    for (const r of flows) {
+      if (!focusByIso3.has(r.iso3)) focusByIso3.set(r.iso3, { country: r.country, rows: [] });
+      focusByIso3.get(r.iso3).rows.push(r);
+    }
+
+    // Country selector
+    const select = document.getElementById("country");
+    const orderedCases = ["CHN","IND","PAK","FRA","ESP","MAR","JOR","CHL","PER","MLI","SEN","UGA","USA","BRA","ARG","NLD","EGY","UZB","UKR","BDI","DEU","ITA","RUS","JPN"];
+    const ordered = [...orderedCases.filter(c => focusByIso3.has(c)), ...focusIso3.filter(c => !orderedCases.includes(c))];
+    for (const iso of ordered) {
+      const opt = document.createElement("option");
+      opt.value = iso;
+      opt.textContent = focusByIso3.get(iso).country;
+      select.appendChild(opt);
+    }
+    select.value = "CHN";
+
+    // State
+    let direction = "export";
+    let water = "total";
+    let foodOnly = false;
+
+    // Toolbar wiring
+    document.querySelectorAll('.seg-btn[data-dir]').forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll('.seg-btn[data-dir]').forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        direction = b.dataset.dir;
+        update();
+      });
+    });
+    document.querySelectorAll('.seg-btn[data-water]').forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll('.seg-btn[data-water]').forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        water = b.dataset.water;
+        update();
+      });
+    });
+    document.getElementById("food-only").addEventListener("change", e => {
+      foodOnly = e.target.checked;
+      update();
+    });
+    select.addEventListener("change", update);
+
+    function valueKey() {
+      return `${direction}_${water}_mcm`;
+    }
+    function fmtMCM(v) {
+      if (v == null || isNaN(v)) return "-";
+      if (v >= 100000) return `${(v/1000).toFixed(0)}k MCM`;
+      if (v >= 10000)  return `${(v/1000).toFixed(1)}k MCM`;
+      if (v >= 1000)   return `${v.toFixed(0)} MCM`;
+      if (v >= 100)    return `${v.toFixed(0)} MCM`;
+      return `${v.toFixed(1)} MCM`;
+    }
+    function fmtBkm3(v) {
+      if (v == null || isNaN(v)) return "-";
+      const km3 = v / 1000;
+      return `${km3.toFixed(1)} km³`;
+    }
+
+    const sankey = d3.sankey()
+      .nodeWidth(18)
+      .nodePadding(10)
+      .nodeAlign(d3.sankeyJustify)
+      .extent([[20, 20], [1080, 580]]);
+
+    const svg = d3.select("#chart");
+
+    function update() {
+      const iso = select.value;
+      const meta = focusByIso3.get(iso);
+      if (!meta) return;
+
+      let rows = meta.rows.slice();
+      if (foodOnly) rows = rows.filter(r => r.food_relevant);
+
+      const key = valueKey();
+      rows = rows.map(r => ({ sector: r.sector, food_relevant: r.food_relevant, value: r[key] || 0 }))
+                 .filter(r => r.value > 0)
+                 .sort((a,b) => b.value - a.value);
+
+      const TOP = 12;
+      const top = rows.slice(0, TOP);
+      const rest = rows.slice(TOP);
+      if (rest.length > 0) {
+        const restSum = rest.reduce((s,r) => s + r.value, 0);
+        if (restSum > 0) top.push({ sector: `Other sectors (${rest.length})`, value: restSum, food_relevant: null });
+      }
+
+      // Country totals (from yearly aggregate)
+      const yearRow = yearly.find(d => d.iso3 === iso && d.year === 2019);
+      const countryTotal = yearRow ? (yearRow[`${direction}_${water}_mcm`] || 0) : top.reduce((s,r)=>s+r.value, 0);
+
+      renderSummary(meta, top, countryTotal, yearRow);
+      renderSankey(meta, top, iso);
+    }
+
+    function renderSummary(meta, top, countryTotal, yearRow) {
+      const dirLabel = direction === "export" ? "Export" : "Import";
+      const waterLabel = water === "total" ? "Total VW" : (water === "green" ? "Green water" : "Blue water");
+      const topShare = top.length && countryTotal > 0
+        ? (top.slice(0,5).reduce((s,r)=>s+r.value,0) / countryTotal * 100)
+        : 0;
+      const topSector = top[0] ? top[0].sector : "-";
+
+      const blueShare = yearRow && yearRow[`${direction}_total_mcm`] > 0
+        ? (yearRow[`${direction}_blue_mcm`] / yearRow[`${direction}_total_mcm`] * 100)
+        : null;
+
+      document.getElementById("summary").innerHTML = `
+        <div class="box">
+          <p class="label">${dirLabel}s, 2019</p>
+          <p class="value">${fmtBkm3(countryTotal)}</p>
+          <p class="sub">${waterLabel}</p>
+        </div>
+        <div class="box">
+          <p class="label">Top sector</p>
+          <p class="value" style="font-size:0.95rem;">${topSector}</p>
+          <p class="sub">${top[0] ? fmtMCM(top[0].value) : ""}</p>
+        </div>
+        <div class="box">
+          <p class="label">Top 5 sectors share</p>
+          <p class="value">${topShare.toFixed(0)}%</p>
+          <p class="sub">of ${dirLabel.toLowerCase()}s shown</p>
+        </div>
+        <div class="box">
+          <p class="label">Blue / total</p>
+          <p class="value">${blueShare == null ? "-" : blueShare.toFixed(0) + "%"}</p>
+          <p class="sub">${blueShare == null ? "" : "irrigation share"}</p>
+        </div>`;
+    }
+
+    function renderSankey(meta, top, iso) {
+      svg.selectAll("*").remove();
+
+      if (top.length === 0) {
+        svg.append("text")
+          .attr("x", 550).attr("y", 300)
+          .attr("text-anchor", "middle")
+          .attr("class", "node-label muted")
+          .text("No flow > 0 for the current selection.");
+        return;
+      }
+
+      // Build sankey graph: sectors -> country (or country -> sectors depending on direction)
+      const countryNode = { name: meta.country, isCountry: true };
+      const sectorNodes = top.map(t => ({ name: t.sector, value: t.value, food_relevant: t.food_relevant }));
+
+      let nodes, links;
+      if (direction === "export") {
+        // country source, sectors targets
+        nodes = [countryNode, ...sectorNodes];
+        links = sectorNodes.map((s, i) => ({ source: 0, target: i + 1, value: s.value }));
+      } else {
+        // sectors source, country target
+        nodes = [...sectorNodes, countryNode];
+        const countryIdx = nodes.length - 1;
+        links = sectorNodes.map((s, i) => ({ source: i, target: countryIdx, value: s.value }));
+      }
+
+      const graph = sankey({
+        nodes: nodes.map(d => Object.assign({}, d)),
+        links: links.map(d => Object.assign({}, d)),
+      });
+
+      // Color scale
+      const ctxColor = direction === "export" ? "#1a73a7" : "#c46b3b";
+      const linkColor = direction === "export" ? "#1a73a7" : "#c46b3b";
+
+      // Nodes
+      svg.append("g").selectAll("rect")
+        .data(graph.nodes)
+        .join("rect")
+        .attr("x", d => d.x0)
+        .attr("y", d => d.y0)
+        .attr("width", d => d.x1 - d.x0)
+        .attr("height", d => Math.max(1, d.y1 - d.y0))
+        .attr("fill", d => d.isCountry ? ctxColor : (d.food_relevant ? "#469e6e" : "#9ba8b3"))
+        .attr("opacity", 0.9);
+
+      // Links
+      svg.append("g")
+        .attr("fill", "none")
+        .selectAll("path")
+        .data(graph.links)
+        .join("path")
+        .attr("d", d3.sankeyLinkHorizontal())
+        .attr("stroke", linkColor)
+        .attr("stroke-opacity", 0.35)
+        .attr("stroke-width", d => Math.max(1, d.width))
+        .append("title")
+        .text(d => `${d.source.name} -> ${d.target.name}\n${fmtMCM(d.value)}`);
+
+      // Labels
+      svg.append("g").selectAll("text")
+        .data(graph.nodes)
+        .join("text")
+        .attr("x", d => d.isCountry
+          ? (direction === "export" ? d.x0 - 8 : d.x1 + 8)
+          : (direction === "export" ? d.x1 + 8 : d.x0 - 8))
+        .attr("y", d => (d.y0 + d.y1) / 2)
+        .attr("dy", "0.35em")
+        .attr("text-anchor", d => {
+          if (d.isCountry) return direction === "export" ? "end" : "start";
+          return direction === "export" ? "start" : "end";
+        })
+        .attr("class", d => d.isCountry ? "node-label country-node-label" : (d.food_relevant === false ? "node-label muted" : "node-label"))
+        .text(d => {
+          if (d.isCountry) return d.name;
+          const valStr = ` - ${fmtMCM(d.value)}`;
+          return d.name.length > 32 ? d.name.slice(0, 30) + "…" + valStr : d.name + valStr;
+        });
+    }
+
+    update();
+  </script>
+</body>
+</html>

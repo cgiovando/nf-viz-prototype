@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sector breakdown of virtual water - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.35rem; margin: 0 0 0.25rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.92rem; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      align-items: center;
+      margin: 1rem 0 0.6rem;
+      padding: 0.65rem 0.85rem;
+      background: #f7f9fb;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .toolbar label { font-weight: 600; color: var(--c-text); margin-right: 0.3rem; }
+    .toolbar select, .toolbar .seg-btn {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 0.32rem 0.55rem;
+      font-size: 0.83rem;
+      color: var(--c-text);
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .toolbar select:hover, .toolbar .seg-btn:hover { border-color: var(--c-accent); }
+    .toolbar .seg-group { display: inline-flex; gap: 0; }
+    .toolbar .seg-btn { border-radius: 0; border-right-width: 0; }
+    .toolbar .seg-btn:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+    .toolbar .seg-btn:last-child { border-right-width: 1px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+    .toolbar .seg-btn.active { background: var(--c-accent-dark); color: #fff; border-color: var(--c-accent-dark); }
+
+    .legend-row {
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--c-muted);
+      margin-bottom: 0.4rem;
+    }
+    .legend-row .swatch {
+      display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 0.3rem;
+      vertical-align: middle;
+    }
+    .swatch.green { background: #469e6e; }
+    .swatch.blue { background: #1a73a7; }
+
+    .chart-wrap {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+    #chart { width: 100%; min-height: 540px; }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 0.7rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--c-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Sector breakdown of virtual water</h1>
+      <p>For any country, the top sectors driving virtual-water imports or exports - split between green water (rainfall) and blue water (irrigation).</p>
+    </header>
+
+    <div class="toolbar">
+      <label for="country">Country</label>
+      <select id="country"></select>
+
+      <span class="seg-group" role="group" aria-label="Direction">
+        <button class="seg-btn active" data-dir="import" type="button">Imports</button>
+        <button class="seg-btn" data-dir="export" type="button">Exports</button>
+      </span>
+
+      <span class="seg-group" role="group" aria-label="Top N">
+        <button class="seg-btn" data-top="10" type="button">Top 10</button>
+        <button class="seg-btn active" data-top="15" type="button">Top 15</button>
+        <button class="seg-btn" data-top="25" type="button">Top 25</button>
+      </span>
+
+      <label style="display:inline-flex; align-items:center; gap:0.3rem;">
+        <input type="checkbox" id="food-only" /> Food-relevant sectors only
+      </label>
+    </div>
+
+    <div class="legend-row">
+      <span><span class="swatch green"></span>Green water (rainfall)</span>
+      <span><span class="swatch blue"></span>Blue water (irrigation)</span>
+    </div>
+
+    <div class="chart-wrap">
+      <div id="chart"></div>
+    </div>
+
+    <p class="footer-note">
+      Source: Taheripour and Chepeliev GTAP MRIO sectoral virtual water dataset, 2019 baseline. Sector taxonomy includes 207 economic sectors; food-relevant filter restricts to crops, livestock, fisheries, and food processing. Volumes in MCM (million cubic meters). <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
+
+    const sectors = await fetch("../data/vw_country_sector_2019.json").then(r => r.json());
+
+    // Build country list - countries that have at least one sector with > 0 flow
+    const byIso = new Map();
+    for (const r of sectors) {
+      if (!r.iso3) continue;
+      if (!byIso.has(r.iso3)) byIso.set(r.iso3, { country: r.country, rows: [] });
+      byIso.get(r.iso3).rows.push(r);
+    }
+
+    // Order: case studies + major economies first, then everything else alphabetically
+    const PRIORITY = ["CHN","IND","PAK","FRA","ESP","MAR","JOR","CHL","PER","MLI","SEN","UGA","USA","BRA","ARG","NLD","EGY","UZB","UKR","DEU","ITA","RUS","JPN","BDI"];
+    const all = Array.from(byIso.keys()).sort((a,b) => byIso.get(a).country.localeCompare(byIso.get(b).country));
+    const ordered = [...PRIORITY.filter(c => byIso.has(c)), ...all.filter(c => !PRIORITY.includes(c))];
+
+    const select = document.getElementById("country");
+    for (const iso of ordered) {
+      const opt = document.createElement("option");
+      opt.value = iso;
+      opt.textContent = byIso.get(iso).country;
+      select.appendChild(opt);
+    }
+    select.value = "CHN";
+
+    let direction = "import";
+    let topN = 15;
+    let foodOnly = false;
+
+    document.querySelectorAll('.seg-btn[data-dir]').forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll('.seg-btn[data-dir]').forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        direction = b.dataset.dir;
+        renderChart();
+      });
+    });
+    document.querySelectorAll('.seg-btn[data-top]').forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll('.seg-btn[data-top]').forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        topN = +b.dataset.top;
+        renderChart();
+      });
+    });
+    document.getElementById("food-only").addEventListener("change", e => {
+      foodOnly = e.target.checked;
+      renderChart();
+    });
+    select.addEventListener("change", renderChart);
+
+    function renderChart() {
+      const meta = byIso.get(select.value);
+      if (!meta) return;
+
+      let rows = meta.rows.slice();
+      if (foodOnly) rows = rows.filter(r => r.food_relevant);
+
+      const totalKey = `${direction}_total_mcm`;
+      const greenKey = `${direction}_green_mcm`;
+      const blueKey  = `${direction}_blue_mcm`;
+
+      const ranked = rows
+        .map(r => ({ ...r, total: r[totalKey] || 0, green: r[greenKey] || 0, blue: r[blueKey] || 0 }))
+        .filter(r => r.total > 0)
+        .sort((a,b) => b.total - a.total)
+        .slice(0, topN);
+
+      // Build long-format records for stacked bars
+      const long = [];
+      for (const r of ranked) {
+        long.push({ sector: r.sector, kind: "Green", value: r.green, total: r.total });
+        long.push({ sector: r.sector, kind: "Blue", value: r.blue, total: r.total });
+      }
+
+      const order = ranked.map(r => r.sector);
+
+      const dirLabel = direction === "import" ? "Virtual water imports" : "Virtual water exports";
+      const subTitle = `${meta.country}, 2019 - top ${ranked.length} sectors${foodOnly ? " (food-relevant only)" : ""}`;
+
+      const el = document.getElementById("chart");
+      el.innerHTML = "";
+
+      if (ranked.length === 0) {
+        el.innerHTML = `<p style="text-align:center; color:var(--c-muted); padding:2rem;">No sectors with positive flow under the current filter.</p>`;
+        return;
+      }
+
+      const plot = Plot.plot({
+        title: subTitle,
+        marginLeft: 200,
+        marginRight: 28,
+        marginTop: 28,
+        marginBottom: 40,
+        height: Math.max(260, 32 * ranked.length + 80),
+        x: { label: `${dirLabel} (MCM)`, grid: true, nice: true },
+        y: { domain: order, label: null },
+        color: {
+          domain: ["Green", "Blue"],
+          range: ["#469e6e", "#1a73a7"],
+          legend: false,
+        },
+        marks: [
+          Plot.barX(long, {
+            y: "sector",
+            x: "value",
+            fill: "kind",
+            tip: true,
+            title: d => `${d.sector}\n${d.kind} water: ${d.value.toFixed(0)} MCM\nTotal: ${d.total.toFixed(0)} MCM`,
+          }),
+          Plot.text(ranked, {
+            y: "sector",
+            x: "total",
+            text: d => `  ${d.total.toFixed(0)}`,
+            textAnchor: "start",
+            fontSize: 10,
+            fill: "#5a6a78",
+            dx: 4,
+          }),
+          Plot.ruleX([0]),
+        ],
+      });
+
+      el.appendChild(plot);
+    }
+
+    renderChart();
+  </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>30 years of virtual water trade - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.35rem; margin: 0 0 0.25rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.92rem; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      align-items: center;
+      margin: 1rem 0 0.6rem;
+      padding: 0.65rem 0.85rem;
+      background: #f7f9fb;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .toolbar label { font-weight: 600; color: var(--c-text); margin-right: 0.3rem; }
+    .toolbar select, .toolbar .seg-btn {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 0.32rem 0.55rem;
+      font-size: 0.83rem;
+      color: var(--c-text);
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .toolbar select:hover, .toolbar .seg-btn:hover { border-color: var(--c-accent); }
+    .toolbar .seg-group { display: inline-flex; gap: 0; }
+    .toolbar .seg-btn { border-radius: 0; border-right-width: 0; }
+    .toolbar .seg-btn:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+    .toolbar .seg-btn:last-child { border-right-width: 1px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+    .toolbar .seg-btn.active { background: var(--c-accent-dark); color: #fff; border-color: var(--c-accent-dark); }
+
+    .country-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin: 0.6rem 0 0.5rem;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 99px;
+      background: #f1f4f7;
+      color: var(--c-muted);
+      border: 1px solid var(--c-border);
+      cursor: pointer;
+      font-size: 0.78rem;
+      user-select: none;
+      transition: all 120ms;
+    }
+    .chip:hover { border-color: var(--c-accent); color: var(--c-text); }
+    .chip.active {
+      background: var(--c-accent-dark);
+      color: #fff;
+      border-color: var(--c-accent-dark);
+      font-weight: 600;
+    }
+    .chip-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--c-muted);
+    }
+    .chip.active .chip-dot { background: #fff; }
+
+    .chart-wrap {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+    #chart { width: 100%; min-height: 460px; }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 0.7rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--c-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Three decades of virtual water trade</h1>
+      <p>Total virtual water imports and exports per country, 1990-2019. Toggle countries to compare; toggle direction and water type to focus the comparison.</p>
+    </header>
+
+    <div class="toolbar">
+      <span class="seg-group" role="group" aria-label="Direction">
+        <button class="seg-btn active" data-dir="import" type="button">Imports</button>
+        <button class="seg-btn" data-dir="export" type="button">Exports</button>
+        <button class="seg-btn" data-dir="net" type="button">Net (Imp − Exp)</button>
+      </span>
+      <span class="seg-group" role="group" aria-label="Water type">
+        <button class="seg-btn active" data-water="total" type="button">Total</button>
+        <button class="seg-btn" data-water="green" type="button">Green</button>
+        <button class="seg-btn" data-water="blue" type="button">Blue</button>
+      </span>
+      <button class="seg-btn" id="reset" type="button" style="margin-left:auto;">Reset countries</button>
+    </div>
+
+    <div class="country-chips" id="chips"></div>
+
+    <div class="chart-wrap">
+      <div id="chart"></div>
+    </div>
+
+    <p class="footer-note">
+      Source: Taheripour and Chepeliev GTAP MRIO sectoral virtual water dataset, 1990-2019. Volumes in km³ (= 1000 MCM). Country selection includes the 14 case-study countries plus a handful of major traders for comparison. <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    const yearly = await fetch("../data/vw_country_year.json").then(r => r.json());
+
+    const DEFAULT_COUNTRIES = ["CHN","USA","BRA","IND","NLD","DEU"];
+    const ALL_COUNTRIES = [
+      "CHN","IND","PAK","FRA","ESP","MAR","JOR","CHL","PER","MLI","SEN","UGA",
+      "USA","BRA","ARG","NLD","EGY","UZB","UKR","DEU","ITA","RUS","JPN","BDI"
+    ];
+    const CASE_STUDIES = new Set(["BDI","MLI","SEN","UGA","FRA","PER","UKR","CHL","IND","PAK","JOR","MAR","ESP","UZB"]);
+
+    const countryNames = new Map();
+    for (const r of yearly) if (r.iso3) countryNames.set(r.iso3, r.country);
+
+    let direction = "import";
+    let water = "total";
+    let selected = new Set(DEFAULT_COUNTRIES);
+
+    const chipsEl = document.getElementById("chips");
+    function renderChips() {
+      chipsEl.innerHTML = "";
+      for (const iso of ALL_COUNTRIES) {
+        const name = countryNames.get(iso) || iso;
+        const isCase = CASE_STUDIES.has(iso);
+        const el = document.createElement("span");
+        el.className = "chip" + (selected.has(iso) ? " active" : "");
+        el.innerHTML = `<span class="chip-dot"></span>${name}${isCase ? " *" : ""}`;
+        el.addEventListener("click", () => {
+          if (selected.has(iso)) selected.delete(iso); else selected.add(iso);
+          renderChips();
+          renderChart();
+        });
+        chipsEl.appendChild(el);
+      }
+    }
+
+    document.querySelectorAll('.seg-btn[data-dir]').forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll('.seg-btn[data-dir]').forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        direction = b.dataset.dir;
+        renderChart();
+      });
+    });
+    document.querySelectorAll('.seg-btn[data-water]').forEach(b => {
+      b.addEventListener("click", () => {
+        document.querySelectorAll('.seg-btn[data-water]').forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        water = b.dataset.water;
+        renderChart();
+      });
+    });
+    document.getElementById("reset").addEventListener("click", () => {
+      selected = new Set(DEFAULT_COUNTRIES);
+      renderChips();
+      renderChart();
+    });
+
+    function valueOf(row) {
+      if (direction === "net") {
+        return (row[`import_${water}_mcm`] || 0) - (row[`export_${water}_mcm`] || 0);
+      }
+      return row[`${direction}_${water}_mcm`] || 0;
+    }
+
+    function renderChart() {
+      const data = yearly
+        .filter(r => selected.has(r.iso3))
+        .map(r => ({
+          iso3: r.iso3,
+          country: r.country,
+          year: r.year,
+          value_mcm: valueOf(r),
+          value_km3: valueOf(r) / 1000,
+          is_case: CASE_STUDIES.has(r.iso3),
+        }));
+
+      const dirLabel = direction === "net" ? "Net virtual water (Imp − Exp)" : (direction === "import" ? "Virtual water imports" : "Virtual water exports");
+      const waterLabel = water === "total" ? "all" : water;
+      const yLabel = `${dirLabel} (km³, ${waterLabel} water)`;
+
+      const el = document.getElementById("chart");
+      el.innerHTML = "";
+
+      const palette = d3.schemeTableau10;
+      const colorMap = new Map(Array.from(selected).sort().map((iso, i) => [iso, palette[i % palette.length]]));
+
+      const plot = Plot.plot({
+        marginLeft: 60,
+        marginBottom: 40,
+        marginTop: 24,
+        marginRight: 110,
+        height: 460,
+        x: { label: "Year", tickFormat: "d" },
+        y: { label: yLabel, grid: true, nice: true },
+        color: { domain: Array.from(colorMap.keys()), range: Array.from(colorMap.values()), legend: false },
+        marks: [
+          direction === "net" ? Plot.ruleY([0], { stroke: "#5a6a78", strokeOpacity: 0.5, strokeDasharray: "2 4" }) : null,
+          Plot.lineY(data, {
+            x: "year",
+            y: "value_km3",
+            stroke: "iso3",
+            strokeWidth: d => d.is_case ? 2.4 : 1.6,
+            curve: "monotone-x",
+          }),
+          Plot.dot(data.filter(d => d.year === 2019), {
+            x: "year", y: "value_km3", fill: "iso3", r: d => d.is_case ? 3.5 : 2.5,
+          }),
+          Plot.text(data.filter(d => d.year === 2019), {
+            x: "year", y: "value_km3", text: d => d.country,
+            fill: "iso3", textAnchor: "start", dx: 7, fontSize: 11, fontWeight: d => d.is_case ? 700 : 500,
+          }),
+          Plot.tip(data, Plot.pointer({
+            x: "year", y: "value_km3",
+            title: d => `${d.country} (${d.iso3})\n${d.year}: ${d.value_km3.toFixed(1)} km³`,
+          })),
+        ].filter(Boolean),
+      });
+
+      el.appendChild(plot);
+    }
+
+    renderChips();
+    renderChart();
+  </script>
+</body>
+</html>
