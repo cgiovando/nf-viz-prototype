@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Three foundational shifts - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.35rem; margin: 0 0 0.25rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.92rem; }
+
+    .shifts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0 1rem;
+    }
+    @media (min-width: 760px) { .shifts-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+    .shift-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.4rem 1.4rem 1.5rem;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(15, 79, 120, 0.06);
+      display: flex;
+      flex-direction: column;
+    }
+    .shift-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 4px;
+      border-radius: 12px 12px 0 0;
+    }
+    .shift-card.s1::before { background: linear-gradient(90deg, #469e6e 0%, #6abf95 100%); }
+    .shift-card.s2::before { background: linear-gradient(90deg, #1a73a7 0%, #4ea4d6 100%); }
+    .shift-card.s3::before { background: linear-gradient(90deg, #c46b3b 0%, #e09267 100%); }
+
+    .shift-num {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--c-muted);
+      margin: 0 0 0.4rem;
+      font-weight: 700;
+    }
+    .shift-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.85rem;
+      color: #fff;
+    }
+    .shift-card.s1 .shift-icon { background: #469e6e; }
+    .shift-card.s2 .shift-icon { background: #1a73a7; }
+    .shift-card.s3 .shift-icon { background: #c46b3b; }
+
+    .shift-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 0.4rem;
+      color: var(--c-text);
+      line-height: 1.25;
+    }
+    .shift-tagline {
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--c-muted);
+      margin: 0 0 0.75rem;
+      line-height: 1.4;
+    }
+    .shift-card.s1 .shift-tagline { color: #1f6c45; }
+    .shift-card.s2 .shift-tagline { color: #0f4f78; }
+    .shift-card.s3 .shift-tagline { color: #8c4623; }
+
+    .shift-body {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--c-text);
+      margin: 0 0 0.85rem;
+    }
+
+    .shift-arrow {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.7rem;
+      background: #f7f9fb;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      color: var(--c-text);
+      margin-top: auto;
+    }
+    .shift-from { color: var(--c-muted); }
+    .shift-to { font-weight: 600; }
+    .shift-arrow .arrow {
+      color: var(--c-muted);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 0.7rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--c-border);
+    }
+
+    .icon-svg { width: 28px; height: 28px; }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Three foundational shifts to transform agricultural water management</h1>
+      <p>The report calls for three reinforcing changes in how AWM is planned, financed, and delivered. Together they turn one-off projects into systems that learn, adapt, and scale.</p>
+    </header>
+
+    <div class="shifts-grid">
+      <div class="shift-card s1">
+        <p class="shift-num">Shift 1</p>
+        <div class="shift-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3v18M3 12h18"/>
+            <circle cx="12" cy="12" r="3" fill="currentColor"/>
+          </svg>
+        </div>
+        <p class="shift-title">Embrace AWM complexity</p>
+        <p class="shift-tagline">Balance people, prosperity, and planet</p>
+        <p class="shift-body">Treat agricultural water management as a platform for sustainable development, not just a tool to boost production. Connect water, agriculture, environment, and economic growth across local water availability, agricultural systems, institutions, and socioeconomic conditions. Manage uncertainty and competing interests through iterative learning.</p>
+        <div class="shift-arrow">
+          <span class="shift-from">Single-objective projects</span>
+          <span class="arrow">&rarr;</span>
+          <span class="shift-to">Integrated, adaptive systems</span>
+        </div>
+      </div>
+
+      <div class="shift-card s2">
+        <p class="shift-num">Shift 2</p>
+        <div class="shift-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 17l4-4 4 4 4-4 4 4"/>
+            <path d="M3 11l4-4 4 4 4-4 4 4"/>
+          </svg>
+        </div>
+        <p class="shift-title">From hardware to services</p>
+        <p class="shift-tagline">Start small, learn fast, transform at scale</p>
+        <p class="shift-body">Stop measuring success only in pumps, canals, and dams. Measure it in the quality of water service delivered to farms - reliability, equity, productivity per drop. Build accountability into operators, run small experiments, and scale what works. Performance contracts and farmer-facing service standards turn projects into institutions.</p>
+        <div class="shift-arrow">
+          <span class="shift-from">Build it and walk away</span>
+          <span class="arrow">&rarr;</span>
+          <span class="shift-to">Reliable, accountable services</span>
+        </div>
+      </div>
+
+      <div class="shift-card s3">
+        <p class="shift-num">Shift 3</p>
+        <div class="shift-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/>
+            <path d="M7 14l4-4 4 4 5-7"/>
+            <circle cx="7" cy="14" r="1.5" fill="currentColor"/>
+            <circle cx="11" cy="10" r="1.5" fill="currentColor"/>
+            <circle cx="15" cy="14" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <p class="shift-title">End the guesswork</p>
+        <p class="shift-tagline">Collect the data and use them</p>
+        <p class="shift-body">AWM decisions today often rely on fragmented, outdated, or siloed information. Institutionalize the development and use of water informatics: real-time monitoring, satellite-derived indicators (evapotranspiration, soil moisture), basin-level accounts, and tools that put trade-offs in front of decision-makers. Make data the basis for water allocation, not anecdote.</p>
+        <div class="shift-arrow">
+          <span class="shift-from">Project-by-project intuition</span>
+          <span class="arrow">&rarr;</span>
+          <span class="shift-to">Continuous, evidence-led management</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      Source: <em>Nourish and Flourish</em>, World Bank 2025 - chapter 5 "From Choices to Lasting Results". The three shifts are reinforcing: complexity-aware design needs service-oriented delivery, and both depend on better data. <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+</body>
+</html>
