@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Case studies in context - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.25rem 1.25rem 1.5rem; max-width: 1280px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.35rem; margin: 0 0 0.25rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.92rem; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      align-items: center;
+      margin: 1rem 0 0.6rem;
+      padding: 0.65rem 0.85rem;
+      background: #f7f9fb;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .legend {
+      display: flex;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.83rem;
+      color: var(--c-text);
+    }
+    .legend-swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .legend-swatch.c1 { background: #6a8aa8; }
+    .legend-swatch.c2 { background: #469e6e; }
+    .legend-swatch.c3 { background: #c46b3b; }
+    .legend-swatch.c4 { background: #ad323c; }
+    .legend-swatch.nodata { background: #e6eaef; }
+    .legend-swatch.case {
+      background: transparent;
+      border: 2px solid #1a2733;
+      box-shadow: inset 0 0 0 1px #fff;
+    }
+
+    .toolbar-controls {
+      margin-left: auto;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .toolbar-controls button {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      color: var(--c-text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .toolbar-controls button:hover { background: #eef2f6; border-color: var(--c-accent); }
+    .toolbar-controls button.active { background: var(--c-accent-dark); color: #fff; border-color: var(--c-accent-dark); }
+
+    .map-and-panel {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      align-items: stretch;
+      position: relative;
+    }
+    @media (min-width: 980px) {
+      .map-and-panel.has-panel { grid-template-columns: 1fr 380px; }
+    }
+
+    .map-wrap {
+      background: #fafcfd;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    #map { display: block; width: 100%; height: auto; }
+
+    .country-base { fill: #e6eaef; stroke: #fff; stroke-width: 0.4; cursor: pointer; transition: fill 120ms; }
+    .country-c1 { fill: #6a8aa8; }
+    .country-c2 { fill: #469e6e; }
+    .country-c3 { fill: #c46b3b; }
+    .country-c4 { fill: #ad323c; }
+    .country-base:hover { stroke: #1a2733; stroke-width: 1.2; }
+    .country-base.case-study { stroke: #1a2733; stroke-width: 1.2; }
+    .country-base.case-study:hover { stroke: #000; stroke-width: 2; }
+    .country-base.dim { opacity: 0.18; }
+    .country-base.selected { stroke: #1a2733; stroke-width: 2.5; filter: brightness(1.05); }
+
+    .sahel-marker {
+      fill: rgba(106, 138, 168, 0.7);
+      stroke: #1a2733;
+      stroke-width: 1.5;
+      cursor: pointer;
+    }
+    .sahel-marker:hover { fill: #6a8aa8; }
+    .sahel-label {
+      font-size: 9px;
+      font-weight: 600;
+      fill: #1a2733;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: rgba(26, 39, 51, 0.94);
+      color: #fff;
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      pointer-events: none;
+      white-space: nowrap;
+      transition: opacity 100ms;
+      z-index: 10;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      overflow-y: auto;
+      max-height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-empty {
+      padding: 1.5rem;
+      color: var(--c-muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .panel-empty strong { color: var(--c-text); display: block; margin-bottom: 0.5rem; font-size: 1rem; }
+
+    .panel-header {
+      padding: 1rem 1.1rem 0.85rem;
+      border-bottom: 1px solid var(--c-border);
+      position: relative;
+    }
+    .panel-close {
+      position: absolute;
+      top: 0.65rem; right: 0.65rem;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #f1f4f7;
+      border: 0;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      color: var(--c-muted);
+    }
+    .panel-close:hover { background: #e1e7ed; color: var(--c-text); }
+    .panel-context-badge {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+    .panel-context-badge.c1 { background: #6a8aa8; }
+    .panel-context-badge.c2 { background: #469e6e; }
+    .panel-context-badge.c3 { background: #c46b3b; }
+    .panel-context-badge.c4 { background: #ad323c; }
+    .panel-context-badge.none { background: #9ba8b3; }
+
+    .panel-country {
+      font-size: 1.25rem;
+      margin: 0 0 0.1rem;
+      color: var(--c-text);
+      font-weight: 700;
+    }
+    .panel-region {
+      font-size: 0.82rem;
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .panel-body { padding: 0.95rem 1.1rem 1.1rem; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      background: #f7f9fb;
+      border-radius: 6px;
+      padding: 0.5rem 0.6rem;
+    }
+    .stat-label { font-size: 0.7rem; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0; font-weight: 600; }
+    .stat-value { font-size: 1.0rem; margin: 0.1rem 0 0; font-weight: 700; color: var(--c-text); }
+    .stat-sub { font-size: 0.72rem; color: var(--c-muted); margin: 0; }
+
+    .panel-section { margin-top: 1rem; }
+    .panel-section h4 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--c-muted);
+      margin: 0 0 0.4rem;
+      font-weight: 700;
+    }
+    .panel-section p {
+      margin: 0 0 0.55rem;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--c-text);
+    }
+    .case-study-stub {
+      background: rgba(196, 107, 59, 0.08);
+      border-left: 3px solid #c46b3b;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.82rem;
+      color: #8c4623;
+      margin-bottom: 0.5rem;
+    }
+
+    .placeholder-note {
+      font-size: 0.74rem;
+      color: var(--c-muted);
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--c-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Case studies in context</h1>
+      <p>Each country is colored by its water-food nexus context. Click a country to read its profile. Bordered countries are case studies featured in the report.</p>
+    </header>
+
+    <div class="toolbar">
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch c1"></span>Context 1 - water-secure importer</span>
+        <span class="legend-item"><span class="legend-swatch c2"></span>Context 2 - water-secure exporter</span>
+        <span class="legend-item"><span class="legend-swatch c3"></span>Context 3 - water-stressed exporter</span>
+        <span class="legend-item"><span class="legend-swatch c4"></span>Context 4 - water-stressed importer</span>
+        <span class="legend-item"><span class="legend-swatch case"></span>Case study</span>
+        <span class="legend-item"><span class="legend-swatch nodata"></span>Insufficient data</span>
+      </div>
+      <div class="toolbar-controls">
+        <button id="btn-all" class="active" type="button">All countries</button>
+        <button id="btn-cases" type="button">Case studies only</button>
+        <button id="btn-sahel" type="button">Sahel region</button>
+      </div>
+    </div>
+
+    <div class="map-and-panel" id="root">
+      <div class="map-wrap">
+        <svg id="map" viewBox="0 0 960 480" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tooltip" id="tooltip" style="opacity:0"></div>
+      </div>
+      <aside class="panel" id="panel">
+        <div class="panel-empty">
+          <strong>Click a country</strong>
+          Each country profile shows the water-food nexus context, key indicators, and (for case-study countries) what works on the ground per the report.
+        </div>
+      </aside>
+    </div>
+
+    <p class="footer-note">
+      Sources: WRI Aqueduct (baseline water stress), FAOSTAT FBS 2019 (food balance sheets, kcal), report's Figure 3.1 framework. Country boundaries: Natural Earth. Case-study text drafted from chapter 3 of the published report. <a href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    const CASE_STUDIES = {
+      // Context 1: water-secure food importers
+      "BDI": {
+        country: "Burundi",
+        title: "Spatial analysis of irrigation needs",
+        text: "Spatial analysis combining remote sensing and ground-based data was used to assess irrigation needs and prioritize investment across rehabilitation versus new development. The analysis estimated investment needs across 57,000 hectares.",
+        theme: "Use of data and innovation",
+      },
+      "MLI": {
+        country: "Mali",
+        title: "Office du Niger: 40 years of productivity gains",
+        text: "The Office du Niger increased rice yields from 2 to 5-6 t/ha over four decades by improving service quality and giving farmers greater control over water and land. Public funding built the irrigation backbone, while private actors handled processing and marketing - and joint ventures with international agriculture corporations and the Malian state operate within the scheme.",
+        theme: "Service-quality and institutional reform",
+      },
+      "SEN": {
+        country: "Senegal",
+        title: "SAED - public-private partnership at scale",
+        text: "SAED is a public industrial and commercial body managing infrastructure in the Senegal River delta with transparent reporting and strategic oversight. As public partner in large-scale PPPs, it shares investment costs with agricultural producers, supports collective irrigation schemes, and mobilizes private finance for water-efficient irrigation equipment.",
+        theme: "Public-private partnerships",
+      },
+      "UGA": {
+        country: "Uganda",
+        title: "Micro-Scale Irrigation Program",
+        text: "From 2020-2024 a tiered-subsidy program combined US$15.4M in government equipment subsidies with US$6.3M in farmer contributions. 95% of farmers chose climate-smart solar pumps. By 2024, 4,733 farmers (21% women) cultivated 3,360 ha. The program drove a fourfold increase in suppliers nationally and a 20-month payback period even without subsidies.",
+        theme: "Innovative financing for smallholders",
+      },
+
+      // Context 2: water-secure food exporters
+      "FRA": {
+        country: "France",
+        title: "Société du Canal de Provence (SCP)",
+        text: "SCP is a regional development company operating under 75-year concessions with diversified revenue and participatory boards. Over 85% of extracted water is invoiced. Real-time sensor networks, hyperspectral leak detection, and remote-control flow regulation deliver dynamic water management. SCP partners with farmers and Chambers of Agriculture as small shareholders.",
+        theme: "Integrated, financially sustainable governance",
+      },
+      "PER": {
+        country: "Peru",
+        title: "Olmos-Tinajones multi-stage PPP",
+        text: "A 20 km trans-Andean tunnel and dam (US$247M) transferred water for irrigation of 43,500 ha. The irrigation stage (US$280M) was privately financed; cost recovery came primarily from land auctions (~US$150M) plus a flat US$0.07/m3 service fee. Despite delays from technical, legal, and land disputes, renewed efforts in 2024 are resolving them.",
+        theme: "Large-scale water transfer PPP",
+      },
+      "UKR": {
+        country: "Ukraine",
+        title: "Hydro-informatics for irrigation recovery",
+        text: "Cutting-edge analytics and remote sensing were used to assess weather-related risks to irrigated agriculture - and, for the first time, to analyze the impact of Russia's invasion on Ukraine's irrigation sector. Combined satellite, census, and earth-systems data informed the Bank's 'Future of Irrigation in Ukraine' (2023) and Rapid Damage and Needs Assessments.",
+        theme: "Use of data and innovation",
+      },
+
+      // Context 3: water-stressed food exporters
+      "CHL": {
+        country: "Chile",
+        title: "Modernizing irrigation methods at scale",
+        text: "Land using drip and microjet systems grew from 93,000 ha in 1997 to ~900,000 ha in 2021 (almost 50% of productive land), enabling expansion of high-value fruit and vineyards. The 2022 Water Code revisions increased focus on resource conservation and socioenvironmental protection, in response to research showing irrigation efficiency gains can reduce return flows to rivers and aquifers.",
+        theme: "Modernization with environmental safeguards",
+      },
+      "IND": {
+        country: "India",
+        title: "Damodar Valley performance-based contracts",
+        text: "The Damodar Valley scheme in West Bengal and Jharkhand engages nine private irrigation service providers under performance-based O&M contracts. The approach aims to ensure operational efficiency, enhance service quality, and reduce groundwater dependency. Farmers have already seen better service and expanded canal coverage in two of three harvest seasons.",
+        theme: "Private-sector service delivery",
+      },
+      "PAK": {
+        country: "Pakistan",
+        title: "Laser land leveling: from public to private",
+        text: "Punjab's laser-leveling capacity grew from 14,000 to 300,000 ha/year after a 2006 shift to private service delivery, supported by a 50% matching-grant program. By 2016 all government units had transferred to the private sector; today 16,000+ private units operate across the province. Smallholders rent equipment from suppliers to access the technology.",
+        theme: "Private-sector scaling of efficient practices",
+      },
+
+      // Context 4: water-stressed food importers
+      "JOR": {
+        country: "Jordan",
+        title: "As-Samra Wastewater Treatment Plant",
+        text: "A 25-year build-operate-transfer arrangement, backed by a Multilateral Investment Guarantee Agency political-risk guarantee, delivers treated wastewater for irrigation. The plant is privately financed, expanded, and operated under a long-term concession until 2037, after which it reverts to government ownership.",
+        theme: "Treated wastewater reuse via PPP",
+      },
+      "MAR": {
+        country: "Morocco",
+        title: "Risk-sharing facility for solar + irrigation",
+        text: "A risk-sharing facility partnering Banque Centrale Populaire, an irrigation-equipment manufacturer, and IFC de-risks lending to farmers and small enterprises for microirrigation and solar systems. Replacing fuel-run pumps reduces emissions; nearly 30,000 farmers are expected to benefit by 2027.",
+        theme: "De-risked finance for water-saving tech",
+      },
+      "ESP": {
+        country: "Spain",
+        title: "Modernizing 50% of irrigated land in 20 years",
+        text: "Between 1996 and 2017, half of Spain's 3.7 million ha of irrigated land was modernized through a PPP with SEIASA, which advanced 50% of project execution costs. Interventions included localized and sprinkler systems, plus floating solar panels on regulation reservoirs. Of EUR 2 billion invested over 20 years, 48% came from SEIASA, 29% from irrigators, 23% from EU and regional funds.",
+        theme: "Public-private modernization at scale",
+      },
+      "UZB": {
+        country: "Uzbekistan",
+        title: "Digital irrigation services",
+        text: "The National Irrigation and Energy Efficiency Improvement Project integrates remote sensing to monitor irrigation performance, water consumption, and productivity. The aim: improved efficiency, transparency, and climate resilience, plus better equity in distribution and a path to financially and environmentally sustainable service delivery.",
+        theme: "Digital tools and remote sensing",
+      },
+    };
+
+    const SAHEL_STORY = {
+      country: "Sahel region",
+      title: "Machine learning for groundwater identification",
+      text: "Across Burkina Faso, Chad, Mali, Mauritania, Niger, and Senegal, machine learning combined with satellite data identified nearly 1 million hectares of opportunity for irrigation development through shallow basement crystalline groundwater - a scalable, cost-effective approach. The work informed the new Sahel Irrigation Strategy, approved by all Sahel countries on 9 April 2025.",
+      theme: "Cross-country data and innovation",
+      countries: ["BFA", "TCD", "MLI", "MRT", "NER", "SEN"],
+      lon: -2,
+      lat: 16.5,
+    };
+
+    const CONTEXT_LABELS = {
+      C1: "Water-secure food importer",
+      C2: "Water-secure food exporter",
+      C3: "Water-stressed food exporter",
+      C4: "Water-stressed food importer",
+    };
+
+    function fmtPct(v) {
+      if (v == null || isNaN(v)) return "-";
+      return `${(+v).toFixed(0)}%`;
+    }
+    function fmtTrade(v) {
+      if (v == null || isNaN(v)) return "-";
+      const sign = v >= 0 ? "+" : "";
+      return `${sign}${(+v).toFixed(1)}%`;
+    }
+    function fmtPop(v) {
+      if (v == null || isNaN(v)) return "-";
+      const m = v / 1e6;
+      return m >= 100 ? `${m.toFixed(0)}M` : `${m.toFixed(1)}M`;
+    }
+    function fmtFood(v) {
+      if (v == null || isNaN(v)) return "-";
+      return `${(+v * 1000).toFixed(0)}`;
+    }
+    function cleanM49(v) {
+      if (v == null) return null;
+      const s = String(v).replace(/[^0-9]/g, "");
+      return s ? s.padStart(3, "0") : null;
+    }
+
+    const data = await fetch("../data/dashboard.json").then(r => r.json());
+    const world = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(r => r.json());
+
+    const byM49 = new Map();
+    const byIso3 = new Map();
+    for (const r of data) {
+      const code = cleanM49(r.m49);
+      if (code) byM49.set(code, r);
+      if (r.iso3) byIso3.set(r.iso3, r);
+    }
+
+    const countries = topojson.feature(world, world.objects.countries);
+    const svg = d3.select("#map");
+    const tooltip = d3.select("#tooltip");
+    const root = document.getElementById("root");
+    const panel = document.getElementById("panel");
+
+    const width = 960, height = 480;
+    const projection = d3.geoNaturalEarth1().fitExtent([[6, 6], [width-6, height-6]], countries);
+    const pathGen = d3.geoPath(projection);
+
+    const gCountries = svg.append("g");
+    let selectedFeature = null;
+    let activeFilter = "all"; // 'all' | 'cases'
+
+    function contextOf(feature) {
+      const r = byM49.get(feature.id);
+      return r ? r.context : null;
+    }
+    function recordOf(feature) {
+      return byM49.get(feature.id);
+    }
+    function isCaseStudy(feature) {
+      const r = recordOf(feature);
+      return r && r.iso3 in CASE_STUDIES;
+    }
+
+    function classFor(feature) {
+      const ctx = contextOf(feature);
+      const cls = ["country-base"];
+      if (ctx) cls.push("country-" + ctx.toLowerCase());
+      if (isCaseStudy(feature)) cls.push("case-study");
+      if (activeFilter === "cases" && !isCaseStudy(feature)) cls.push("dim");
+      if (selectedFeature && selectedFeature.id === feature.id) cls.push("selected");
+      return cls.join(" ");
+    }
+
+    function render() {
+      gCountries.selectAll("path")
+        .data(countries.features, d => d.id)
+        .join("path")
+        .attr("d", pathGen)
+        .attr("class", classFor)
+        .on("mousemove", (event, d) => {
+          const r = recordOf(d);
+          const name = r ? r.country : (d.properties && d.properties.name) || "Unknown";
+          const ctx = r && r.context ? CONTEXT_LABELS[r.context] : "Insufficient data";
+          const cs = isCaseStudy(d) ? " - case study" : "";
+          tooltip
+            .style("opacity", 1)
+            .style("left", (event.offsetX + 12) + "px")
+            .style("top", (event.offsetY + 8) + "px")
+            .html(`<strong>${name}</strong>${cs}<br/>${ctx}`);
+        })
+        .on("mouseleave", () => tooltip.style("opacity", 0))
+        .on("click", (event, d) => {
+          selectedFeature = d;
+          render();
+          openPanel(d);
+        });
+
+      // Sahel marker - rendered last so it sits on top
+      gCountries.selectAll(".sahel-group").remove();
+      const sahel = gCountries.append("g").attr("class", "sahel-group");
+      const [sx, sy] = projection([SAHEL_STORY.lon, SAHEL_STORY.lat]);
+      sahel.append("circle")
+        .attr("class", "sahel-marker")
+        .attr("cx", sx).attr("cy", sy).attr("r", 9)
+        .on("mousemove", (event) => {
+          tooltip
+            .style("opacity", 1)
+            .style("left", (event.offsetX + 12) + "px")
+            .style("top", (event.offsetY + 8) + "px")
+            .html(`<strong>Sahel region</strong> - case study<br/>Cross-country case study`);
+        })
+        .on("mouseleave", () => tooltip.style("opacity", 0))
+        .on("click", () => openSahel());
+      sahel.append("text")
+        .attr("class", "sahel-label")
+        .attr("x", sx).attr("y", sy + 3)
+        .text("S");
+    }
+
+    function panelEmpty() {
+      panel.innerHTML = `
+        <div class="panel-empty">
+          <strong>Click a country</strong>
+          Each profile shows the water-food nexus context, key indicators, and (for case studies) what works on the ground per the report.
+        </div>`;
+      root.classList.remove("has-panel");
+    }
+
+    function openPanel(feature) {
+      const r = recordOf(feature);
+      if (!r) {
+        const name = (feature.properties && feature.properties.name) || "Country";
+        panel.innerHTML = `
+          <div class="panel-header">
+            <button class="panel-close" id="panel-close-btn" aria-label="Close">&times;</button>
+            <span class="panel-context-badge none">No data</span>
+            <h3 class="panel-country">${name}</h3>
+            <p class="panel-region">Not in the dataset</p>
+          </div>
+          <div class="panel-body">
+            <p class="placeholder-note">This country is not covered by the integrated FBS + WRI dataset used here. It may still appear in the original FAO/WRI source files.</p>
+          </div>`;
+        bindClose();
+        root.classList.add("has-panel");
+        return;
+      }
+      const ctxKey = r.context || "none";
+      const ctxLabel = r.context ? CONTEXT_LABELS[r.context] : "Insufficient data";
+      const cs = CASE_STUDIES[r.iso3];
+
+      const stressVal = r.water_stress_baseline;
+      const stressNote = stressVal == null ? "" : (stressVal >= 80 ? "Extremely high" : stressVal >= 40 ? "High" : stressVal >= 20 ? "Medium" : "Low");
+      const tradeVal = r.net_export_pct;
+      const tradeLabel = tradeVal == null ? "-" : (tradeVal >= 0 ? "Net exporter" : "Net importer");
+
+      const stats = `
+        <div class="stat-grid">
+          <div class="stat">
+            <p class="stat-label">Water stress</p>
+            <p class="stat-value">${fmtPct(stressVal)}</p>
+            <p class="stat-sub">${stressNote}</p>
+          </div>
+          <div class="stat">
+            <p class="stat-label">Food trade</p>
+            <p class="stat-value">${fmtTrade(tradeVal)}</p>
+            <p class="stat-sub">${tradeLabel}</p>
+          </div>
+          <div class="stat">
+            <p class="stat-label">Population</p>
+            <p class="stat-value">${fmtPop(r.population)}</p>
+            <p class="stat-sub">2019 estimate</p>
+          </div>
+          <div class="stat">
+            <p class="stat-label">Food supply</p>
+            <p class="stat-value">${fmtFood(r.food_supply_kcal_per_capita_day)}</p>
+            <p class="stat-sub">kcal / person / day</p>
+          </div>
+        </div>`;
+
+      const caseSection = cs ? `
+        <div class="panel-section">
+          <h4>Case study - ${cs.theme}</h4>
+          <div class="case-study-stub"><strong>${cs.title}</strong></div>
+          <p>${cs.text}</p>
+          <p class="placeholder-note">Excerpted from the published report - draft for editorial review.</p>
+        </div>` : `
+        <div class="panel-section">
+          <h4>Profile</h4>
+          <p>This country is not a featured case study in the report. It is included on the map to show how its position in the water-food nexus framework compares with the case-study set.</p>
+        </div>`;
+
+      panel.innerHTML = `
+        <div class="panel-header">
+          <button class="panel-close" id="panel-close-btn" aria-label="Close">&times;</button>
+          <span class="panel-context-badge ${ctxKey.toLowerCase()}">${r.context || "no data"} - ${ctxLabel}</span>
+          <h3 class="panel-country">${r.country}</h3>
+          <p class="panel-region">${r.region || ""}</p>
+        </div>
+        <div class="panel-body">
+          ${stats}
+          ${caseSection}
+        </div>`;
+      bindClose();
+      root.classList.add("has-panel");
+    }
+
+    function openSahel() {
+      const cs = SAHEL_STORY;
+      panel.innerHTML = `
+        <div class="panel-header">
+          <button class="panel-close" id="panel-close-btn" aria-label="Close">&times;</button>
+          <span class="panel-context-badge c1">Region - Sahel</span>
+          <h3 class="panel-country">${cs.country}</h3>
+          <p class="panel-region">Burkina Faso, Chad, Mali, Mauritania, Niger, Senegal</p>
+        </div>
+        <div class="panel-body">
+          <div class="panel-section">
+            <h4>Case study - ${cs.theme}</h4>
+            <div class="case-study-stub"><strong>${cs.title}</strong></div>
+            <p>${cs.text}</p>
+            <p class="placeholder-note">The Sahel is a multi-country region; per-country profiles are also available on the map. Click Mali, Senegal, or any other Sahel country for individual context.</p>
+          </div>
+        </div>`;
+      bindClose();
+      root.classList.add("has-panel");
+    }
+
+    function bindClose() {
+      const btn = document.getElementById("panel-close-btn");
+      if (btn) btn.addEventListener("click", () => {
+        selectedFeature = null;
+        panelEmpty();
+        render();
+      });
+    }
+
+    document.getElementById("btn-all").addEventListener("click", (e) => {
+      activeFilter = "all";
+      e.currentTarget.classList.add("active");
+      document.getElementById("btn-cases").classList.remove("active");
+      render();
+    });
+    document.getElementById("btn-cases").addEventListener("click", (e) => {
+      activeFilter = "cases";
+      e.currentTarget.classList.add("active");
+      document.getElementById("btn-all").classList.remove("active");
+      render();
+    });
+    document.getElementById("btn-sahel").addEventListener("click", () => {
+      openSahel();
+    });
+
+    render();
+  </script>
+</body>
+</html>
