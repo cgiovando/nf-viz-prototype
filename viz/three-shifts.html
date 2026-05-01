@@ -8,6 +8,15 @@
   <style>
     body { background: #fff; }
     .viz-page { padding: 1.25rem; max-width: 1200px; margin: 0 auto; }
+    /* When embedded in a StoryMap sidecar (?layout=right), shift content to
+       the right 65% of the canvas so the floating narrative panel doesn't
+       cover any cards. */
+    body[data-layout="right"] .viz-page {
+      max-width: none;
+      width: 65%;
+      margin-left: 35%;
+      padding-right: 2rem;
+    }
     .viz-header h1 { font-size: 1.35rem; margin: 0 0 0.25rem; color: var(--c-accent-dark); }
     .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.92rem; }
 
@@ -118,6 +127,11 @@
   </style>
 </head>
 <body>
+  <script>
+    if (new URLSearchParams(location.search).get('layout') === 'right') {
+      document.body.setAttribute('data-layout', 'right');
+    }
+  </script>
   <div class="viz-page">
     <header class="viz-header">
       <h1>Three foundational shifts to transform agricultural water management</h1>
