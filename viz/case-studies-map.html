@@ -247,6 +247,9 @@
       margin-top: 0.5rem;
     }
 
+    /* When loaded inside the StoryMap (?embed=storymap), hide gallery link. */
+    body[data-embed="storymap"] .back-link { display: none; }
+
     .footer-note {
       font-size: 0.78rem;
       color: var(--c-muted);
@@ -257,6 +260,11 @@
   </style>
 </head>
 <body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+  </script>
   <div class="viz-page">
     <header class="viz-header">
       <h1>Case studies in context</h1>
@@ -293,7 +301,7 @@
     </div>
 
     <p class="footer-note">
-      Sources: WRI Aqueduct (baseline water stress), FAOSTAT FBS 2019 (food balance sheets, kcal), report's Figure 3.1 framework. Country boundaries: Natural Earth. Case-study text drafted from chapter 3 of the published report. <a href="../index.html">&larr; Back to gallery</a>
+      Sources: WRI Aqueduct (baseline water stress), FAOSTAT FBS 2019 (food balance sheets, kcal), report's Figure 3.1 framework. Country boundaries: Natural Earth. Case-study text drawn from chapter 4 of the published report. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 
@@ -591,7 +599,7 @@
           <h4>Case study - ${cs.theme}</h4>
           <div class="case-study-stub"><strong>${cs.title}</strong></div>
           <p>${cs.text}</p>
-          <p class="placeholder-note">Excerpted from the published report - draft for editorial review.</p>
+          <p class="placeholder-note">Excerpted from the published report.</p>
         </div>` : `
         <div class="panel-section">
           <h4>Profile</h4>

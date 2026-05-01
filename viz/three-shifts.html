@@ -124,13 +124,15 @@
     }
 
     .icon-svg { width: 28px; height: 28px; }
+    body[data-embed="storymap"] .back-link { display: none; }
+
   </style>
 </head>
 <body>
   <script>
-    if (new URLSearchParams(location.search).get('layout') === 'right') {
-      document.body.setAttribute('data-layout', 'right');
-    }
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
   </script>
   <div class="viz-page">
     <header class="viz-header">
@@ -199,7 +201,7 @@
     </div>
 
     <p class="footer-note">
-      Source: <em>Nourish and Flourish</em>, World Bank 2025 - chapter 5 "From Choices to Lasting Results". The three shifts are reinforcing: complexity-aware design needs service-oriented delivery, and both depend on better data. <a href="../index.html">&larr; Back to gallery</a>
+      Source: <em>Nourish and Flourish</em>, World Bank 2025 - chapter 5 "From Choices to Lasting Results". The three shifts are reinforcing: complexity-aware design needs service-oriented delivery, and both depend on better data. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 </body>

@@ -129,9 +129,16 @@
       padding-top: 0.75rem;
       border-top: 1px solid var(--c-border);
     }
+    body[data-embed="storymap"] .back-link { display: none; }
+
   </style>
 </head>
 <body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+  </script>
   <div class="viz-page">
     <header class="viz-header">
       <h1>Food supply and water stress, country by country</h1>
@@ -170,7 +177,7 @@
     </div>
 
     <p class="footer-note">
-      Sources: FAOSTAT food balance sheets 2019 (food supply kcal); WRI Aqueduct (baseline water stress, % of available freshwater used). Country boundaries: Natural Earth via the World Atlas TopoJSON CDN. <a href="../index.html">&larr; Back to gallery</a>
+      Sources: FAOSTAT food balance sheets 2019 (food supply kcal); WRI Aqueduct (baseline water stress, % of available freshwater used). Country boundaries: Natural Earth via the World Atlas TopoJSON CDN. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 

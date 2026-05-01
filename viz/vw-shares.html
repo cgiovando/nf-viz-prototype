@@ -93,9 +93,16 @@
       padding-top: 0.75rem;
       border-top: 1px solid var(--c-border);
     }
+    body[data-embed="storymap"] .back-link { display: none; }
+
   </style>
 </head>
 <body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+  </script>
   <div class="viz-page">
     <header class="viz-header">
       <h1>Green and blue water embedded in food trade</h1>
@@ -128,7 +135,7 @@
     </div>
 
     <p class="footer-note">
-      Source: VW_Data sheet from <code>Nourish_and_Flourish_Dash_Data.xlsx</code> (FAOSTAT FBS 2019 + virtual water content factors). Bars show gross trade flows; net position can be inferred from the import-export balance. <a href="../index.html">&larr; Back to gallery</a>
+      Source: VW_Data sheet from <code>Nourish_and_Flourish_Dash_Data.xlsx</code> (FAOSTAT FBS 2019 + virtual water content factors). Bars show gross trade flows; net position can be inferred from the import-export balance. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 
