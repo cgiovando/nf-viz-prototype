@@ -325,7 +325,7 @@
           <dl>
             <dt>Food supply</dt><dd>${food != null ? `${food.toFixed(2)}k kcal/day` : "n/a"}</dd>
             <dt>Water stress</dt><dd>${stress != null ? `${stress.toFixed(0)}%` : "n/a"}</dd>
-            ${r?.quadrant ? `<dt>Quadrant</dt><dd>${r.quadrant}</dd>` : ""}
+            ${r?.quadrant ? `<dt>Context</dt><dd>${r.quadrant}</dd>` : ""}
             ${r?.is_case_study ? `<dt></dt><dd style="color:#7fc6e8;">case study</dd>` : ""}
           </dl>`;
         tip.style.left = (event.offsetX + 12) + "px";
