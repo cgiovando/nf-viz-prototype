@@ -14,6 +14,12 @@
       color: var(--c-accent-dark);
     }
     .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+    .stage-caption {
+      margin: 0.4rem 0 0;
+      color: var(--c-muted);
+      font-size: 0.82rem;
+      font-style: italic;
+    }
 
     .controls {
       display: flex;
@@ -97,7 +103,7 @@
 
     body[data-stage="1"] #insights,
     body[data-stage="1"] .insights { display: none; }
-    body[data-stage="3"] .stage-note {
+    body[data-arrows="on"] .stage-note {
       display: inline-block;
       font-size: 0.72rem;
       text-transform: uppercase;
@@ -109,6 +115,10 @@
       border-radius: 99px;
     }
     .stage-note { display: none; }
+
+    .stress-legend { display: none; }
+    body[data-shade="on"] .stress-legend { display: flex; }
+    .stress-legend .swatch { border: 1px solid var(--c-border); }
 
   </style>
 </head>
@@ -124,6 +134,7 @@
     <header class="viz-header">
       <h1>Green and blue water embedded in food trade<span class="stage-note">Illustrative</span></h1>
       <p>The water that grew the food a country imports or exports - split between rain-fed (green) and irrigation (blue). 2019, million m&sup3;.</p>
+      <p class="stage-caption" id="stageCaption"></p>
     </header>
 
     <div class="controls" id="controls">
@@ -135,6 +146,7 @@
       <span><span class="swatch" style="background:#469e6e"></span>Green water (rain-fed)</span>
       <span><span class="swatch" style="background:#1a73a7"></span>Blue water (irrigation)</span>
       <span style="color:var(--c-text)">&larr; imports &nbsp;|&nbsp; exports &rarr;</span>
+      <span class="stress-legend">Row background:&nbsp;<span class="swatch" id="stressHighSwatch"></span>water-stressed country&nbsp;<span class="swatch" id="stressLowSwatch"></span>water-secure country</span>
     </div>
 
     <div class="plot-card">
@@ -161,6 +173,19 @@
 
     const stage = document.body.getAttribute("data-stage");
 
+    const showImports = stage !== "1";
+    const showBlue = stage !== "1";
+    const showShade = stage !== "1";
+    const showArrows = stage === "3" || stage == null;
+
+    if (showShade) document.body.setAttribute("data-shade", "on");
+    if (showArrows) document.body.setAttribute("data-arrows", "on");
+
+    function hexToRgba(hex, alpha) {
+      const n = parseInt(hex.slice(1), 16);
+      return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+    }
+
     const STRESS_FALLBACK = {
       USA: 25, Brazil: 10, Argentina: 18, Russia: 8, Canada: 5, Australia: 22, France: 30,
       India: 80, Pakistan: 95, Iran: 85, "Saudi Arabia": 95, "United Arab Emirates": 95,
@@ -180,6 +205,7 @@
       low:  "#469e6e",
       mid:  "#8a98a5",
     };
+    const TINT_OPACITY = 0.28;
 
     const ARROW_DOWN_COUNTRIES = new Set(["India", "Pakistan"]);
     const ARROW_UP_COUNTRIES = new Set(["United States", "Brazil", "Argentina", "Russian Federation", "Canada", "Australia"]);
@@ -204,8 +230,6 @@
 
     function reshape(countries) {
       const out = [];
-      const showImports = stage !== "1";
-      const showBlue = stage !== "1";
       for (const c of countries) {
         if (showImports) {
           out.push({ country: c.country, type: "Green water", direction: "import",
@@ -248,7 +272,7 @@
 
       const marks = [];
 
-      if (stage === "2") {
+      if (showShade) {
         const tintRows = countries.map(c => ({
           country: c.country,
           tint: STRESS_TINT[stressLevel(c)],
@@ -256,7 +280,7 @@
         marks.push(Plot.cell(tintRows, {
           y: "country",
           fill: "tint",
-          fillOpacity: 0.14,
+          fillOpacity: TINT_OPACITY,
           inset: 0,
         }));
       }
@@ -271,7 +295,7 @@
         title: d => `${d.country}\n${d.type} - ${d.direction}\n${Math.abs(d.value).toLocaleString()} million m³`,
       }));
 
-      if (stage === "3") {
+      if (showArrows) {
         const arrowRows = [];
         for (const c of countries) {
           const blueExp = c.vw_blue_export_2019_mcm || 0;
@@ -339,7 +363,7 @@
           "<strong>Spain, Egypt</strong> export blue water under high stress; <strong>China, Japan, Korea</strong> sit in mid-stress contexts but lean heavily on imports.",
           "Row tint shows baseline freshwater stress: green = low, red = high.",
         ];
-      } else if (stage === "3") {
+      } else if (stage === "3" || stage == null) {
         items = [
           "Arrows mark <strong>strategic direction</strong>: stressed exporters (India, Pakistan) should <em>shrink</em> blue-water exports; low-stress regions (USA, Brazil, Argentina, Canada, Australia, Russia) have room to <em>grow</em> green-water trade.",
           "<strong>China, Japan, Korea, Germany</strong> remain large net importers of embedded green water - food security via trade.",
@@ -349,6 +373,22 @@
         return;
       }
       el.innerHTML = items.map(t => `<li>${t}</li>`).join("");
+    }
+
+    const highSwatch = document.getElementById("stressHighSwatch");
+    const lowSwatch = document.getElementById("stressLowSwatch");
+    if (highSwatch) highSwatch.style.background = hexToRgba(STRESS_TINT.high, TINT_OPACITY);
+    if (lowSwatch) lowSwatch.style.background = hexToRgba(STRESS_TINT.low, TINT_OPACITY);
+
+    const captionEl = document.getElementById("stageCaption");
+    if (captionEl) {
+      const captions = {
+        "1": "Exports only - the green (rain-fed) water embedded in each country's food exports.",
+        "2": "Now split by water type, with each row shaded by the country's water stress.",
+        "3": "Full picture: imports added (left), plus the report's illustrative direction of change.",
+      };
+      captionEl.textContent = captions[stage]
+        || "Full picture: imports (left) and exports (right), split by water type, each row shaded by the country's water stress, with the report's illustrative direction of change.";
     }
 
     // Wire toggle buttons
