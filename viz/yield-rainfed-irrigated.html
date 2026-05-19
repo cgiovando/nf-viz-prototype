@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rainfed vs irrigated yields - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    body[data-layout="right"] .viz-page {
+      max-width: none;
+      width: 65%;
+      margin-left: 35%;
+      padding-right: 2rem;
+    }
+    .viz-header h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.3rem;
+      color: var(--c-accent-dark);
+      line-height: 1.25;
+    }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.95rem; }
+
+    /* Range-bar comparison chart */
+    .chart-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.5rem 1.5rem 1.25rem;
+      margin: 1.5rem 0 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-title {
+      font-size: 0.95rem;
+      margin: 0 0 0.25rem;
+      color: var(--c-text);
+      font-weight: 600;
+    }
+    .chart-sub {
+      font-size: 0.82rem;
+      margin: 0 0 1.1rem;
+      color: var(--c-muted);
+    }
+
+    .yield-rows { display: flex; flex-direction: column; gap: 1rem; }
+    .yield-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    @media (max-width: 600px) {
+      .yield-row { grid-template-columns: 1fr; }
+    }
+    .yield-label {
+      font-size: 0.9rem;
+      color: var(--c-text);
+      font-weight: 600;
+    }
+    .yield-label small {
+      display: block;
+      font-weight: 400;
+      color: var(--c-muted);
+      font-size: 0.75rem;
+      margin-top: 0.15rem;
+    }
+    .yield-track {
+      position: relative;
+      background: #f1f4f7;
+      border-radius: 6px;
+      height: 38px;
+    }
+    /* Range bar: left = lower bound, fill to upper bound. Scale 0-7 t/ha. */
+    .range-fill {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.7rem;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+    .range-fill.rainfed {
+      background: #6abf95;
+      /* 0.6 t/ha to 2.3 t/ha on 0-7 scale: left 8.6%, width 24.3% */
+      left: 8.6%;
+      width: 24.3%;
+    }
+    .range-fill.irrigated {
+      background: var(--c-accent);
+      /* 2.5 t/ha to 5.6 t/ha on 0-7 scale: left 35.7%, width 44.3% */
+      left: 35.7%;
+      width: 44.3%;
+    }
+    .range-min, .range-max {
+      font-variant-numeric: tabular-nums;
+    }
+    .yield-axis {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      margin: 0.5rem 0 0;
+      padding-left: 130px;
+    }
+    @media (max-width: 600px) {
+      .yield-axis { padding-left: 0; }
+    }
+    .yield-axis span { font-variant-numeric: tabular-nums; }
+    .yield-axis-label {
+      font-size: 0.75rem;
+      color: var(--c-muted);
+      text-align: center;
+      margin-top: 0.4rem;
+      padding-left: 130px;
+    }
+    @media (max-width: 600px) {
+      .yield-axis-label { padding-left: 0; }
+    }
+
+    /* Supporting stat callouts */
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin: 1rem 0 1.25rem;
+    }
+    @media (min-width: 760px) { .stat-row { grid-template-columns: 1fr 1fr; } }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 6px; height: 100%;
+    }
+    .stat-card.area::before  { background: var(--c-accent); }
+    .stat-card.intens::before { background: var(--c-warm); }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--c-muted);
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+    }
+    .stat-headline {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+      line-height: 1.15;
+      color: var(--c-text);
+    }
+    .stat-headline .accent { color: var(--c-accent-dark); }
+    .stat-headline .warm   { color: var(--c-warm); }
+    .stat-headline .sep    { color: var(--c-muted); font-weight: 500; margin: 0 0.25rem; }
+    .stat-desc {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--c-text);
+      line-height: 1.45;
+    }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--c-border);
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+  </script>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Where rainfall is unreliable, irrigation sharply raises productivity.</h1>
+      <p>Rice yields across Sub-Saharan Africa - rainfed versus irrigated, from a 12-country meta-analysis.</p>
+    </header>
+
+    <div class="chart-card">
+      <p class="chart-title">Rice yield range (tonnes per hectare)</p>
+      <p class="chart-sub">Each bar shows the observed range across studies. Irrigated systems start where rainfed systems top out.</p>
+      <div class="yield-rows">
+        <div class="yield-row">
+          <div class="yield-label">Rainfed
+            <small>relying on rainfall alone</small>
+          </div>
+          <div class="yield-track">
+            <div class="range-fill rainfed">
+              <span class="range-min">0.6</span>
+              <span class="range-max">2.3</span>
+            </div>
+          </div>
+        </div>
+        <div class="yield-row">
+          <div class="yield-label">Irrigated
+            <small>with reliable water</small>
+          </div>
+          <div class="yield-track">
+            <div class="range-fill irrigated">
+              <span class="range-min">2.5</span>
+              <span class="range-max">5.6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="yield-axis">
+        <span>0</span>
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
+        <span>4</span>
+        <span>5</span>
+        <span>6</span>
+        <span>7</span>
+      </div>
+      <p class="yield-axis-label">tonnes per hectare</p>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card area">
+        <p class="stat-label">Outsized contribution</p>
+        <p class="stat-headline">
+          <span class="accent">6.5%</span>
+          <span class="sep">of land</span>
+          <span class="accent">40%</span>
+          <span class="sep">of food</span>
+        </p>
+        <p class="stat-desc">Irrigated cropland is a small share of agricultural area but delivers roughly 40% of the world's food supply.</p>
+      </div>
+      <div class="stat-card intens">
+        <p class="stat-label">More than yield alone</p>
+        <p class="stat-headline">
+          Up to <span class="warm">+43%</span> cropping intensity
+        </p>
+        <p class="stat-desc">With reliable water, farmers can grow more crops per year on the same land - multiplying the productivity gain.</p>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      Source: rainfed and irrigated rice yield ranges from Lankford et al. 2016, meta-analysis across 12 Sub-Saharan African countries. Area-share and food-share figures from <em>Nourish and Flourish</em>, World Bank 2026, chapter 2. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+</body>
+</html>

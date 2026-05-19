@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>245 million jobs - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    body[data-layout="right"] .viz-page {
+      max-width: none;
+      width: 65%;
+      margin-left: 35%;
+      padding-right: 2rem;
+    }
+    .viz-header h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.3rem;
+      color: var(--c-accent-dark);
+      line-height: 1.25;
+    }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.95rem; }
+
+    /* Three stat cards */
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin: 1.75rem 0 0.5rem;
+    }
+    @media (min-width: 760px) {
+      .jobs-grid { grid-template-columns: 1.1fr 1.1fr 0.95fr; gap: 1.1rem; }
+    }
+    .job-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.4rem 1.4rem 1.35rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+    .job-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 5px;
+    }
+    .job-card.global::before { background: #6abf95; }
+    .job-card.ssa::before    { background: #1f6c45; }
+    .job-card.perha::before  { background: var(--c-warm); }
+
+    .job-eyebrow {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--c-muted);
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+    }
+    .job-value {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      margin: 0 0 0.5rem;
+    }
+    .job-card.global .job-value { color: #469e6e; }
+    .job-card.ssa    .job-value { color: #1f6c45; }
+    .job-card.perha  .job-value { color: var(--c-warm); }
+    .job-desc {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--c-text);
+      line-height: 1.45;
+    }
+    .job-desc strong { font-weight: 700; }
+
+    /* Proportion bar between global and SSA */
+    .proportion-wrap {
+      margin: 0.75rem 0 1.5rem;
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.1rem 1.4rem;
+    }
+    .proportion-title {
+      font-size: 0.85rem;
+      color: var(--c-text);
+      margin: 0 0 0.7rem;
+      font-weight: 600;
+    }
+    .proportion-track {
+      position: relative;
+      height: 28px;
+      background: #f1f4f7;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .proportion-ssa {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 88.98%; /* 218/245 */
+      background: #1f6c45;
+      display: flex;
+      align-items: center;
+      padding: 0 0.6rem;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .proportion-rest {
+      position: absolute;
+      top: 0;
+      left: 88.98%;
+      height: 100%;
+      width: 11.02%;
+      background: #6abf95;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 0.6rem;
+      color: #1a2733;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .proportion-caption {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin: 0.55rem 0 0;
+    }
+    .proportion-caption strong { color: #1f6c45; font-weight: 700; }
+
+    .takeaway {
+      background: linear-gradient(135deg, var(--q1-bg), var(--q4-bg));
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.15rem 1.4rem;
+      margin-top: 0.25rem;
+    }
+    .takeaway p {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--c-text);
+    }
+    .takeaway strong { color: #1f6c45; font-weight: 700; }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--c-border);
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+  </script>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Expanding irrigation where water is available could create 245 million jobs.</h1>
+      <p>Where reliable water meets unmet demand, irrigation pulls entire rural economies forward - not just farms.</p>
+    </header>
+
+    <div class="jobs-grid">
+      <div class="job-card global">
+        <p class="job-eyebrow">Globally</p>
+        <p class="job-value">245M</p>
+        <p class="job-desc">jobs that could be created by expanding irrigation in regions where water is available.</p>
+      </div>
+      <div class="job-card ssa">
+        <p class="job-eyebrow">Sub-Saharan Africa</p>
+        <p class="job-value">218M</p>
+        <p class="job-desc">of those jobs - <strong>about 89%</strong> - concentrated in the region with the largest unmet potential.</p>
+      </div>
+      <div class="job-card perha">
+        <p class="job-eyebrow">Per hectare irrigated</p>
+        <p class="job-value">4</p>
+        <p class="job-desc">jobs per newly irrigated hectare, on average - spanning farms, supply chains, and services.</p>
+      </div>
+    </div>
+
+    <div class="proportion-wrap">
+      <p class="proportion-title">Share of the 245M opportunity</p>
+      <div class="proportion-track">
+        <div class="proportion-ssa">Sub-Saharan Africa - 218M</div>
+        <div class="proportion-rest">27M</div>
+      </div>
+      <p class="proportion-caption"><strong>~89% of the job-creation potential</strong> sits in Sub-Saharan Africa, where irrigated area is currently lowest.</p>
+    </div>
+
+    <div class="takeaway">
+      <p>Jobs extend far beyond farming - <strong>equipment supply, processing, transport, finance, and agricultural services</strong>. Reliable water enables entire value chains, not just larger harvests.</p>
+    </div>
+
+    <p class="footer-note">
+      Source: Taheripour and Chepeliev (forthcoming); <em>Nourish and Flourish</em>, World Bank 2026 - chapter 2 on the jobs and livelihoods dividend from agricultural water management. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+</body>
+</html>
