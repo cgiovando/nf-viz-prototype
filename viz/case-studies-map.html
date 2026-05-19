@@ -76,6 +76,48 @@
     .toolbar-controls button:hover { background: #eef2f6; border-color: var(--c-accent); }
     .toolbar-controls button.active { background: var(--c-accent-dark); color: #fff; border-color: var(--c-accent-dark); }
 
+    .solution-filter {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      color: var(--c-text);
+    }
+    .solution-filter label { font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.72rem; }
+    .solution-filter select {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 0.32rem 0.55rem;
+      font-size: 0.82rem;
+      color: var(--c-text);
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .solution-filter select:hover { border-color: var(--c-accent); }
+    .solution-filter select:focus { outline: 2px solid var(--c-accent); outline-offset: 1px; }
+
+    .country-base.solution-dim { opacity: 0.25; stroke-width: 0.4; stroke: #fff; }
+    .country-base.solution-dim.case-study { stroke: #fff; stroke-width: 0.4; }
+    .sahel-marker.solution-dim { opacity: 0.25; }
+
+    .panel-solutions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin: 0.5rem 0 0.2rem;
+    }
+    .solution-chip {
+      display: inline-block;
+      padding: 0.18rem 0.5rem;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: #eef2f6;
+      color: var(--c-accent-dark);
+      border: 1px solid #d6dde4;
+    }
+
     .map-and-panel {
       display: grid;
       grid-template-columns: 1fr;
@@ -281,6 +323,17 @@
         <span class="legend-item"><span class="legend-swatch case"></span>Case study</span>
         <span class="legend-item"><span class="legend-swatch nodata"></span>No data</span>
       </div>
+      <div class="solution-filter">
+        <label for="solution-select">Filter by solution</label>
+        <select id="solution-select">
+          <option value="all">All solution types</option>
+          <option value="1">Align water use with realities</option>
+          <option value="2">Shift from infrastructure to services</option>
+          <option value="3">Use data and technology</option>
+          <option value="4">Empower farmers as economic actors</option>
+          <option value="5">Crowd in private capital</option>
+        </select>
+      </div>
       <div class="toolbar-controls">
         <button id="btn-all" class="active" type="button">All countries</button>
         <button id="btn-cases" type="button">Case studies only</button>
@@ -307,31 +360,43 @@
   </div>
 
   <script type="module">
+    const SOLUTION_LABELS = {
+      1: "Align water use with realities",
+      2: "Shift from infrastructure to services",
+      3: "Use data and technology",
+      4: "Empower farmers as economic actors",
+      5: "Crowd in private capital",
+    };
+
     const CASE_STUDIES = {
       // Context 1: water-secure food importers
       "BDI": {
         country: "Burundi",
-        title: "Spatial analysis of irrigation needs",
-        text: "Spatial analysis combining remote sensing and ground-based data was used to assess irrigation needs and prioritize investment across rehabilitation versus new development. The analysis estimated investment needs across 57,000 hectares.",
+        title: "Spatial analysis to prioritize irrigation",
+        text: "In Burundi, remote sensing and field data were used to assess irrigation potential and investment needs across different system types. The analysis helped estimate costs and prioritize rehabilitation versus new development across tens of thousands of hectares. By clarifying where investment would be most effective, the approach supports better allocation of scarce public resources.",
         theme: "Use of data and innovation",
+        solutions: [1, 3],
       },
       "MLI": {
         country: "Mali",
         title: "Office du Niger: 40 years of productivity gains",
         text: "The Office du Niger increased rice yields from 2 to 5-6 t/ha over four decades by improving service quality and giving farmers greater control over water and land. Public funding built the irrigation backbone, while private actors handled processing and marketing - and joint ventures with international agriculture corporations and the Malian state operate within the scheme.",
         theme: "Service-quality and institutional reform",
+        solutions: [1, 2, 5],
       },
       "SEN": {
         country: "Senegal",
         title: "SAED - public-private partnership at scale",
         text: "SAED is a public industrial and commercial body managing infrastructure in the Senegal River delta with transparent reporting and strategic oversight. As public partner in large-scale PPPs, it shares investment costs with agricultural producers, supports collective irrigation schemes, and mobilizes private finance for water-efficient irrigation equipment.",
         theme: "Public-private partnerships",
+        solutions: [1, 2, 5],
       },
       "UGA": {
         country: "Uganda",
         title: "Micro-Scale Irrigation Program",
         text: "From 2020-2024 a tiered-subsidy program combined US$15.4M in government equipment subsidies with US$6.3M in farmer contributions. 95% of farmers chose climate-smart solar pumps. By 2024, 4,733 farmers (21% women) cultivated 3,360 ha. The program drove a fourfold increase in suppliers nationally and a 20-month payback period even without subsidies.",
         theme: "Innovative financing for smallholders",
+        solutions: [1, 4, 5],
       },
 
       // Context 2: water-secure food exporters
@@ -340,18 +405,21 @@
         title: "Société du Canal de Provence (SCP)",
         text: "SCP is a regional development company operating under 75-year concessions with diversified revenue and participatory boards. Over 85% of extracted water is invoiced. Real-time sensor networks, hyperspectral leak detection, and remote-control flow regulation deliver dynamic water management. SCP partners with farmers and Chambers of Agriculture as small shareholders.",
         theme: "Integrated, financially sustainable governance",
+        solutions: [2, 3, 5],
       },
       "PER": {
         country: "Peru",
         title: "Olmos-Tinajones multi-stage PPP",
         text: "A 20 km trans-Andean tunnel and dam (US$247M) transferred water for irrigation of 43,500 ha. The irrigation stage (US$280M) was privately financed; cost recovery came primarily from land auctions (~US$150M) plus a flat US$0.07/m3 service fee. Despite delays from technical, legal, and land disputes, renewed efforts in 2024 are resolving them.",
         theme: "Large-scale water transfer PPP",
+        solutions: [1, 5],
       },
       "UKR": {
         country: "Ukraine",
-        title: "Hydro-informatics for irrigation recovery",
-        text: "Cutting-edge analytics and remote sensing were used to assess weather-related risks to irrigated agriculture - and, for the first time, to analyze the impact of Russia's invasion on Ukraine's irrigation sector. Combined satellite, census, and earth-systems data informed the Bank's 'Future of Irrigation in Ukraine' (2023) and Rapid Damage and Needs Assessments.",
+        title: "Hydro-informatics for resilient recovery",
+        text: "Ukraine's application of hydro-informatics has strengthened understanding of climate and water risks to irrigated agriculture. Analysis of water stress, cropping intensity, and irrigation efficiency informed strategies to rebuild irrigation systems more resiliently following conflict-related damage. The case highlights how integrated data systems can support recovery, productivity, and long-term water security.",
         theme: "Use of data and innovation",
+        solutions: [2, 3],
       },
 
       // Context 3: water-stressed food exporters
@@ -360,18 +428,28 @@
         title: "Modernizing irrigation methods at scale",
         text: "Land using drip and microjet systems grew from 93,000 ha in 1997 to ~900,000 ha in 2021 (almost 50% of productive land), enabling expansion of high-value fruit and vineyards. The 2022 Water Code revisions increased focus on resource conservation and socioenvironmental protection, in response to research showing irrigation efficiency gains can reduce return flows to rivers and aquifers.",
         theme: "Modernization with environmental safeguards",
+        solutions: [1, 3, 4],
+      },
+      "CHN": {
+        country: "China",
+        title: "Data-driven water management at scale",
+        text: "China's experience integrates monitoring, modeling, and policy instruments to manage water at basin and national scales, linking resource constraints to agricultural planning. The approach reflects long-term efforts to align water use with food production and trade strategy under tightening freshwater limits.",
+        theme: "Data and resource alignment",
+        solutions: [1, 3],
       },
       "IND": {
         country: "India",
         title: "Damodar Valley performance-based contracts",
         text: "The Damodar Valley scheme in West Bengal and Jharkhand engages nine private irrigation service providers under performance-based O&M contracts. The approach aims to ensure operational efficiency, enhance service quality, and reduce groundwater dependency. Farmers have already seen better service and expanded canal coverage in two of three harvest seasons.",
         theme: "Private-sector service delivery",
+        solutions: [1, 2, 5],
       },
       "PAK": {
         country: "Pakistan",
         title: "Laser land leveling: from public to private",
         text: "Punjab's laser-leveling capacity grew from 14,000 to 300,000 ha/year after a 2006 shift to private service delivery, supported by a 50% matching-grant program. By 2016 all government units had transferred to the private sector; today 16,000+ private units operate across the province. Smallholders rent equipment from suppliers to access the technology.",
         theme: "Private-sector scaling of efficient practices",
+        solutions: [1, 4, 5],
       },
 
       // Context 4: water-stressed food importers
@@ -380,24 +458,28 @@
         title: "As-Samra Wastewater Treatment Plant",
         text: "A 25-year build-operate-transfer arrangement, backed by a Multilateral Investment Guarantee Agency political-risk guarantee, delivers treated wastewater for irrigation. The plant is privately financed, expanded, and operated under a long-term concession until 2037, after which it reverts to government ownership.",
         theme: "Treated wastewater reuse via PPP",
+        solutions: [1, 5],
       },
       "MAR": {
         country: "Morocco",
         title: "Risk-sharing facility for solar + irrigation",
         text: "A risk-sharing facility partnering Banque Centrale Populaire, an irrigation-equipment manufacturer, and IFC de-risks lending to farmers and small enterprises for microirrigation and solar systems. Replacing fuel-run pumps reduces emissions; nearly 30,000 farmers are expected to benefit by 2027.",
         theme: "De-risked finance for water-saving tech",
+        solutions: [1, 4, 5],
       },
       "ESP": {
         country: "Spain",
         title: "Modernizing 50% of irrigated land in 20 years",
         text: "Between 1996 and 2017, half of Spain's 3.7 million ha of irrigated land was modernized through a PPP with SEIASA, which advanced 50% of project execution costs. Interventions included localized and sprinkler systems, plus floating solar panels on regulation reservoirs. Of EUR 2 billion invested over 20 years, 48% came from SEIASA, 29% from irrigators, 23% from EU and regional funds.",
         theme: "Public-private modernization at scale",
+        solutions: [1, 2, 5],
       },
       "UZB": {
         country: "Uzbekistan",
         title: "Digital irrigation services",
         text: "The National Irrigation and Energy Efficiency Improvement Project integrates remote sensing to monitor irrigation performance, water consumption, and productivity. The aim: improved efficiency, transparency, and climate resilience, plus better equity in distribution and a path to financially and environmentally sustainable service delivery.",
         theme: "Digital tools and remote sensing",
+        solutions: [3],
       },
     };
 
@@ -409,6 +491,7 @@
       countries: ["BFA", "TCD", "MLI", "MRT", "NER", "SEN"],
       lon: -2,
       lat: 16.5,
+      solutions: [1, 3],
     };
 
     const CONTEXT_LABELS = {
@@ -466,6 +549,7 @@
     const gCountries = svg.append("g");
     let selectedFeature = null;
     let activeFilter = "all"; // 'all' | 'cases'
+    let solutionFilter = "all"; // 'all' | '1'..'5'
 
     function contextOf(feature) {
       const r = byM49.get(feature.id);
@@ -478,13 +562,24 @@
       const r = recordOf(feature);
       return r && r.iso3 in CASE_STUDIES;
     }
+    function caseStudyOf(feature) {
+      const r = recordOf(feature);
+      return r ? CASE_STUDIES[r.iso3] : null;
+    }
+    function matchesSolution(cs) {
+      if (solutionFilter === "all") return true;
+      if (!cs || !cs.solutions) return false;
+      return cs.solutions.includes(+solutionFilter);
+    }
 
     function classFor(feature) {
       const ctx = contextOf(feature);
       const cls = ["country-base"];
       if (ctx) cls.push("country-" + ctx.toLowerCase());
-      if (isCaseStudy(feature)) cls.push("case-study");
-      if (activeFilter === "cases" && !isCaseStudy(feature)) cls.push("dim");
+      const cs = caseStudyOf(feature);
+      if (cs) cls.push("case-study");
+      if (activeFilter === "cases" && !cs) cls.push("dim");
+      if (solutionFilter !== "all" && (!cs || !matchesSolution(cs))) cls.push("solution-dim");
       if (selectedFeature && selectedFeature.id === feature.id) cls.push("selected");
       return cls.join(" ");
     }
@@ -509,6 +604,7 @@
         .on("mouseleave", () => tooltip.style("opacity", 0))
         .on("click", (event, d) => {
           selectedFeature = d;
+          resetSolutionFilter();
           render();
           openPanel(d);
         });
@@ -517,8 +613,9 @@
       gCountries.selectAll(".sahel-group").remove();
       const sahel = gCountries.append("g").attr("class", "sahel-group");
       const [sx, sy] = projection([SAHEL_STORY.lon, SAHEL_STORY.lat]);
+      const sahelDim = solutionFilter !== "all" && !matchesSolution(SAHEL_STORY);
       sahel.append("circle")
-        .attr("class", "sahel-marker")
+        .attr("class", "sahel-marker" + (sahelDim ? " solution-dim" : ""))
         .attr("cx", sx).attr("cy", sy).attr("r", 9)
         .on("mousemove", (event) => {
           tooltip
@@ -528,7 +625,11 @@
             .html(`<strong>Sahel region</strong> - case study<br/>Cross-country case study`);
         })
         .on("mouseleave", () => tooltip.style("opacity", 0))
-        .on("click", () => openSahel());
+        .on("click", () => {
+          resetSolutionFilter();
+          openSahel();
+          render();
+        });
       sahel.append("text")
         .attr("class", "sahel-label")
         .attr("x", sx).attr("y", sy + 3)
@@ -595,11 +696,15 @@
           </div>
         </div>`;
 
+      const solutionChips = cs && cs.solutions && cs.solutions.length
+        ? `<div class="panel-solutions">${cs.solutions.map(s => `<span class="solution-chip">${SOLUTION_LABELS[s]}</span>`).join("")}</div>`
+        : "";
       const caseSection = cs ? `
         <div class="panel-section">
           <h4>Case study - ${cs.theme}</h4>
           <div class="case-study-stub"><strong>${cs.title}</strong></div>
           <p>${cs.text}</p>
+          ${solutionChips}
           <p class="placeholder-note">Excerpted from the published report.</p>
         </div>` : `
         <div class="panel-section">
@@ -624,6 +729,9 @@
 
     function openSahel() {
       const cs = SAHEL_STORY;
+      const solutionChips = cs.solutions && cs.solutions.length
+        ? `<div class="panel-solutions">${cs.solutions.map(s => `<span class="solution-chip">${SOLUTION_LABELS[s]}</span>`).join("")}</div>`
+        : "";
       panel.innerHTML = `
         <div class="panel-header">
           <button class="panel-close" id="panel-close-btn" aria-label="Close">&times;</button>
@@ -636,6 +744,7 @@
             <h4>Case study - ${cs.theme}</h4>
             <div class="case-study-stub"><strong>${cs.title}</strong></div>
             <p>${cs.text}</p>
+            ${solutionChips}
             <p class="placeholder-note">The Sahel is a multi-country region; per-country profiles are also available on the map. Click Mali, Senegal, or any other Sahel country for individual context.</p>
           </div>
         </div>`;
@@ -665,8 +774,32 @@
       render();
     });
     document.getElementById("btn-sahel").addEventListener("click", () => {
+      resetSolutionFilter();
       openSahel();
+      render();
     });
+
+    const solutionSelect = document.getElementById("solution-select");
+    function applySolutionFilter(value, updateUrl) {
+      const validValues = ["all", "1", "2", "3", "4", "5"];
+      if (!validValues.includes(value)) value = "all";
+      solutionFilter = value;
+      if (solutionSelect.value !== value) solutionSelect.value = value;
+      if (updateUrl) {
+        const url = new URL(location.href);
+        if (value === "all") url.searchParams.delete("solution");
+        else url.searchParams.set("solution", value);
+        history.replaceState(null, "", url.toString());
+      }
+      render();
+    }
+    function resetSolutionFilter() {
+      if (solutionFilter !== "all") applySolutionFilter("all", true);
+    }
+    solutionSelect.addEventListener("change", (e) => applySolutionFilter(e.target.value, true));
+
+    const initialSolution = new URLSearchParams(location.search).get("solution");
+    if (initialSolution) applySolutionFilter(initialSolution, false);
 
     render();
   </script>
