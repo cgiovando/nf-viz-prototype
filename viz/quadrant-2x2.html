@@ -7,35 +7,62 @@
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
     body { background: #fff; }
-    .viz-page { padding: 1.5rem; max-width: 1280px; margin: 0 auto; }
-    .viz-header { margin: 0 0 1rem; }
+    .viz-page { padding: 0.7rem 1rem; max-width: 1280px; margin: 0 auto; }
+    .viz-header { margin: 0 0 0.5rem; }
     .viz-header h1 {
-      font-size: 1.4rem;
-      margin: 0 0 0.3rem;
+      font-size: 1.15rem;
+      margin: 0 0 0.2rem;
       color: var(--c-accent-dark);
     }
-    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.82rem; line-height: 1.35; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-      margin-top: 1rem;
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.35rem;
+      margin: 0 0 0.6rem;
     }
-    @media (min-width: 1000px) {
-      .layout { grid-template-columns: minmax(0, 1fr) 280px; align-items: start; }
+    .controls button {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+      padding: 0.28rem 0.7rem;
+      font: inherit;
+      font-size: 0.78rem;
+      color: var(--c-text);
+      cursor: pointer;
     }
+    .controls button.active {
+      background: var(--c-accent);
+      color: #fff;
+      border-color: var(--c-accent);
+    }
+    .controls button:hover:not(.active) { border-color: var(--c-accent); color: var(--c-accent); }
+    .controls .selected-inline {
+      margin-left: auto;
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      white-space: nowrap;
+    }
+    .controls .selected-inline strong { color: var(--c-text); }
 
     .plot-card {
       background: #fff;
       border: 1px solid var(--c-border);
       border-radius: 10px;
-      padding: 1rem 1rem 0.5rem;
+      padding: 0.6rem 0.7rem 0.35rem;
       box-shadow: var(--shadow-sm);
       position: relative;
     }
-    #plot { width: 100%; min-height: 560px; }
+    #plot { width: 100%; }
     #plot svg { display: block; max-width: 100%; height: auto; }
+    #plot circle,
+    #plot rect[class*="q-bg-"],
+    #plot text[class*="q-prom-"],
+    #plot g.q-case-label text {
+      transition: fill-opacity 200ms ease, stroke-opacity 200ms ease;
+    }
 
     /* quadrant label overlay (positioned by JS) */
     .q-label {
@@ -51,124 +78,11 @@
       background: rgba(255,255,255,0.7);
     }
 
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .sidebar h2 {
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin: 0 0 0.6rem;
-      color: var(--c-muted);
-      font-weight: 600;
-    }
-    .panel {
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 8px;
-      padding: 0.9rem 1rem;
-    }
-    .selected-country {
-      min-height: 80px;
-    }
-    .selected-country.empty .empty-msg { color: var(--c-muted); font-size: 0.85rem; margin: 0; }
-    .selected-country .name {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin: 0 0 0.15rem;
-      color: var(--c-text);
-    }
-    .selected-country .region {
-      font-size: 0.78rem;
-      color: var(--c-muted);
-      margin: 0 0 0.5rem;
-    }
-    .selected-country .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.4rem 1rem;
-      font-size: 0.85rem;
-    }
-    .selected-country .stats dt { color: var(--c-muted); margin: 0; }
-    .selected-country .stats dd { margin: 0; font-weight: 600; }
-
-    .quadrant-counts {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
-    .qc {
-      padding: 0.55rem 0.7rem;
-      border-radius: 6px;
-      font-size: 0.78rem;
-    }
-    .qc .n {
-      font-size: 1.4rem;
-      font-weight: 700;
-      display: block;
-      line-height: 1.1;
-    }
-    .qc .lbl { color: var(--c-muted); font-size: 0.72rem; }
-    .qc.c1 { background: var(--q4-bg); } /* C1 = water-secure importer (cool blue) */
-    .qc.c2 { background: var(--q1-bg); } /* C2 = water-secure exporter (green) */
-    .qc.c3 { background: var(--q2-bg); } /* C3 = water-stressed exporter (orange) */
-    .qc.c4 { background: var(--q3-bg); } /* C4 = water-stressed importer (red) */
-
-    .case-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.25rem 0.6rem;
-      font-size: 0.82rem;
-    }
-    .case-list li {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      cursor: pointer;
-      color: var(--c-text);
-    }
-    .case-list li:hover { color: var(--c-accent); }
-    .case-list .iso {
-      font-family: ui-monospace, SFMono-Regular, monospace;
-      font-size: 0.7rem;
-      color: var(--c-muted);
-    }
-    .case-list .q-pill {
-      margin-left: auto;
-      font-size: 0.65rem;
-      padding: 1px 5px;
-      border-radius: 99px;
-      color: #fff;
-      font-weight: 700;
-    }
-    .case-list .q-pill.c1 { background: #6a8aa8; } /* water-secure importer */
-    .case-list .q-pill.c2 { background: #469e6e; } /* water-secure exporter */
-    .case-list .q-pill.c3 { background: #c46b3b; } /* water-stressed exporter */
-    .case-list .q-pill.c4 { background: #ad323c; } /* water-stressed importer */
-
-    .legend-regions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem 0.7rem;
-      font-size: 0.78rem;
-    }
-    .legend-regions span { display: flex; align-items: center; gap: 0.3rem; }
-    .legend-regions .swatch {
-      width: 10px; height: 10px; border-radius: 50%;
-      display: inline-block;
-    }
-
     .footer-note {
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       color: var(--c-muted);
-      margin-top: 1.25rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--c-border);
+      margin-top: 0.45rem;
+      line-height: 1.3;
     }
   </style>
 </head>
@@ -185,38 +99,23 @@
   <div class="viz-page">
     <header class="viz-header">
       <h1>Different countries, different choices</h1>
-      <p>186 countries plotted on the report's water-food nexus framework (Figure 3.1, "Four local contexts"): freshwater stress (x) vs net food trade position (y), point size by population, color by region. The 14 case study countries called out in chapter 4 are highlighted with a darker outline.</p>
+      <p>186 countries on the water-food nexus framework: freshwater stress (x) vs net food trade position (y), sized by population, colored by region. Step through the four contexts to see which countries fall where. Case studies have a darker outline.</p>
     </header>
 
-    <div class="layout">
-      <div class="plot-card">
-        <div id="plot"></div>
-        <p class="footer-note">
-          Source: WRI Aqueduct (baseline water stress, percentage of available freshwater used) and FAOSTAT food balance sheets (2019). Context labels per Figure 3.1 of the published <em>Nourish and Flourish</em> report ("Four local contexts defined by water-food nexus framework"). Thresholds applied here: water stress &ge; 40% (high stress, WRI Aqueduct cutoff), net food imports &gt; 0 (importer). Borderline countries near a threshold may land in a different context here than in the report's narrative classification (e.g. Peru sits within ~0.01% of the importer/exporter line).
-        </p>
-      </div>
+    <div class="controls" id="controls">
+      <button data-quad="all" class="active">All countries</button>
+      <button data-quad="ws-fi">Water-secure importers</button>
+      <button data-quad="ws-fe">Water-secure exporters</button>
+      <button data-quad="wst-fe">Water-stressed exporters</button>
+      <button data-quad="wst-fi">Water-stressed importers</button>
+      <span class="selected-inline" id="selected">Hover a point for its profile</span>
+    </div>
 
-      <aside class="sidebar">
-        <div class="panel selected-country empty" id="selected">
-          <h2>Selected country</h2>
-          <p class="empty-msg">Hover or click a point to see country profile.</p>
-        </div>
-
-        <div class="panel">
-          <h2>Context counts</h2>
-          <div class="quadrant-counts" id="quadrant-counts"></div>
-        </div>
-
-        <div class="panel">
-          <h2>Case studies (chapter 4)</h2>
-          <ul class="case-list" id="case-list"></ul>
-        </div>
-
-        <div class="panel">
-          <h2>Regions</h2>
-          <div class="legend-regions" id="legend-regions"></div>
-        </div>
-      </aside>
+    <div class="plot-card">
+      <div id="plot"></div>
+      <p class="footer-note">
+        Source: WRI Aqueduct (baseline water stress) and FAOSTAT food balance sheets (2019). Context labels per Figure 3.1 of the published <em>Nourish and Flourish</em> report. Thresholds: water stress &ge; 40% (high stress), net food imports &gt; 0 (importer). Borderline countries may land in a different context here than in the report's narrative (e.g. Peru sits within ~0.01% of the importer/exporter line).
+      </p>
     </div>
   </div>
 
@@ -227,10 +126,14 @@
     // ----- load + prep data ---------------------------------------------------
 
     const stage = document.body.getAttribute("data-stage");
-    const quad = document.body.getAttribute("data-quad");
+    const initialQuad = document.body.getAttribute("data-quad");
     const QUAD_TO_CONTEXT = { "ws-fi": "C1", "ws-fe": "C2", "wst-fe": "C3", "wst-fi": "C4" };
-    const highlightContext = stage === "2" ? QUAD_TO_CONTEXT[quad] : null;
-    const dimNonHighlight = !!highlightContext;
+
+    let activeQuad = (stage === "2" && QUAD_TO_CONTEXT[initialQuad]) ? initialQuad : "all";
+    let highlightContext = QUAD_TO_CONTEXT[activeQuad] || null;
+    let dimNonHighlight = !!highlightContext;
+    let highlightRegion = null;
+
     function dotOpacity(d, base) {
       if (!dimNonHighlight) return base;
       return d.context === highlightContext ? base : base * 0.18;
@@ -241,7 +144,7 @@
       C3: { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", lx: 70, ly: -2.6, label: "Water-stressed food exporters" },
       C4: { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", lx: 70, ly: 9.3, label: "Water-stressed food importers" },
     };
-    const highlightRegion = highlightContext ? CONTEXT_REGION[highlightContext] : null;
+    highlightRegion = highlightContext ? CONTEXT_REGION[highlightContext] : null;
     function strokeOpacity(d) {
       if (!dimNonHighlight) return 1;
       return d.context === highlightContext ? 1 : 0.2;
@@ -270,14 +173,18 @@
 
     // ----- main plot ----------------------------------------------------------
 
+    let dotCircleMap = [];
+    let caseLabelMap = [];
+    let currentPlot = null;
+
     function renderPlot() {
       const el = document.getElementById("plot");
       const width = el.clientWidth;
-      const height = Math.max(540, Math.min(720, width * 0.65));
+      const height = Math.max(400, Math.min(500, width * 0.6));
 
       const plot = Plot.plot({
         width, height,
-        marginLeft: 70, marginBottom: 50, marginTop: 36, marginRight: 36,
+        marginLeft: 64, marginBottom: 44, marginTop: 30, marginRight: 30,
         x: {
           label: "Freshwater stress  (% of available water withdrawn)  →",
           domain: [0, 100],
@@ -307,14 +214,15 @@
           Plot.rect([{}], { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", fillOpacity: 0.06 }), // C3
           Plot.rect([{}], { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", fillOpacity: 0.07 }), // C4
 
-          // Selected-quadrant highlight region (stage 2)
-          ...(highlightRegion ? [
-            Plot.rect([highlightRegion], {
+          // Selected-quadrant highlight regions (one per context, toggled in place)
+          ...["C1","C2","C3","C4"].map(c =>
+            Plot.rect([CONTEXT_REGION[c]], {
               x1: "x1", x2: "x2", y1: "y1", y2: "y2",
-              fill: highlightRegion.fill, fillOpacity: 0.22,
-              stroke: highlightRegion.fill, strokeOpacity: 0.7, strokeWidth: 2,
-            }),
-          ] : []),
+              fill: CONTEXT_REGION[c].fill, fillOpacity: 0,
+              stroke: CONTEXT_REGION[c].fill, strokeOpacity: 0, strokeWidth: 2,
+              className: `q-bg-${c}`,
+            })
+          ),
 
           // Threshold rules
           Plot.ruleX([40], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
@@ -335,16 +243,18 @@
               fontSize: 11, fontWeight: 700 }
           ),
 
-          // Prominent label for the highlighted quadrant (stage 2)
-          ...(highlightRegion ? [
-            Plot.text([highlightRegion], {
+          // Prominent label per context (toggled in place)
+          ...["C1","C2","C3","C4"].map(c =>
+            Plot.text([CONTEXT_REGION[c]], {
               x: "lx", y: "ly", text: "label",
               textAnchor: "middle",
-              fill: highlightRegion.fill,
+              fill: CONTEXT_REGION[c].fill,
+              fillOpacity: 0,
               fontSize: 14, fontWeight: 700,
-              stroke: "#fff", strokeWidth: 4, paintOrder: "stroke",
-            }),
-          ] : []),
+              stroke: "#fff", strokeWidth: 4, paintOrder: "stroke", strokeOpacity: 0,
+              className: `q-prom-${c}`,
+            })
+          ),
 
           // Non-case-study points
           Plot.dot(data.filter(d => !d.is_case_study), {
@@ -388,6 +298,7 @@
             stroke: "#fff",
             strokeWidth: 3,
             strokeOpacity: d => dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1,
+            className: "q-case-label",
           }),
 
           Plot.frame({ stroke: "#d8dee5" }),
@@ -396,14 +307,13 @@
 
       el.replaceChildren(plot);
 
-      // Wire pointer events on dots -> sidebar selected country panel.
       // Plot renders dots as <circle> inside g[aria-label="dot"] groups; data
       // index aligns with the dot order in each group, in the order we passed
       // the data to Plot.dot. We rebuild the lookup using the same filters.
       const nonCase = data.filter(d => !d.is_case_study);
       const cases = data.filter(d => d.is_case_study);
       const dotGroups = plot.querySelectorAll('g[aria-label="dot"]');
-      // first dot group = non-case-study (rendered first), second = case studies.
+      dotCircleMap = [];
       [nonCase, cases].forEach((dataset, gi) => {
         const group = dotGroups[gi];
         if (!group) return;
@@ -414,81 +324,89 @@
           circle.style.cursor = "pointer";
           circle.addEventListener("pointerenter", () => showSelected(d));
           circle.addEventListener("focus", () => showSelected(d));
+          dotCircleMap.push({ circle, d, base: d.is_case_study ? 0.85 : 0.55 });
         });
       });
 
+      caseLabelMap = [];
+      const caseLabelGroup = plot.querySelector("g.q-case-label");
+      if (caseLabelGroup) {
+        caseLabelGroup.querySelectorAll("text").forEach((t, i) => {
+          if (cases[i]) caseLabelMap.push({ node: t, d: cases[i] });
+        });
+      }
+
+      currentPlot = plot;
+      applyDimming();
       return plot;
     }
 
-    // ----- sidebar widgets ----------------------------------------------------
-
-    function renderQuadrantCounts() {
-      const counts = { C1: 0, C2: 0, C3: 0, C4: 0 };
-      data.forEach(d => { if (d.context) counts[d.context]++; });
-      const labels = {
-        C1: "Water-secure importer",
-        C2: "Water-secure exporter",
-        C3: "Water-stressed exporter",
-        C4: "Water-stressed importer",
-      };
-      const el = document.getElementById("quadrant-counts");
-      el.innerHTML = ["C1","C2","C3","C4"].map(c =>
-        `<div class="qc ${c.toLowerCase()}">
-           <span class="n">${counts[c]}</span>
-           <span class="lbl"><strong>${c}</strong> &middot; ${labels[c]}</span>
-         </div>`
-      ).join("");
-    }
-
-    function renderCaseList() {
-      const cases = data.filter(d => d.is_case_study).sort((a,b) => a.country.localeCompare(b.country));
-      const el = document.getElementById("case-list");
-      el.innerHTML = cases.map(c =>
-        `<li data-iso="${c.iso3}">
-           <span>${c.country}</span>
-           <span class="iso">${c.iso3}</span>
-           <span class="q-pill ${(c.context || '').toLowerCase()}">${c.context || '?'}</span>
-         </li>`
-      ).join("");
-      el.querySelectorAll("li").forEach(li => {
-        li.addEventListener("mouseenter", () => {
-          const iso = li.dataset.iso;
-          const c = data.find(d => d.iso3 === iso);
-          if (c) showSelected(c);
-        });
+    function applyDimming() {
+      dotCircleMap.forEach(({ circle, d, base }) => {
+        circle.setAttribute("fill-opacity", dotOpacity(d, base));
+        circle.setAttribute("stroke-opacity", strokeOpacity(d));
+      });
+      caseLabelMap.forEach(({ node, d }) => {
+        const o = dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1;
+        node.setAttribute("fill-opacity", o);
+        node.setAttribute("stroke-opacity", o);
+      });
+      if (!currentPlot) return;
+      ["C1","C2","C3","C4"].forEach(c => {
+        const on = c === highlightContext;
+        const rect = currentPlot.querySelector(`g.q-bg-${c} rect, rect.q-bg-${c}`);
+        if (rect) {
+          rect.setAttribute("fill-opacity", on ? 0.22 : 0);
+          rect.setAttribute("stroke-opacity", on ? 0.7 : 0);
+        }
+        const prom = currentPlot.querySelector(`g.q-prom-${c} text, text.q-prom-${c}`);
+        if (prom) {
+          prom.setAttribute("fill-opacity", on ? 1 : 0);
+          prom.setAttribute("stroke-opacity", on ? 1 : 0);
+        }
       });
     }
 
-    function renderLegend() {
-      const el = document.getElementById("legend-regions");
-      el.innerHTML = regions.map(r =>
-        `<span><span class="swatch" style="background:${regionColors(r)}"></span>${r}</span>`
-      ).join("");
-    }
+    // ----- selected-country inline readout ------------------------------------
 
     function showSelected(d) {
       const el = document.getElementById("selected");
-      el.classList.remove("empty");
-      el.innerHTML = `
-        <h2>Selected country</h2>
-        <p class="name">${d.country} <span class="iso" style="font-family:ui-monospace,monospace; font-size:0.78rem; color:var(--c-muted); font-weight:400;">${d.iso3}</span></p>
-        <p class="region">${d.region}</p>
-        <dl class="stats">
-          <dt>Water stress</dt><dd>${d.water_stress_display.toFixed(0)}%</dd>
-          <dt>Net imports</dt><dd>${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}%</dd>
-          <dt>Position</dt><dd>${d.is_importer ? "importer" : "exporter"}</dd>
-          <dt>Population</dt><dd>${d.pop_millions.toFixed(1)}M</dd>
-          <dt>Context</dt><dd>${d.context || '?'}</dd>
-          <dt>Case study</dt><dd>${d.is_case_study ? "yes" : "no"}</dd>
-        </dl>
-      `;
+      el.innerHTML =
+        `<strong>${d.country}</strong> (${d.iso3}) &middot; ${d.region} &middot; ` +
+        `stress ${d.water_stress_display.toFixed(0)}% &middot; ` +
+        `net ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% ` +
+        `(${d.is_importer ? "importer" : "exporter"}) &middot; ` +
+        `${d.pop_millions.toFixed(1)}M &middot; ${d.context || '?'}` +
+        `${d.is_case_study ? " &middot; case study" : ""}`;
     }
+
+    // ----- step controls ------------------------------------------------------
+
+    function setQuad(q) {
+      activeQuad = q;
+      highlightContext = QUAD_TO_CONTEXT[q] || null;
+      dimNonHighlight = !!highlightContext;
+      highlightRegion = highlightContext ? CONTEXT_REGION[highlightContext] : null;
+      applyDimming();
+    }
+
+    function syncButtons() {
+      document.querySelectorAll("#controls button").forEach(b => {
+        b.classList.toggle("active", b.dataset.quad === activeQuad);
+      });
+    }
+
+    document.querySelectorAll("#controls button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#controls button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        setQuad(btn.dataset.quad);
+      });
+    });
 
     // ----- init ---------------------------------------------------------------
 
-    renderQuadrantCounts();
-    renderCaseList();
-    renderLegend();
+    syncButtons();
     renderPlot();
 
     // re-render plot on resize for responsiveness
