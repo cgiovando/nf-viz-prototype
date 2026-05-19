@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
     body { background: #fff; }
-    .viz-page { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .viz-page { padding: 0.9rem 1.25rem; max-width: 1100px; margin: 0 auto; }
     /* StoryMap sidecar mode: shift to right 65% so floating narrative panel
        doesn't cover content. Triggered by ?layout=right. */
     body[data-layout="right"] .viz-page {
@@ -16,18 +16,28 @@
       margin-left: 35%;
       padding-right: 2rem;
     }
+    body[data-layout="right"] .viz-page { padding-top: 0.6rem; }
+    body[data-layout="right"] .stat-row { gap: 0.7rem; margin: 0.7rem 0; }
+    body[data-layout="right"] .stat-card { padding: 0.8rem 1rem; }
+    body[data-layout="right"] .stat-value { font-size: 1.8rem; }
+    body[data-layout="right"] .stat-desc { font-size: 0.76rem; margin-top: 0.35rem; }
+    body[data-layout="right"] .bars { gap: 0.5rem; }
+    body[data-layout="right"] .bar-track { height: 26px; }
+    body[data-layout="right"] .compare-bar-wrap { padding: 0.8rem 1rem 0.6rem; }
+    body[data-layout="right"] .compare-bar-title { margin-bottom: 0.6rem; }
+    body[data-layout="right"] .footer-note { margin-top: 0.6rem; font-size: 0.72rem; }
     .viz-header h1 {
-      font-size: 1.4rem;
-      margin: 0 0 0.3rem;
+      font-size: 1.2rem;
+      margin: 0 0 0.25rem;
       color: var(--c-accent-dark);
     }
-    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.85rem; }
 
     .stat-row {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.25rem;
-      margin: 1.75rem 0 1.25rem;
+      gap: 1rem;
+      margin: 1rem 0 1rem;
     }
     @media (min-width: 760px) { .stat-row { grid-template-columns: 1fr 1fr; } }
 
@@ -35,7 +45,7 @@
       background: #fff;
       border: 1px solid var(--c-border);
       border-radius: 12px;
-      padding: 1.4rem 1.5rem;
+      padding: 1.1rem 1.3rem;
       position: relative;
       overflow: hidden;
     }
@@ -57,7 +67,7 @@
       font-weight: 600;
     }
     .stat-value {
-      font-size: 2.6rem;
+      font-size: 2.2rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin: 0;
@@ -71,8 +81,8 @@
       font-weight: 500;
     }
     .stat-desc {
-      margin: 0.65rem 0 0;
-      font-size: 0.92rem;
+      margin: 0.5rem 0 0;
+      font-size: 0.85rem;
       color: var(--c-text);
     }
 
@@ -80,16 +90,16 @@
       background: #fff;
       border: 1px solid var(--c-border);
       border-radius: 12px;
-      padding: 1.5rem 1.5rem 1.25rem;
-      margin-bottom: 1.25rem;
+      padding: 1.1rem 1.3rem 0.9rem;
+      margin-bottom: 1rem;
     }
     .compare-bar-title {
-      font-size: 0.95rem;
-      margin: 0 0 1rem;
+      font-size: 0.9rem;
+      margin: 0 0 0.8rem;
       color: var(--c-text);
       font-weight: 600;
     }
-    .bars { display: flex; flex-direction: column; gap: 0.95rem; }
+    .bars { display: flex; flex-direction: column; gap: 0.7rem; }
     .bar-row { display: grid; grid-template-columns: 130px 1fr; gap: 1rem; align-items: center; }
     @media (max-width: 600px) { .bar-row { grid-template-columns: 1fr; } }
     .bar-label {
@@ -108,7 +118,7 @@
       position: relative;
       background: #f1f4f7;
       border-radius: 6px;
-      height: 36px;
+      height: 32px;
     }
     .bar-fill {
       position: absolute;
@@ -128,43 +138,18 @@
     .bar-fill.subsidy-irr { background: var(--c-accent); opacity: 0.5; }
     .bar-fill.subsidy     { background: var(--c-accent); }
 
-    .ratio-callout {
-      background: linear-gradient(135deg, var(--q3-bg), var(--q2-bg));
-      border: 1px solid var(--c-border);
-      border-radius: 12px;
-      padding: 1.25rem 1.5rem;
-      margin-top: 1.25rem;
-    }
-    .ratio-callout h3 {
-      margin: 0 0 0.4rem;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--c-muted);
-    }
-    .ratio-callout p {
-      margin: 0;
-      font-size: 1.1rem;
-      line-height: 1.5;
-      color: var(--c-text);
-    }
-    .ratio-callout strong {
-      color: var(--c-warm);
-      font-weight: 800;
-    }
-
     .footer-note {
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color: var(--c-muted);
-      margin-top: 1.5rem;
-      padding-top: 0.75rem;
+      margin-top: 1rem;
+      padding-top: 0.6rem;
       border-top: 1px solid var(--c-border);
+      line-height: 1.4;
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
     body[data-stage="1"] .stat-card.subsidy,
-    body[data-stage="1"] .compare-bar-wrap,
-    body[data-stage="1"] .ratio-callout { display: none; }
+    body[data-stage="1"] .compare-bar-wrap { display: none; }
     body[data-stage="1"] .stat-row { grid-template-columns: 1fr; }
 
   </style>
@@ -216,11 +201,6 @@
           <div class="bar-track"><div class="bar-fill subsidy" style="width: 100%;">$490B</div></div>
         </div>
       </div>
-    </div>
-
-    <div class="ratio-callout">
-      <h3>Repurposing perspective</h3>
-      <p>Agricultural public expenditure reached almost <strong>$490 billion</strong> in 2023, with three-quarters going to direct farm payments, subsidies, or commodity-linked payments. Only about <strong>$27 billion</strong> reached irrigation. Repurposing a portion of that envelope toward AWM could close the financing gap. The argument is not "find new money" - it is <strong>spend existing money smarter</strong>.</p>
     </div>
 
     <p class="footer-note">
