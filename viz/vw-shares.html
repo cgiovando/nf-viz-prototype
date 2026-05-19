@@ -7,33 +7,41 @@
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
     body { background: #fff; }
-    .viz-page { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    body { font-size: 14px; }
+    .viz-page { padding: 0.45rem 0.9rem; max-width: 827px; margin: 0 auto; }
     .viz-header h1 {
-      font-size: 1.4rem;
-      margin: 0 0 0.3rem;
+      font-size: 1.05rem;
+      margin: 0 0 0.15rem;
       color: var(--c-accent-dark);
     }
-    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.78rem; line-height: 1.3; }
     .stage-caption {
-      margin: 0.4rem 0 0;
+      margin: 0.2rem 0 0;
       color: var(--c-muted);
-      font-size: 0.82rem;
+      font-size: 0.76rem;
       font-style: italic;
     }
 
     .controls {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4rem;
       flex-wrap: wrap;
-      margin: 1.25rem 0 0.5rem;
+      align-items: center;
+      margin: 0.5rem 0 0.35rem;
+    }
+    .controls .ctrl-sep {
+      width: 1px;
+      align-self: stretch;
+      background: var(--c-border);
+      margin: 0 0.25rem;
     }
     .controls button {
       background: #fff;
       border: 1px solid var(--c-border);
       border-radius: 99px;
-      padding: 0.35rem 0.85rem;
+      padding: 0.28rem 0.7rem;
       font: inherit;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       color: var(--c-text);
       cursor: pointer;
     }
@@ -46,16 +54,16 @@
 
     .legend-line {
       display: flex;
-      gap: 1.25rem;
+      gap: 1rem;
       flex-wrap: wrap;
-      font-size: 0.82rem;
+      font-size: 0.76rem;
       color: var(--c-muted);
-      margin: 0.5rem 0 1rem;
+      margin: 0.35rem 0 0.45rem;
     }
-    .legend-line span { display: flex; align-items: center; gap: 0.4rem; }
+    .legend-line span { display: flex; align-items: center; gap: 0.35rem; }
     .legend-line .swatch {
       display: inline-block;
-      width: 14px; height: 14px;
+      width: 13px; height: 13px;
       border-radius: 3px;
     }
 
@@ -63,46 +71,22 @@
       background: #fff;
       border: 1px solid var(--c-border);
       border-radius: 10px;
-      padding: 1rem;
+      padding: 0.5rem 0.7rem;
       box-shadow: var(--shadow-sm);
     }
-    #plot { width: 100%; }
+    #plot { width: 100%; transition: opacity 0.15s ease; }
     #plot svg { display: block; max-width: 100%; height: auto; }
 
-    .insights {
-      background: #f7f9fb;
-      border: 1px solid var(--c-border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      margin-top: 1.25rem;
-    }
-    .insights h3 {
-      margin: 0 0 0.4rem;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--c-muted);
-    }
-    .insights ul {
-      margin: 0;
-      padding-left: 1.1rem;
-      font-size: 0.92rem;
-      color: var(--c-text);
-    }
-    .insights li { margin-bottom: 0.35rem; }
-    .insights li strong { color: var(--c-accent-dark); }
-
     .footer-note {
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       color: var(--c-muted);
-      margin-top: 1.5rem;
-      padding-top: 0.75rem;
+      margin-top: 0.5rem;
+      padding-top: 0.4rem;
       border-top: 1px solid var(--c-border);
+      line-height: 1.3;
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
-    body[data-stage="1"] #insights,
-    body[data-stage="1"] .insights { display: none; }
     body[data-arrows="on"] .stage-note {
       display: inline-block;
       font-size: 0.72rem;
@@ -116,8 +100,8 @@
     }
     .stage-note { display: none; }
 
-    .stress-legend { display: none; }
-    body[data-shade="on"] .stress-legend { display: flex; }
+    .legend-line .stress-legend { display: none; }
+    body[data-shade="on"] .legend-line .stress-legend { display: flex; }
     .stress-legend .swatch { border: 1px solid var(--c-border); }
 
   </style>
@@ -127,8 +111,6 @@
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
     if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
-    const _stage = _qp.get('stage');
-    if (_stage) document.body.setAttribute('data-stage', _stage);
   </script>
   <div class="viz-page">
     <header class="viz-header">
@@ -138,6 +120,10 @@
     </header>
 
     <div class="controls" id="controls">
+      <button data-stage="1" class="active">1. Exports</button>
+      <button data-stage="2">2. + Water stress</button>
+      <button data-stage="3">3. + Trade flows</button>
+      <span class="ctrl-sep"></span>
       <button data-mode="top" class="active">Top 15 traders</button>
       <button data-mode="cases">Case studies</button>
     </div>
@@ -153,16 +139,6 @@
       <div id="plot"></div>
     </div>
 
-    <div class="insights">
-      <h3>What to notice</h3>
-      <ul id="insights">
-        <li><strong>USA, Brazil, Argentina</strong> are the world's largest <em>green water exporters</em> - feed and grain shipped abroad represents enormous quantities of rain-fed soil moisture.</li>
-        <li><strong>China</strong> imports massive quantities of <em>green water</em> via food and feed - a deliberate strategy that effectively rents farmland (and rainfall) abroad.</li>
-        <li><strong>Pakistan, India</strong> are large <em>blue water exporters</em> - their agricultural exports embed enormous quantities of irrigation water from already-stressed aquifers and rivers.</li>
-        <li><strong>Japan, Germany, Korea</strong> are major net <em>green water importers</em> - their food security strategy is built around imported calories.</li>
-      </ul>
-    </div>
-
     <p class="footer-note">
       Source: FAOSTAT food balance sheets (2019), with virtual water content factors applied to convert traded calories into embedded green and blue water. Bars show gross trade flows; net position can be inferred from the import-export balance. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
@@ -171,15 +147,8 @@
   <script type="module">
     import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
 
-    const stage = document.body.getAttribute("data-stage");
-
-    const showImports = stage !== "1";
-    const showBlue = stage !== "1";
-    const showShade = stage !== "1";
-    const showArrows = stage === "3" || stage == null;
-
-    if (showShade) document.body.setAttribute("data-shade", "on");
-    if (showArrows) document.body.setAttribute("data-arrows", "on");
+    const _initStage = _qp.get("stage");
+    let stage = (_initStage === "2" || _initStage === "3") ? _initStage : "1";
 
     function hexToRgba(hex, alpha) {
       const n = parseInt(hex.slice(1), 16);
@@ -228,7 +197,7 @@
     const caseCountries = valid.filter(r => r.is_case_study)
                                .sort((a, b) => totalVW(b) - totalVW(a));
 
-    function reshape(countries) {
+    function reshape(countries, showImports, showBlue) {
       const out = [];
       for (const c of countries) {
         if (showImports) {
@@ -250,16 +219,24 @@
     }
 
     let mode = "top";
-    function render() {
+    function build() {
+      const showImports = stage !== "1";
+      const showBlue = stage !== "1";
+      const showShade = stage !== "1";
+      const showArrows = stage === "3";
+
+      document.body.setAttribute("data-shade", showShade ? "on" : "off");
+      document.body.setAttribute("data-arrows", showArrows ? "on" : "off");
+
       const countries = mode === "top" ? topCountries : caseCountries;
-      const data = reshape(countries);
+      const data = reshape(countries, showImports, showBlue);
 
       const yOrder = countries.map(c => c.country);
 
       const el = document.getElementById("plot");
       const width = el.clientWidth;
-      const rowHeight = 32;
-      const height = countries.length * rowHeight + 80;
+      const rowHeight = 26;
+      const height = countries.length * rowHeight + 56;
 
       const xMax = Math.max(
         ...countries.map(c => Math.max(
@@ -327,7 +304,8 @@
 
       const plot = Plot.plot({
         width, height,
-        marginLeft: 130, marginRight: 30, marginTop: 26, marginBottom: 36,
+        marginLeft: 120, marginRight: 26, marginTop: 22, marginBottom: 30,
+        style: { fontSize: "11px" },
         x: {
           label: "← imports                                  exports →",
           grid: true,
@@ -349,30 +327,27 @@
       });
 
       el.replaceChildren(plot);
-      updateInsights();
+      updateCaption();
     }
 
-    function updateInsights() {
-      const el = document.getElementById("insights");
-      if (!el) return;
-      let items;
-      if (stage === "2") {
-        items = [
-          "<strong>USA, Brazil, Argentina</strong> dominate as green water exporters - their food shipments are essentially rain-fed soil moisture from low-stress regions.",
-          "<strong>India, Pakistan</strong> export significant blue water from already water-stressed basins (red row tint).",
-          "<strong>Spain, Egypt</strong> export blue water under high stress; <strong>China, Japan, Korea</strong> sit in mid-stress contexts but lean heavily on imports.",
-          "Row tint shows baseline freshwater stress: green = low, red = high.",
-        ];
-      } else if (stage === "3" || stage == null) {
-        items = [
-          "Arrows mark <strong>strategic direction</strong>: stressed exporters (India, Pakistan) should <em>shrink</em> blue-water exports; low-stress regions (USA, Brazil, Argentina, Canada, Australia, Russia) have room to <em>grow</em> green-water trade.",
-          "<strong>China, Japan, Korea, Germany</strong> remain large net importers of embedded green water - food security via trade.",
-          "Repositioning trade flows by water source can ease pressure on stressed aquifers without lowering global food supply.",
-        ];
-      } else {
-        return;
-      }
-      el.innerHTML = items.map(t => `<li>${t}</li>`).join("");
+    function render() {
+      const el = document.getElementById("plot");
+      el.style.opacity = "0";
+      setTimeout(() => {
+        build();
+        el.style.opacity = "1";
+      }, 150);
+    }
+
+    function updateCaption() {
+      const captionEl = document.getElementById("stageCaption");
+      if (!captionEl) return;
+      const captions = {
+        "1": "Exports only - the green (rain-fed) water embedded in each country's food exports.",
+        "2": "Now split by water type, with each row shaded by the country's water stress.",
+        "3": "Full picture: imports added (left), plus the report's illustrative direction of change.",
+      };
+      captionEl.textContent = captions[stage];
     }
 
     const highSwatch = document.getElementById("stressHighSwatch");
@@ -380,32 +355,31 @@
     if (highSwatch) highSwatch.style.background = hexToRgba(STRESS_TINT.high, TINT_OPACITY);
     if (lowSwatch) lowSwatch.style.background = hexToRgba(STRESS_TINT.low, TINT_OPACITY);
 
-    const captionEl = document.getElementById("stageCaption");
-    if (captionEl) {
-      const captions = {
-        "1": "Exports only - the green (rain-fed) water embedded in each country's food exports.",
-        "2": "Now split by water type, with each row shaded by the country's water stress.",
-        "3": "Full picture: imports added (left), plus the report's illustrative direction of change.",
-      };
-      captionEl.textContent = captions[stage]
-        || "Full picture: imports (left) and exports (right), split by water type, each row shaded by the country's water stress, with the report's illustrative direction of change.";
-    }
-
-    // Wire toggle buttons
-    document.querySelectorAll("#controls button").forEach(btn => {
+    document.querySelectorAll("#controls button[data-stage]").forEach(btn => {
+      if (btn.dataset.stage === stage) btn.classList.add("active");
+      else btn.classList.remove("active");
       btn.addEventListener("click", () => {
-        document.querySelectorAll("#controls button").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll("#controls button[data-stage]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        stage = btn.dataset.stage;
+        render();
+      });
+    });
+
+    document.querySelectorAll("#controls button[data-mode]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#controls button[data-mode]").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         mode = btn.dataset.mode;
         render();
       });
     });
 
-    render();
+    build();
     let resizeTimer;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(render, 200);
+      resizeTimer = setTimeout(build, 200);
     });
   </script>
 </body>
