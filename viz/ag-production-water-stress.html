@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agricultural production and water stress - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1.5rem; max-width: 1280px; margin: 0 auto; }
+    .viz-header h1 {
+      font-size: 1.4rem;
+      margin: 0 0 0.3rem;
+      color: var(--c-accent-dark);
+    }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 1.25rem 0 0.75rem;
+      align-items: center;
+    }
+    .controls .group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.85rem;
+    }
+    .controls input[type="checkbox"] { accent-color: var(--c-accent); }
+    .controls label { cursor: pointer; }
+
+    .map-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    #map { width: 100%; }
+    #map svg { display: block; max-width: 100%; height: auto; }
+
+    .country-tip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(26, 39, 51, 0.94);
+      color: #fff;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      max-width: 260px;
+      transform: translate(8px, -50%);
+      opacity: 0;
+      transition: opacity 0.12s;
+      z-index: 5;
+    }
+    .country-tip.show { opacity: 1; }
+    .country-tip strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+    .country-tip dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.6rem; }
+    .country-tip dt { color: rgba(255,255,255,0.7); margin: 0; }
+    .country-tip dd { margin: 0; font-weight: 600; }
+    .country-tip .stressed-flag {
+      display: inline-block;
+      margin-top: 0.35rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      background: rgba(173, 50, 60, 0.75);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .legend-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (min-width: 720px) { .legend-row { grid-template-columns: 1.2fr 1fr; } }
+    .legend-card {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+    }
+    .legend-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--c-muted);
+      font-weight: 600;
+    }
+    .scale-bar {
+      display: flex;
+      height: 14px;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--c-border);
+    }
+    .scale-bar div { flex: 1; }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      margin-top: 0.3rem;
+    }
+    .stripe-key {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .stripe-swatch {
+      width: 32px; height: 18px;
+      background-color: #5fa055;
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(173, 50, 60, 0),
+        rgba(173, 50, 60, 0) 3px,
+        rgba(173, 50, 60, 0.7) 3px,
+        rgba(173, 50, 60, 0.7) 5px
+      );
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+    }
+
+    .notice-card {
+      margin-top: 1.25rem;
+      background: #fbfaf5;
+      border: 1px solid var(--c-border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+    .notice-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--c-accent-dark);
+      font-weight: 700;
+    }
+    .notice-card ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--c-text);
+    }
+    .notice-card li + li { margin-top: 0.35rem; }
+    .notice-card li strong { color: var(--c-accent-dark); }
+
+    .footer-note {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin-top: 1.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--c-border);
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+  </script>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Where the world grows its food - and where the water is running out</h1>
+      <p>Choropleth: total agricultural production (FAOSTAT food balance sheets, 2019, all crops + livestock aggregated as billion kilocalories). Hatched overlay: countries above the WRI Aqueduct high-stress threshold (baseline water stress &ge; 40%). Where deep green meets red hatching, large food output is being produced under tight water constraints.</p>
+    </header>
+
+    <div class="controls">
+      <div class="group">
+        <input type="checkbox" id="toggle-stress" checked />
+        <label for="toggle-stress">Show water stress overlay</label>
+      </div>
+      <div class="group">
+        <input type="checkbox" id="toggle-cases" />
+        <label for="toggle-cases">Mark case study countries</label>
+      </div>
+    </div>
+
+    <div class="map-card">
+      <div id="map"></div>
+      <div class="country-tip" id="tip"></div>
+    </div>
+
+    <div class="legend-row">
+      <div class="legend-card">
+        <h3>Agricultural production (billion kcal / year, log scale)</h3>
+        <div class="scale-bar" id="scale-bar"></div>
+        <div class="scale-labels"><span>100</span><span>1k</span><span>10k</span><span>100k</span><span>&ge; 1M</span></div>
+      </div>
+      <div class="legend-card">
+        <h3>Water stress overlay</h3>
+        <div class="stripe-key">
+          <span class="stripe-swatch"></span>
+          <span>Hatched = WRI baseline water stress &ge; 40% (high or extremely high stress)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice-card">
+      <h3>What to notice</h3>
+      <ul>
+        <li><strong>Top producers, tight water budgets.</strong> India, Pakistan, China, the western U.S., Spain, Iran, Egypt and Turkey all appear deep green and densely hatched - large shares of global food calories grown where freshwater is already over-allocated.</li>
+        <li><strong>Untapped potential where the water is.</strong> Most of Sub-Saharan Africa shows low hatching and modest production today - rainfall is sufficient, yields are below potential, and the gap between current and possible output is the largest in the world.</li>
+        <li><strong>A global trade-system risk, not a local one.</strong> Because the heaviest-producing regions are also the most water-stressed, a drought or policy shock in one of them ripples through international markets - importers thousands of kilometers away feel it on the shelf.</li>
+        <li><strong>Climate change is tightening the bind.</strong> Under business-as-usual scenarios, baseline stress rises further in exactly the breadbaskets that already feed the most people, narrowing the window to shift toward water-smart production.</li>
+      </ul>
+    </div>
+
+    <p class="footer-note">
+      Sources: FAOSTAT food balance sheets 2019 (production aggregated as billion kilocalories across crops, livestock and processed products); WRI Aqueduct 3.0 (baseline water stress, % of available freshwater withdrawn). Country boundaries: Natural Earth via the World Atlas TopoJSON CDN. Nourish and Flourish, World Bank 2026. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    import * as topojson from "https://cdn.jsdelivr.net/npm/topojson-client@3/+esm";
+
+    const data = await fetch("../data/dashboard.json").then(r => r.json());
+    const world = await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(r => r.json());
+
+    function cleanM49(v) {
+      if (v == null) return null;
+      const s = String(v).replace(/[^0-9]/g, "");
+      return s.padStart(3, "0");
+    }
+    const byM49 = new Map();
+    for (const r of data) {
+      const code = cleanM49(r.m49);
+      if (code) byM49.set(code, r);
+    }
+
+    const countries = topojson.feature(world, world.objects.countries);
+
+    // Production color scale - log scale (data spans ~10 to ~2.5M bkcal)
+    const prodScale = d3.scaleSequentialLog()
+      .domain([100, 1_000_000])
+      .interpolator(d3.interpolateYlGn)
+      .clamp(true);
+
+    // Render scale bar
+    const sb = document.getElementById("scale-bar");
+    const stops = 12;
+    sb.innerHTML = "";
+    for (let i = 0; i < stops; i++) {
+      const t = i / (stops - 1);
+      const v = Math.pow(10, 2 + t * 4); // 100 -> 1,000,000
+      const div = document.createElement("div");
+      div.style.background = prodScale(v);
+      sb.appendChild(div);
+    }
+
+    const STRESS_THRESHOLD = 40;
+
+    function render() {
+      const showStress = document.getElementById("toggle-stress").checked;
+      const showCases = document.getElementById("toggle-cases").checked;
+
+      const el = document.getElementById("map");
+      const width = el.clientWidth;
+      const height = Math.max(400, width * 0.5);
+
+      const projection = d3.geoNaturalEarth1()
+        .fitExtent([[8, 8], [width - 8, height - 8]], countries);
+      const path = d3.geoPath(projection);
+
+      const svg = d3.create("svg")
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("width", width)
+        .attr("height", height)
+        .style("background", "#f7f9fb");
+
+      // Hatch pattern for water stress overlay
+      const defs = svg.append("defs");
+      defs.append("pattern")
+        .attr("id", "stress-hatch")
+        .attr("width", 5)
+        .attr("height", 5)
+        .attr("patternUnits", "userSpaceOnUse")
+        .attr("patternTransform", "rotate(45)")
+        .append("rect")
+          .attr("width", 2.4)
+          .attr("height", 5)
+          .attr("fill", "#ad323c")
+          .attr("fill-opacity", 0.7);
+
+      const g = svg.append("g");
+
+      // Country fills (agricultural production)
+      g.selectAll("path.country")
+        .data(countries.features)
+        .join("path")
+        .attr("class", "country")
+        .attr("d", path)
+        .attr("fill", d => {
+          const r = byM49.get(String(d.id).padStart(3, "0"));
+          const v = r?.production_bkcal;
+          return v != null && v > 0 ? prodScale(v) : "#e3e8ed";
+        })
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 0.4)
+        .style("cursor", "pointer")
+        .on("pointerenter", function(event, d) {
+          d3.select(this).attr("stroke", "#1a2733").attr("stroke-width", 1.2).raise();
+          showTip(event, d);
+        })
+        .on("pointermove", showTip)
+        .on("pointerleave", function() {
+          d3.select(this).attr("stroke", "#fff").attr("stroke-width", 0.4);
+          hideTip();
+        });
+
+      // Water stress overlay (hatch on stressed countries)
+      if (showStress) {
+        g.append("g")
+          .selectAll("path")
+          .data(countries.features.filter(d => {
+            const r = byM49.get(String(d.id).padStart(3, "0"));
+            return r && r.water_stress_baseline != null && r.water_stress_baseline >= STRESS_THRESHOLD;
+          }))
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "url(#stress-hatch)")
+          .attr("stroke", "none")
+          .style("pointer-events", "none");
+      }
+
+      // Case-study highlights
+      if (showCases) {
+        g.append("g")
+          .selectAll("path")
+          .data(countries.features.filter(d => {
+            const r = byM49.get(String(d.id).padStart(3, "0"));
+            return r && r.is_case_study;
+          }))
+          .join("path")
+          .attr("d", path)
+          .attr("fill", "none")
+          .attr("stroke", "#0f4f78")
+          .attr("stroke-width", 1.8)
+          .style("pointer-events", "none");
+      }
+
+      function fmtProd(v) {
+        if (v == null) return "n/a";
+        if (v >= 1e6) return (v / 1e6).toFixed(2) + "M bkcal/yr";
+        if (v >= 1e3) return (v / 1e3).toFixed(1) + "k bkcal/yr";
+        return v.toFixed(0) + " bkcal/yr";
+      }
+
+      function showTip(event, d) {
+        const tip = document.getElementById("tip");
+        const r = byM49.get(String(d.id).padStart(3, "0"));
+        const prod = r?.production_bkcal;
+        const stress = r?.water_stress_baseline;
+        const region = r?.region || "";
+        const stressed = stress != null && stress >= STRESS_THRESHOLD;
+        tip.innerHTML = `
+          <strong>${r?.country || d.properties?.name || "Unknown"}</strong>
+          ${region ? `<div style="opacity:0.7;font-size:0.78rem;margin-bottom:0.3rem;">${region}</div>` : ""}
+          <dl>
+            <dt>Production</dt><dd>${fmtProd(prod)}</dd>
+            <dt>Water stress</dt><dd>${stress != null ? `${stress.toFixed(0)}%` : "n/a"}</dd>
+            ${r?.quadrant ? `<dt>Context</dt><dd>${r.quadrant}</dd>` : ""}
+            ${r?.is_case_study ? `<dt></dt><dd style="color:#7fc6e8;">case study</dd>` : ""}
+          </dl>
+          ${stressed ? `<span class="stressed-flag">High water stress</span>` : ""}`;
+        tip.style.left = (event.offsetX + 12) + "px";
+        tip.style.top = event.offsetY + "px";
+        tip.classList.add("show");
+      }
+      function hideTip() {
+        document.getElementById("tip").classList.remove("show");
+      }
+
+      el.replaceChildren(svg.node());
+    }
+
+    document.getElementById("toggle-stress").addEventListener("change", render);
+    document.getElementById("toggle-cases").addEventListener("change", render);
+
+    render();
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 200);
+    });
+  </script>
+</body>
+</html>
