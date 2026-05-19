@@ -235,6 +235,13 @@
       if (!dimNonHighlight) return base;
       return d.context === highlightContext ? base : base * 0.18;
     }
+    const CONTEXT_REGION = {
+      C1: { x1: 0,  x2: 40,  y1: 0,  y2: 10, fill: "#6a8aa8", lx: 20, ly: 9.3, label: "Water-secure food importers" },
+      C2: { x1: 0,  x2: 40,  y1: -3, y2: 0,  fill: "#469e6e", lx: 20, ly: -2.6, label: "Water-secure food exporters" },
+      C3: { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", lx: 70, ly: -2.6, label: "Water-stressed food exporters" },
+      C4: { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", lx: 70, ly: 9.3, label: "Water-stressed food importers" },
+    };
+    const highlightRegion = highlightContext ? CONTEXT_REGION[highlightContext] : null;
     function strokeOpacity(d) {
       if (!dimNonHighlight) return 1;
       return d.context === highlightContext ? 1 : 0.2;
@@ -300,6 +307,15 @@
           Plot.rect([{}], { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", fillOpacity: 0.06 }), // C3
           Plot.rect([{}], { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", fillOpacity: 0.07 }), // C4
 
+          // Selected-quadrant highlight region (stage 2)
+          ...(highlightRegion ? [
+            Plot.rect([highlightRegion], {
+              x1: "x1", x2: "x2", y1: "y1", y2: "y2",
+              fill: highlightRegion.fill, fillOpacity: 0.22,
+              stroke: highlightRegion.fill, strokeOpacity: 0.7, strokeWidth: 2,
+            }),
+          ] : []),
+
           // Threshold rules
           Plot.ruleX([40], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
           Plot.ruleY([0],  { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
@@ -318,6 +334,17 @@
               fill: "#1a2733", fillOpacity: 0.55,
               fontSize: 11, fontWeight: 700 }
           ),
+
+          // Prominent label for the highlighted quadrant (stage 2)
+          ...(highlightRegion ? [
+            Plot.text([highlightRegion], {
+              x: "lx", y: "ly", text: "label",
+              textAnchor: "middle",
+              fill: highlightRegion.fill,
+              fontSize: 14, fontWeight: 700,
+              stroke: "#fff", strokeWidth: 4, paintOrder: "stroke",
+            }),
+          ] : []),
 
           // Non-case-study points
           Plot.dot(data.filter(d => !d.is_case_study), {
