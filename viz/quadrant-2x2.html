@@ -173,6 +173,15 @@
   </style>
 </head>
 <body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+    const _stage = _qp.get('stage');
+    if (_stage) document.body.setAttribute('data-stage', _stage);
+    const _quad = _qp.get('quad');
+    if (_quad) document.body.setAttribute('data-quad', _quad);
+  </script>
   <div class="viz-page">
     <header class="viz-header">
       <h1>Different countries, different choices</h1>
@@ -216,6 +225,20 @@
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
     // ----- load + prep data ---------------------------------------------------
+
+    const stage = document.body.getAttribute("data-stage");
+    const quad = document.body.getAttribute("data-quad");
+    const QUAD_TO_CONTEXT = { "ws-fi": "C1", "ws-fe": "C2", "wst-fe": "C3", "wst-fi": "C4" };
+    const highlightContext = stage === "2" ? QUAD_TO_CONTEXT[quad] : null;
+    const dimNonHighlight = !!highlightContext;
+    function dotOpacity(d, base) {
+      if (!dimNonHighlight) return base;
+      return d.context === highlightContext ? base : base * 0.18;
+    }
+    function strokeOpacity(d) {
+      if (!dimNonHighlight) return 1;
+      return d.context === highlightContext ? 1 : 0.2;
+    }
 
     const raw = await fetch("../data/countries_2x2.json").then(r => r.json());
 
@@ -302,9 +325,10 @@
             y: "net_imports_display",
             r: d => Math.max(3, Math.sqrt(d.pop_millions) * 1.2),
             fill: d => regionColors(d.region),
-            fillOpacity: 0.55,
+            fillOpacity: d => dotOpacity(d, 0.55),
             stroke: "#fff",
             strokeWidth: 0.6,
+            strokeOpacity: d => strokeOpacity(d),
             channels: { country: "country", iso3: "iso3" },
             tip: true,
             title: d => `${d.country} (${d.iso3})\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
@@ -316,9 +340,10 @@
             y: "net_imports_display",
             r: d => Math.max(5, Math.sqrt(d.pop_millions) * 1.2),
             fill: d => regionColors(d.region),
-            fillOpacity: 0.85,
+            fillOpacity: d => dotOpacity(d, 0.85),
             stroke: "#1a2733",
             strokeWidth: 1.6,
+            strokeOpacity: d => strokeOpacity(d),
             tip: true,
             title: d => `${d.country} (${d.iso3}) - case study\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
           }),
@@ -332,8 +357,10 @@
             fontSize: 10,
             fontWeight: 700,
             fill: "#1a2733",
+            fillOpacity: d => dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1,
             stroke: "#fff",
             strokeWidth: 3,
+            strokeOpacity: d => dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1,
           }),
 
           Plot.frame({ stroke: "#d8dee5" }),

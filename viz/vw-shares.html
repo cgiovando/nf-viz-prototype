@@ -95,6 +95,21 @@
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
+    body[data-stage="1"] #insights,
+    body[data-stage="1"] .insights { display: none; }
+    body[data-stage="3"] .stage-note {
+      display: inline-block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--c-muted);
+      margin-left: 0.6rem;
+      padding: 0.1rem 0.45rem;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+    }
+    .stage-note { display: none; }
+
   </style>
 </head>
 <body>
@@ -102,10 +117,12 @@
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
     if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+    const _stage = _qp.get('stage');
+    if (_stage) document.body.setAttribute('data-stage', _stage);
   </script>
   <div class="viz-page">
     <header class="viz-header">
-      <h1>Green and blue water embedded in food trade</h1>
+      <h1>Green and blue water embedded in food trade<span class="stage-note">Illustrative</span></h1>
       <p>The water that grew the food a country imports or exports - split between rain-fed (green) and irrigation (blue). 2019, million m&sup3;.</p>
     </header>
 
@@ -142,6 +159,31 @@
   <script type="module">
     import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
 
+    const stage = document.body.getAttribute("data-stage");
+
+    const STRESS_FALLBACK = {
+      USA: 25, Brazil: 10, Argentina: 18, Russia: 8, Canada: 5, Australia: 22, France: 30,
+      India: 80, Pakistan: 95, Iran: 85, "Saudi Arabia": 95, "United Arab Emirates": 95,
+      Egypt: 88, Spain: 70,
+      China: 45, Indonesia: 30, Vietnam: 35, Turkey: 55, Mexico: 50, Italy: 50,
+      Germany: 35, Japan: 40, "Republic of Korea": 50,
+    };
+    function stressLevel(c) {
+      const v = (c.water_stress_baseline ?? STRESS_FALLBACK[c.country]);
+      if (v == null || isNaN(v)) return "mid";
+      if (v >= 40) return "high";
+      if (v <= 25) return "low";
+      return "mid";
+    }
+    const STRESS_TINT = {
+      high: "#ad323c",
+      low:  "#469e6e",
+      mid:  "#8a98a5",
+    };
+
+    const ARROW_DOWN_COUNTRIES = new Set(["India", "Pakistan"]);
+    const ARROW_UP_COUNTRIES = new Set(["United States", "Brazil", "Argentina", "Russian Federation", "Canada", "Australia"]);
+
     const raw = await fetch("../data/dashboard.json").then(r => r.json());
 
     // Filter rows with usable VW data
@@ -161,17 +203,24 @@
                                .sort((a, b) => totalVW(b) - totalVW(a));
 
     function reshape(countries) {
-      // 4 segments per country, imports as NEGATIVE x to get diverging bar
       const out = [];
+      const showImports = stage !== "1";
+      const showBlue = stage !== "1";
       for (const c of countries) {
-        out.push({ country: c.country, type: "Green water", direction: "import",
-                   value: -(c.vw_green_import_2019_mcm || 0) });
+        if (showImports) {
+          out.push({ country: c.country, type: "Green water", direction: "import",
+                     value: -(c.vw_green_import_2019_mcm || 0) });
+        }
         out.push({ country: c.country, type: "Green water", direction: "export",
                    value: (c.vw_green_export_2019_mcm || 0) });
-        out.push({ country: c.country, type: "Blue water",  direction: "import",
-                   value: -(c.vw_blue_import_2019_mcm || 0) });
-        out.push({ country: c.country, type: "Blue water",  direction: "export",
-                   value: (c.vw_blue_export_2019_mcm || 0) });
+        if (showBlue) {
+          if (showImports) {
+            out.push({ country: c.country, type: "Blue water",  direction: "import",
+                       value: -(c.vw_blue_import_2019_mcm || 0) });
+          }
+          out.push({ country: c.country, type: "Blue water",  direction: "export",
+                     value: (c.vw_blue_export_2019_mcm || 0) });
+        }
       }
       return out;
     }
@@ -181,7 +230,6 @@
       const countries = mode === "top" ? topCountries : caseCountries;
       const data = reshape(countries);
 
-      // Country order: by total trade volume desc (so largest at top)
       const yOrder = countries.map(c => c.country);
 
       const el = document.getElementById("plot");
@@ -189,12 +237,77 @@
       const rowHeight = 32;
       const height = countries.length * rowHeight + 80;
 
+      const xMax = Math.max(
+        ...countries.map(c => Math.max(
+          c.vw_green_export_2019_mcm || 0,
+          c.vw_blue_export_2019_mcm || 0,
+          c.vw_green_import_2019_mcm || 0,
+          c.vw_blue_import_2019_mcm || 0,
+        ))
+      );
+
+      const marks = [];
+
+      if (stage === "2") {
+        const tintRows = countries.map(c => ({
+          country: c.country,
+          tint: STRESS_TINT[stressLevel(c)],
+        }));
+        marks.push(Plot.cell(tintRows, {
+          y: "country",
+          fill: "tint",
+          fillOpacity: 0.14,
+          inset: 0,
+        }));
+      }
+
+      marks.push(Plot.barX(data, {
+        x: "value",
+        y: "country",
+        fill: "type",
+        stroke: "#fff",
+        strokeWidth: 0.5,
+        tip: true,
+        title: d => `${d.country}\n${d.type} - ${d.direction}\n${Math.abs(d.value).toLocaleString()} million m³`,
+      }));
+
+      if (stage === "3") {
+        const arrowRows = [];
+        for (const c of countries) {
+          const blueExp = c.vw_blue_export_2019_mcm || 0;
+          const greenExp = c.vw_green_export_2019_mcm || 0;
+          if (ARROW_DOWN_COUNTRIES.has(c.country) && blueExp > 0) {
+            arrowRows.push({ country: c.country, x: greenExp + blueExp * 0.5, symbol: "↓ shrink", color: "#1a2733" });
+          }
+          if (ARROW_UP_COUNTRIES.has(c.country) && greenExp > 0) {
+            arrowRows.push({ country: c.country, x: greenExp * 0.5, symbol: "↑ grow", color: "#1a2733" });
+          }
+        }
+        if (arrowRows.length) {
+          marks.push(Plot.text(arrowRows, {
+            x: "x",
+            y: "country",
+            text: "symbol",
+            fill: "color",
+            stroke: "#fff",
+            strokeWidth: 3,
+            fontSize: 11,
+            fontWeight: 700,
+            textAnchor: "middle",
+          }));
+        }
+      }
+
+      marks.push(Plot.ruleX([0], { stroke: "#1a2733", strokeOpacity: 0.5 }));
+      marks.push(Plot.frame({ stroke: "#d8dee5" }));
+
       const plot = Plot.plot({
         width, height,
         marginLeft: 130, marginRight: 30, marginTop: 26, marginBottom: 36,
         x: {
           label: "← imports                                  exports →",
           grid: true,
+          domain: stage === "1" ? [0, xMax * 1.05] : undefined,
           tickFormat: d => {
             const a = Math.abs(d);
             if (a >= 1e6) return `${(a/1e6).toFixed(1)}M`;
@@ -208,22 +321,34 @@
           range: ["#469e6e", "#1a73a7"],
           legend: false,
         },
-        marks: [
-          Plot.barX(data, {
-            x: "value",
-            y: "country",
-            fill: "type",
-            stroke: "#fff",
-            strokeWidth: 0.5,
-            tip: true,
-            title: d => `${d.country}\n${d.type} - ${d.direction}\n${Math.abs(d.value).toLocaleString()} million m³`,
-          }),
-          Plot.ruleX([0], { stroke: "#1a2733", strokeOpacity: 0.5 }),
-          Plot.frame({ stroke: "#d8dee5" }),
-        ],
+        marks,
       });
 
       el.replaceChildren(plot);
+      updateInsights();
+    }
+
+    function updateInsights() {
+      const el = document.getElementById("insights");
+      if (!el) return;
+      let items;
+      if (stage === "2") {
+        items = [
+          "<strong>USA, Brazil, Argentina</strong> dominate as green water exporters - their food shipments are essentially rain-fed soil moisture from low-stress regions.",
+          "<strong>India, Pakistan</strong> export significant blue water from already water-stressed basins (red row tint).",
+          "<strong>Spain, Egypt</strong> export blue water under high stress; <strong>China, Japan, Korea</strong> sit in mid-stress contexts but lean heavily on imports.",
+          "Row tint shows baseline freshwater stress: green = low, red = high.",
+        ];
+      } else if (stage === "3") {
+        items = [
+          "Arrows mark <strong>strategic direction</strong>: stressed exporters (India, Pakistan) should <em>shrink</em> blue-water exports; low-stress regions (USA, Brazil, Argentina, Canada, Australia, Russia) have room to <em>grow</em> green-water trade.",
+          "<strong>China, Japan, Korea, Germany</strong> remain large net importers of embedded green water - food security via trade.",
+          "Repositioning trade flows by water source can ease pressure on stressed aquifers without lowering global food supply.",
+        ];
+      } else {
+        return;
+      }
+      el.innerHTML = items.map(t => `<li>${t}</li>`).join("");
     }
 
     // Wire toggle buttons

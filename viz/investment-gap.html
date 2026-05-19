@@ -162,6 +162,11 @@
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
+    body[data-stage="1"] .stat-card.subsidy,
+    body[data-stage="1"] .compare-bar-wrap,
+    body[data-stage="1"] .ratio-callout { display: none; }
+    body[data-stage="1"] .stat-row { grid-template-columns: 1fr; }
+
   </style>
 </head>
 <body>
@@ -169,6 +174,8 @@
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
     if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+    const _stage = _qp.get('stage');
+    if (_stage) document.body.setAttribute('data-stage', _stage);
   </script>
   <div class="viz-page">
     <header class="viz-header">
