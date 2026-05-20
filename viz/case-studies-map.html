@@ -293,6 +293,19 @@
     /* When loaded inside the StoryMap (?embed=storymap), hide gallery link. */
     body[data-embed="storymap"] .back-link { display: none; }
 
+    /* Embed mode: the StoryMaps inline-embed box is hard-capped ~655px tall.
+       Keep the panel column always present (map stays in the narrower left
+       column, so it starts smaller), drop the footer, and trim the chrome so
+       the whole viz fits without a scrollbar. The panel scrolls internally
+       for long country profiles instead of growing the embed. */
+    body[data-embed="storymap"] .footer-note { display: none; }
+    body[data-embed="storymap"] .viz-page { padding: 0.5rem 1rem 0.4rem; }
+    body[data-embed="storymap"] .viz-header h1 { font-size: 1.05rem; margin-bottom: 0.1rem; }
+    body[data-embed="storymap"] .viz-header p { font-size: 0.78rem; }
+    body[data-embed="storymap"] .toolbar { margin: 0.45rem 0 0.4rem; padding: 0.45rem 0.7rem; }
+    body[data-embed="storymap"] .map-and-panel { align-items: start; gap: 0.8rem; }
+    body[data-embed="storymap"] .panel { max-height: 472px; }
+
     .footer-note {
       font-size: 0.78rem;
       color: var(--c-muted);
@@ -341,7 +354,7 @@
       </div>
     </div>
 
-    <div class="map-and-panel" id="root">
+    <div class="map-and-panel has-panel" id="root">
       <div class="map-wrap">
         <svg id="map" viewBox="0 0 960 480" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="tooltip" id="tooltip" style="opacity:0"></div>
@@ -642,7 +655,10 @@
           <strong>Click a country</strong>
           Each profile shows the water-food nexus context, key indicators, and (for case studies) what works on the ground per the report.
         </div>`;
-      root.classList.remove("has-panel");
+      // Keep the panel column present even when nothing is selected, so the
+      // map stays in the narrower left column (shorter) instead of going
+      // full-width with the prompt stacked below it.
+      root.classList.add("has-panel");
     }
 
     function openPanel(feature) {
