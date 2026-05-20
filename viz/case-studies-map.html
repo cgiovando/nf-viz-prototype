@@ -57,26 +57,37 @@
       box-shadow: inset 0 0 0 1px #fff;
     }
 
+    /* View toggles overlaid in the map's empty SW (lower-left) corner,
+       stacked vertically, so the toolbar stays a single row. */
     .toolbar-controls {
-      margin-left: auto;
+      position: absolute;
+      left: 0.6rem;
+      bottom: 0.6rem;
+      z-index: 5;
       display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.3rem;
+      align-items: stretch;
     }
     .toolbar-controls button {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(2px);
       border: 1px solid var(--c-border);
       border-radius: 6px;
-      padding: 0.35rem 0.7rem;
-      font-size: 0.82rem;
+      padding: 0.32rem 0.7rem;
+      font-size: 0.8rem;
       color: var(--c-text);
       cursor: pointer;
       font-family: inherit;
+      text-align: left;
+      box-shadow: var(--shadow-sm);
+      white-space: nowrap;
     }
     .toolbar-controls button:hover { background: #eef2f6; border-color: var(--c-accent); }
     .toolbar-controls button.active { background: var(--c-accent-dark); color: #fff; border-color: var(--c-accent-dark); }
 
     .solution-filter {
+      margin-left: auto;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
@@ -303,8 +314,9 @@
     body[data-embed="storymap"] .viz-header h1 { font-size: 1.05rem; margin-bottom: 0.1rem; }
     body[data-embed="storymap"] .viz-header p { font-size: 0.78rem; }
     body[data-embed="storymap"] .toolbar { margin: 0.45rem 0 0.4rem; padding: 0.45rem 0.7rem; }
+    body[data-embed="storymap"] .viz-page { max-width: none; }
     body[data-embed="storymap"] .map-and-panel { align-items: start; gap: 0.8rem; }
-    body[data-embed="storymap"] .panel { max-height: 472px; }
+    body[data-embed="storymap"] .panel { max-height: 520px; }
 
     .footer-note {
       font-size: 0.78rem;
@@ -347,17 +359,17 @@
           <option value="5">Crowd in private capital</option>
         </select>
       </div>
-      <div class="toolbar-controls">
-        <button id="btn-all" class="active" type="button">All countries</button>
-        <button id="btn-cases" type="button">Case studies only</button>
-        <button id="btn-sahel" type="button">Sahel region</button>
-      </div>
     </div>
 
     <div class="map-and-panel has-panel" id="root">
       <div class="map-wrap">
         <svg id="map" viewBox="0 0 960 480" preserveAspectRatio="xMidYMid meet"></svg>
         <div class="tooltip" id="tooltip" style="opacity:0"></div>
+        <div class="toolbar-controls">
+          <button id="btn-all" class="active" type="button">All countries</button>
+          <button id="btn-cases" type="button">Case studies only</button>
+          <button id="btn-sahel" type="button">Sahel region</button>
+        </div>
       </div>
       <aside class="panel" id="panel">
         <div class="panel-empty">
