@@ -87,6 +87,17 @@
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
+    /* Embed mode: fit within the ~655px-tall StoryMaps inline-embed box, and
+       use the full-width box (height is row-count driven, so widening only
+       lengthens the bars - it does not add height). */
+    body[data-embed="storymap"] .viz-page { padding: 0.35rem 0.9rem; max-width: 1240px; }
+    body[data-embed="storymap"] .viz-header h1 { font-size: 0.98rem; }
+    body[data-embed="storymap"] .viz-header p { font-size: 0.74rem; }
+    body[data-embed="storymap"] .controls { margin: 0.35rem 0 0.25rem; }
+    body[data-embed="storymap"] .legend-line { margin: 0.25rem 0 0.3rem; }
+    body[data-embed="storymap"] .plot-card { padding: 0.4rem 0.6rem; }
+    body[data-embed="storymap"] .footer-note { margin-top: 0.35rem; padding-top: 0.3rem; }
+
     body[data-arrows="on"] .stage-note {
       display: inline-block;
       font-size: 0.72rem;

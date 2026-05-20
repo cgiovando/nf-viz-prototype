@@ -143,6 +143,20 @@
       line-height: 1.35;
     }
     body[data-embed="storymap"] .back-link { display: none; }
+
+    /* Embed mode: the StoryMaps inline-embed box is hard-capped at ~655px
+       tall (not enlargeable). Compress the chrome so the viz fits without a
+       scrollbar when the reader clicks to interact. Map size is untouched. */
+    body[data-embed="storymap"] .viz-page { padding: 0.4rem 1rem 0.5rem; }
+    body[data-embed="storymap"] .viz-header h1 { font-size: 1rem; margin-bottom: 0.1rem; }
+    body[data-embed="storymap"] .viz-header p { font-size: 0.74rem; line-height: 1.3; }
+    body[data-embed="storymap"] .controls { margin: 0.4rem 0 0.35rem; }
+    body[data-embed="storymap"] .controls .group { padding: 0.22rem 0.55rem; }
+    body[data-embed="storymap"] .map-card { padding: 0.4rem; }
+    body[data-embed="storymap"] #map svg { max-height: 384px; }
+    body[data-embed="storymap"] .legend-row { margin-top: 0.4rem; gap: 0.45rem; }
+    body[data-embed="storymap"] .legend-card { padding: 0.35rem 0.6rem; }
+    body[data-embed="storymap"] .footer-note { margin-top: 0.4rem; padding-top: 0.35rem; }
   </style>
 </head>
 <body>
