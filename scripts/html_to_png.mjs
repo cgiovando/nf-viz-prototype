@@ -63,8 +63,13 @@ try {
   });
   await sleep(2500); // let Observable Plot / fonts / d3 render
   const evalRes = await cdp(ws, id++, "Runtime.evaluate", {
+    // True content bottom = the lowest bounding-box bottom among body's
+    // children. Do NOT Math.max with document.body.scrollHeight: when content
+    // is shorter than the render viewport, scrollHeight floors at the viewport
+    // height (~900) and bakes trailing whitespace into the PNG (which then
+    // shows as a big white gap once the image is sized "full" in StoryMaps).
     expression:
-      "Math.ceil(Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.querySelector('.viz-page')?.getBoundingClientRect().bottom||0))",
+      "(() => { let m=0; for (const el of document.body.children){ const b=el.getBoundingClientRect().bottom; if(b>m) m=b; } const vp=document.querySelector('.viz-page'); if(vp){ const b=vp.getBoundingClientRect().bottom; if(b>m) m=b; } return Math.ceil(m); })()",
     returnByValue: true,
   });
   const height = (evalRes?.result?.value || 900) + 8;
