@@ -2011,7 +2011,7 @@
     "net_export_pct": -0.011276401839984745,
     "net_imports_pct": 0.011276401839984745,
     "is_importer": true,
-    "is_case_study": false,
+    "is_case_study": true,
     "context": "C4",
     "quadrant": "C4"
   },
@@ -10201,7 +10201,7 @@
     "net_export_pct": -0.008862405228152955,
     "net_imports_pct": 0.008862405228152955,
     "is_importer": true,
-    "is_case_study": true,
+    "is_case_study": false,
     "context": "C4",
     "quadrant": "C4"
   },
