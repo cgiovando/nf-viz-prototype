@@ -29,7 +29,8 @@
     .regime.rainfed { background: #469e6e; }
     .regime.irrigation { background: #1f7fa6; }
 
-    .cols { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.45rem; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 0.45rem; }
+    .col { min-width: 0; }
     .col { display: flex; flex-direction: column; gap: 0.45rem; }
     .col-head {
       font-size: 0.78rem; font-weight: 700; color: var(--c-text);
