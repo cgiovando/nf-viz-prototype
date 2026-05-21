@@ -51,7 +51,10 @@
     }
     body[data-embed="storymap"] .back-link { display: none; }
     body[data-embed="storymap"] .viz-page { padding: 0.5rem 0.9rem; }
-  </style>
+      /* Docked-panel embed fit: center the infographic in the iframe pane. */
+    body[data-embed="storymap"] { margin: 0; }
+    body[data-embed="storymap"] .viz-page { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+</style>
 </head>
 <body>
   <script>
