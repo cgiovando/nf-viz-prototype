@@ -71,6 +71,12 @@
       /* Docked-panel embed fit: center the infographic in the iframe pane. */
     body[data-embed="storymap"] { margin: 0; }
     body[data-embed="storymap"] .viz-page { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+
+    /* Visible review flag for content not yet approved by the author. */
+    .review-flag { background:#fdf0d5; border:1px solid #e0b54a; color:#8a5a00;
+      font-size:0.72rem; font-weight:600; padding:0.35rem 0.6rem; border-radius:6px;
+      margin:0 0 0.6rem; line-height:1.3; }
+    .review-flag::before { content:"\26A0\FE0F  "; }
 </style>
 </head>
 <body>
@@ -79,6 +85,7 @@
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
   </script>
   <div class="viz-page">
+    <div class="review-flag">Draft visual - recreated from the report's Figure 2.1, pending author review.</div>
     <header class="viz-header">
       <h1>Why invest in agricultural water management?</h1>
       <p>It delivers against three strategic objectives at once - people, prosperity, and planet.</p>

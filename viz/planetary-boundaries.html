@@ -54,6 +54,12 @@
       /* Docked-panel embed fit: center the infographic in the iframe pane. */
     body[data-embed="storymap"] { margin: 0; }
     body[data-embed="storymap"] .viz-page { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+
+    /* Visible review flag for content not yet approved by the author. */
+    .review-flag { background:#fdf0d5; border:1px solid #e0b54a; color:#8a5a00;
+      font-size:0.72rem; font-weight:600; padding:0.35rem 0.6rem; border-radius:6px;
+      margin:0 0 0.6rem; line-height:1.3; }
+    .review-flag::before { content:"\26A0\FE0F  "; }
 </style>
 </head>
 <body>
@@ -62,6 +68,7 @@
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
   </script>
   <div class="viz-page">
+    <div class="review-flag">Draft visual - illustrative gauges and boundary descriptions are placeholders pending author review (not from approved text).</div>
     <header class="viz-header">
       <h1>Today's food production is already pressing against planetary limits</h1>
       <p>Each boundary marks a safe operating space for the natural systems food depends on. Across the systems below, food production has pushed beyond it.</p>

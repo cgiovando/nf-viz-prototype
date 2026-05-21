@@ -197,6 +197,12 @@
       /* Docked-panel embed fit: center the infographic in the iframe pane. */
     body[data-embed="storymap"] { margin: 0; }
     body[data-embed="storymap"] .viz-page { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+
+    /* Visible review flag for content not yet approved by the author. */
+    .review-flag { background:#fdf0d5; border:1px solid #e0b54a; color:#8a5a00;
+      font-size:0.72rem; font-weight:600; padding:0.35rem 0.6rem; border-radius:6px;
+      margin:0 0 0.6rem; line-height:1.3; }
+    .review-flag::before { content:"\26A0\FE0F  "; }
 </style>
 </head>
 <body>
@@ -206,6 +212,7 @@
     if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
   </script>
   <div class="frame-page">
+    <div class="review-flag">Draft visual - framework pathway wording is report-derived/placeholder, pending author review.</div>
     <header class="frame-header">
       <h1>Four contexts, four pathways</h1>
       <p>The water-food nexus framework groups countries by freshwater stress and net food trade position. Each context implies a different starting point for agricultural water management.</p>
