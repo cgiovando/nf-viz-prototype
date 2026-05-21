@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Why invest in agricultural water management - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; font-size: 14px; }
+    .viz-page { padding: 0.6rem 0.9rem; max-width: 1180px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.15rem; margin: 0 0 0.2rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.82rem; line-height: 1.35; }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+      margin: 1rem 0 0.6rem;
+    }
+    .pillar {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem 1rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    .pillar::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+    }
+    .pillar.people::before   { background: #9aa83f; }
+    .pillar.prosperity::before { background: #469e6e; }
+    .pillar.planet::before   { background: #1f8a8a; }
+
+    .pillar-name {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin: 0.2rem 0 0.05rem;
+    }
+    .pillar.people .pillar-name   { color: #6f7a23; }
+    .pillar.prosperity .pillar-name { color: #1f6c45; }
+    .pillar.planet .pillar-name   { color: #116a6a; }
+
+    .pillar-driver {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--c-text);
+      margin: 0 0 0.7rem;
+    }
+
+    .stat { margin: 0 0 0.8rem; font-size: 0.84rem; line-height: 1.4; color: var(--c-text); }
+    .stat:last-child { margin-bottom: 0; }
+    .stat strong { color: var(--c-accent-dark); }
+    .pillar.people .stat strong   { color: #6f7a23; }
+    .pillar.prosperity .stat strong { color: #1f6c45; }
+    .pillar.planet .stat strong   { color: #116a6a; }
+
+    .footer-note {
+      font-size: 0.72rem; color: var(--c-muted);
+      margin-top: 0.6rem; padding-top: 0.45rem;
+      border-top: 1px solid var(--c-border); line-height: 1.35;
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+    body[data-embed="storymap"] .viz-page { padding: 0.5rem 0.9rem; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+  </script>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>Why invest in agricultural water management?</h1>
+      <p>It delivers against three strategic objectives at once - people, prosperity, and planet.</p>
+    </header>
+
+    <div class="pillars">
+      <div class="pillar people">
+        <p class="pillar-name">People</p>
+        <p class="pillar-driver">Jobs</p>
+        <p class="stat"><strong>-20% childhood stunting</strong> via water access</p>
+        <p class="stat"><strong>+245 million jobs</strong> (direct and indirect globally), of which about <strong>218 million</strong> are in Sub-Saharan Africa</p>
+      </div>
+      <div class="pillar prosperity">
+        <p class="pillar-name">Prosperity</p>
+        <p class="pillar-driver">Higher productivity</p>
+        <p class="stat"><strong>Up to $4 in economic returns</strong> for every $1 invested</p>
+        <p class="stat">A 10% gain in agricultural productivity can <strong>reduce the likelihood of poverty by 2.5% to 3%</strong></p>
+      </div>
+      <div class="pillar planet">
+        <p class="pillar-name">Planet</p>
+        <p class="pillar-driver">Climate resilience</p>
+        <p class="stat">Higher yields mean <strong>less land pressure</strong></p>
+        <p class="stat">Irrigation <strong>boosts soil carbon by 6%</strong></p>
+        <p class="stat">Alternate wetting and drying <strong>reduce methane emissions by up to 53%</strong></p>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      Source: <em>Nourish and Flourish</em>, World Bank 2026, Figure 2.1 (adapted). Underlying studies: Rodella et al. 2023; Giordano et al. 2023; Oseni et al. 2014; Emde et al. 2021; Qin et al. 2024 and IPCC AR6; Jiang et al. 2019; Taheripour and Chepeliev (forthcoming); Damania et al. 2023. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+</body>
+</html>

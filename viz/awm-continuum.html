@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The continuum of agricultural water management - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; font-size: 14px; }
+    .viz-page { padding: 0.6rem 0.9rem; max-width: 1180px; margin: 0 auto; }
+    .viz-header h1 { font-size: 1.15rem; margin: 0 0 0.2rem; color: var(--c-accent-dark); }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.82rem; line-height: 1.35; }
+
+    /* Gradient arrow strip: green water (rainfed) -> blue water (full irrigation) */
+    .gradient-arrow {
+      margin: 0.9rem 0 0.55rem;
+      height: 30px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #6abf95 0%, #469e6e 35%, #2f8f8f 65%, #1a73a7 100%);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0.9rem;
+      color: #fff; font-size: 0.74rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+
+    .regimes { display: grid; grid-template-columns: 2fr 3fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .regime { border-radius: 6px; padding: 0.4rem 0.7rem; color: #fff; font-weight: 700; font-size: 0.85rem; }
+    .regime small { display: block; font-weight: 500; font-size: 0.72rem; opacity: 0.92; }
+    .regime.rainfed { background: #469e6e; }
+    .regime.irrigation { background: #1f7fa6; }
+
+    .cols { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.45rem; }
+    .col { display: flex; flex-direction: column; gap: 0.45rem; }
+    .col-head {
+      font-size: 0.78rem; font-weight: 700; color: var(--c-text);
+      text-align: center; padding: 0.3rem 0.2rem; border-radius: 5px;
+    }
+    .box {
+      background: #fff; border: 1px solid var(--c-border); border-left: 4px solid;
+      border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.76rem;
+      line-height: 1.3; color: var(--c-text); box-shadow: var(--shadow-sm); flex: 1;
+    }
+    /* left (green) -> right (blue) tinting per column */
+    .c1 .col-head { background: rgba(106,191,149,0.25); } .c1 .box { border-left-color: #6abf95; }
+    .c2 .col-head { background: rgba(70,158,110,0.22); }  .c2 .box { border-left-color: #469e6e; }
+    .c3 .col-head { background: rgba(47,143,143,0.20); }  .c3 .box { border-left-color: #2f8f8f; }
+    .c4 .col-head { background: rgba(31,127,166,0.18); }  .c4 .box { border-left-color: #1f7fa6; }
+    .c5 .col-head { background: rgba(26,115,167,0.18); }  .c5 .box { border-left-color: #1a73a7; }
+
+    .drainage {
+      margin-top: 0.5rem; border-radius: 6px; padding: 0.35rem 0.7rem;
+      background: #e8eef3; color: var(--c-accent-dark); font-weight: 700;
+      font-size: 0.8rem; text-align: center; letter-spacing: 0.03em;
+    }
+    .footer-note {
+      font-size: 0.72rem; color: var(--c-muted);
+      margin-top: 0.6rem; padding-top: 0.45rem;
+      border-top: 1px solid var(--c-border); line-height: 1.35;
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+    body[data-embed="storymap"] .viz-page { padding: 0.5rem 0.9rem; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+  </script>
+  <div class="viz-page">
+    <header class="viz-header">
+      <h1>The continuum of agricultural water management</h1>
+      <p>From rainfed systems that rely on green water to fully controlled systems that add blue water - with more control of water from left to right.</p>
+    </header>
+
+    <div class="gradient-arrow"><span>Less water control</span><span>More water control &rarr;</span></div>
+
+    <div class="regimes">
+      <div class="regime rainfed">Rainfed<small>Green water</small></div>
+      <div class="regime irrigation">Full irrigation<small>Blue and green water</small></div>
+    </div>
+
+    <div class="cols">
+      <div class="col c1">
+        <div class="col-head">Water conservation</div>
+        <div class="box">Water conservation and soil water management in fields and pastures</div>
+        <div class="box">Watershed management to improve availability and quality for agricultural use</div>
+        <div class="box">Crop management to suit water conditions</div>
+      </div>
+      <div class="col c2">
+        <div class="col-head">Rainwater harvesting</div>
+        <div class="box">Rainwater harvesting</div>
+        <div class="box">Flood recession cropping and valley bottom cultivation</div>
+        <div class="box">Managed aquifer recharge</div>
+      </div>
+      <div class="col c3">
+        <div class="col-head">Supplemental irrigation</div>
+        <div class="box">Supplemental irrigation</div>
+        <div class="box">Spate irrigation</div>
+      </div>
+      <div class="col c4">
+        <div class="col-head">Full control irrigation</div>
+        <div class="box">Full control irrigation</div>
+        <div class="box">Reuse irrigation</div>
+      </div>
+      <div class="col c5">
+        <div class="col-head">Closed systems</div>
+        <div class="box">Closed system hydroponics</div>
+        <div class="box">Desalination and treated wastewater reuse</div>
+        <div class="box">Aeroponics</div>
+      </div>
+    </div>
+
+    <div class="drainage">Drainage underpins the entire continuum</div>
+
+    <p class="footer-note">
+      Source: <em>Nourish and Flourish</em>, World Bank 2026, Figure 1.1; adapted from Molden 2007. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+</body>
+</html>
