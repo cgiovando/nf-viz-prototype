@@ -9,53 +9,64 @@
     body { background: #fff; font-size: 14px; }
     .viz-page { padding: 0.9rem 1.1rem; max-width: 960px; margin: 0 auto; }
 
-    /* Directional cue above the chart - the prominent organizing label. */
-    .dir-cue {
-      display: flex; align-items: baseline; justify-content: flex-end;
-      gap: 1.5rem; margin: 0 0 0.2rem;
+    /* Per-stage title - one clean line that changes by stage. */
+    .viz-title {
       font-family: "Open Sans", system-ui, sans-serif;
-      font-weight: 700; letter-spacing: 0.04em;
+      font-size: 1.18rem; font-weight: 800; color: var(--c-accent-dark);
+      letter-spacing: -0.01em; line-height: 1.2; margin: 0 0 0.15rem;
     }
-    .dir-cue .imports { color: var(--c-muted); font-size: 0.92rem; margin-right: auto; visibility: hidden; }
-    .dir-cue .exports { color: #002625; font-size: 1.15rem; }
-    .dir-cue .exports .arrow { font-size: 1.3rem; }
-    /* stages 2+ reveal the imports side of the cue */
-    body[data-stage="2"] .dir-cue .imports,
-    body[data-stage="3"] .dir-cue .imports { visibility: visible; }
-
     .subtitle {
-      margin: 0 0 0.55rem; color: var(--c-muted); font-size: 0.8rem; line-height: 1.35;
+      margin: 0 0 0.5rem; color: var(--c-muted); font-size: 0.8rem; line-height: 1.35;
       visibility: hidden; min-height: 1.05rem;
     }
     body[data-stage="2"] .subtitle,
     body[data-stage="3"] .subtitle { visibility: visible; }
 
+    /* Directional cue above the chart - the prominent organizing label. */
+    .dir-cue {
+      display: flex; align-items: baseline; justify-content: flex-end;
+      gap: 1.5rem; margin: 0 0 0.25rem;
+      padding: 0 0.35rem;
+      font-family: "Open Sans", system-ui, sans-serif;
+      font-weight: 700; letter-spacing: 0.04em;
+    }
+    .dir-cue .imports { color: var(--c-muted); font-size: 0.92rem; margin-right: auto; visibility: hidden; }
+    .dir-cue .exports { color: #002625; font-size: 1.1rem; white-space: nowrap; }
+    .dir-cue .exports .arrow { font-size: 1.25rem; }
+    /* stages 2+ reveal the imports side of the cue */
+    body[data-stage="2"] .dir-cue .imports,
+    body[data-stage="3"] .dir-cue .imports { visibility: visible; }
+
     .plot-wrap { position: relative; }
     #plot { width: 100%; transition: opacity 0.2s ease; }
     #plot svg { display: block; max-width: 100%; height: auto; }
 
-    /* Minimizable legend popup (top-right of the plot) */
+    /* Minimizable legend popup - a small pill in the corner, collapsed by
+       default so it never overlaps the bars. */
     .legend-pop {
-      position: absolute; top: 6px; right: 6px; z-index: 12;
-      background: rgba(255,255,255,0.95); border: 1px solid #d8dee5;
+      position: absolute; top: 4px; right: 4px; z-index: 12;
+      background: rgba(255,255,255,0.96); border: 1px solid #d8dee5;
       border-radius: 9px; box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-      max-width: 240px; backdrop-filter: blur(2px);
+      max-width: 230px; backdrop-filter: blur(2px); overflow: hidden;
     }
     .legend-pop .lp-head {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.4rem 0.55rem; cursor: pointer; user-select: none;
+      display: flex; align-items: center; gap: 0.35rem;
+      padding: 0.32rem 0.5rem; cursor: pointer; user-select: none;
     }
     .legend-pop .lp-head h3 {
-      margin: 0; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+      margin: 0; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em;
       color: var(--c-muted); font-weight: 700; font-family: "Open Sans", system-ui, sans-serif;
     }
-    .legend-pop .lp-toggle { border: none; background: none; cursor: pointer; color: var(--c-muted); font-size: 0.95rem; line-height: 1; padding: 0 0.1rem; }
-    .legend-pop .lp-body { padding: 0 0.6rem 0.55rem; }
+    .legend-pop .lp-toggle {
+      border: none; background: none; cursor: pointer; color: var(--c-muted);
+      font-size: 0.95rem; line-height: 1; padding: 0; width: 1rem; text-align: center;
+    }
+    .legend-pop .lp-body { padding: 0 0.6rem 0.5rem; }
     .legend-pop[data-collapsed="true"] .lp-body { display: none; }
     .legend-pop[data-collapsed="true"] { max-width: none; }
-    .lp-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.74rem; color: var(--c-text); margin: 0.2rem 0; }
+    .lp-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.73rem; color: var(--c-text); margin: 0.2rem 0; }
     .lp-row .swatch { width: 13px; height: 13px; border-radius: 3px; flex: none; }
-    .lp-sub { font-size: 0.66rem; color: var(--c-muted); margin: 0.45rem 0 0.2rem; font-weight: 600; }
+    .lp-sub { font-size: 0.65rem; color: var(--c-muted); margin: 0.45rem 0 0.2rem; font-weight: 600; }
     .stress-only { display: none; }
     body[data-stage="2"] .lp-sub.stress-only,
     body[data-stage="3"] .lp-sub.stress-only { display: block; }
@@ -65,22 +76,27 @@
     body[data-stage="2"] .lp-row.stress-row,
     body[data-stage="3"] .lp-row.stress-row { display: flex; }
 
-    /* Atmospheric annotation that fades in over the chart (stage 3) */
+    /* Stage-3 atmospheric annotations - parked in the LEFT margin whitespace
+       (over the country-label gutter, never over the bars) with a thin
+       connector line pointing to the highlighted rows. */
     .annotation {
       position: absolute; z-index: 11;
-      background: rgba(0, 38, 37, 0.9); color: #fff;
+      background: rgba(0, 38, 37, 0.92); color: #fff;
       font-family: "Open Sans", system-ui, sans-serif;
-      font-size: 0.82rem; font-weight: 600; line-height: 1.35;
-      padding: 0.45rem 0.65rem; border-radius: 8px;
-      max-width: 220px; pointer-events: none;
+      font-size: 0.74rem; font-weight: 600; line-height: 1.3;
+      padding: 0.4rem 0.55rem; border-radius: 8px;
+      max-width: 150px; pointer-events: none;
       opacity: 0; transition: opacity 0.7s ease;
       box-shadow: 0 4px 14px rgba(0,0,0,0.22);
     }
     .annotation.show { opacity: 1; }
-    .annotation::after {
-      content: ""; position: absolute; left: -7px; top: 18px;
-      border: 7px solid transparent; border-right-color: rgba(0,38,37,0.9); border-left: 0;
+    /* connector line drawn separately as an SVG-free div */
+    .ann-connector {
+      position: absolute; z-index: 10; height: 0;
+      border-top: 1.5px dashed rgba(0,38,37,0.55);
+      pointer-events: none; opacity: 0; transition: opacity 0.7s ease;
     }
+    .ann-connector.show { opacity: 1; }
 
     .footer-note {
       font-size: 0.72rem; color: var(--c-muted); margin-top: 0.7rem;
@@ -98,19 +114,20 @@
     document.body.setAttribute('data-stage', (_s === '2' || _s === '3') ? _s : '1');
   </script>
   <div class="viz-page">
+    <h2 class="viz-title" id="viz-title">Embedded Water Exports</h2>
+    <p class="subtitle">Rain-fed (green) and irrigation (blue) water embedded in food trade.</p>
     <div class="dir-cue">
       <span class="imports">&larr; IMPORTS</span>
       <span class="exports">EXPORTS <span class="arrow">&rarr;</span></span>
     </div>
-    <p class="subtitle">Rain-fed (green) and irrigation (blue) water embedded in food trade.</p>
 
     <div class="plot-wrap">
       <div id="plot"></div>
 
-      <div class="legend-pop" id="legend" data-collapsed="false">
-        <div class="lp-head" id="legend-head">
+      <div class="legend-pop" id="legend" data-collapsed="true">
+        <div class="lp-head" id="legend-head" role="button" tabindex="0" aria-expanded="false">
+          <button class="lp-toggle" id="legend-toggle" aria-label="Expand legend">+</button>
           <h3>Legend</h3>
-          <button class="lp-toggle" id="legend-toggle" aria-label="Minimize legend">&minus;</button>
         </div>
         <div class="lp-body">
           <div class="lp-row"><span class="swatch" style="background:#3f7d63"></span>Green water (rain-fed)</div>
@@ -121,6 +138,8 @@
         </div>
       </div>
 
+      <div class="ann-connector" id="conn-export"></div>
+      <div class="ann-connector" id="conn-import"></div>
       <div class="annotation" id="ann-export"></div>
       <div class="annotation" id="ann-import"></div>
     </div>
@@ -135,6 +154,14 @@
     import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
 
     const stage = document.body.getAttribute("data-stage");
+
+    // Per-stage title (Natasha's exact phrasing). Subtitle is fixed in markup.
+    const STAGE_TITLE = {
+      "1": "Embedded Water Exports",
+      "2": "Embedded Water In Global Food Trade",
+      "3": "Embedded Water Trade and Water Stress, 2019",
+    };
+    document.getElementById("viz-title").textContent = STAGE_TITLE[stage] || STAGE_TITLE["1"];
 
     function hexToRgba(hex, a) {
       const n = parseInt(hex.slice(1), 16);
@@ -245,11 +272,15 @@
       positionAnnotations(plot, guide);
     }
 
-    // Stage-3 atmospheric annotations anchored near the relevant rows.
+    // Stage-3 atmospheric annotations. Parked in the LEFT margin gutter (the
+    // marginLeft band that holds the country labels) so they never sit over
+    // the bars; a thin dashed connector links each box to its anchor row.
     function positionAnnotations(plot, guide) {
       const annE = document.getElementById("ann-export");
       const annI = document.getElementById("ann-import");
-      annE.classList.remove("show"); annI.classList.remove("show");
+      const connE = document.getElementById("conn-export");
+      const connI = document.getElementById("conn-import");
+      [annE, annI, connE, connI].forEach(e => e.classList.remove("show"));
       if (!guide) return;
 
       annE.textContent = "Large exporters of rain-fed green water";
@@ -258,7 +289,6 @@
       const wrap = document.querySelector(".plot-wrap");
       const wrapBox = wrap.getBoundingClientRect();
       function rowY(name) {
-        // find the y tick label text node for this country
         const labels = plot.querySelectorAll('g[aria-label="y-axis tick label"] text, g[aria-label="y-axis tick"] text');
         for (const t of labels) {
           if (t.textContent.trim() === name) {
@@ -268,30 +298,46 @@
         }
         return null;
       }
-      // Anchor export annotation near the top exporters (Brazil/Argentina);
-      // anchor import annotation lower near India/Pakistan, keeping a gap so
-      // the two boxes never overlap.
+      // The zero line sits at marginLeft (116px) from the SVG left edge; the
+      // left gutter to the left of it is whitespace we can use. We anchor the
+      // boxes flush to the left edge and run a connector toward the row.
       const yE = rowY("Brazil");
       const yI = rowY("Pakistan");
-      const xPos = Math.min(wrapBox.width * 0.46, wrapBox.width - 240);
-      if (yE != null) {
-        annE.style.left = xPos + "px";
-        annE.style.top = (yE - 26) + "px";
-        setTimeout(() => annE.classList.add("show"), 200);
+      const annW = 150;            // matches .annotation max-width
+      const leftPad = 2;           // hug the left edge of the wrap
+      const connFromX = leftPad + annW + 4;
+
+      function place(ann, conn, yRow, topOffset) {
+        if (yRow == null) return;
+        ann.style.left = leftPad + "px";
+        ann.style.top = (yRow + topOffset) + "px";
+        // connector from box right edge across to (near) the zero baseline
+        const targetX = Math.min(112, wrapBox.width - 8);
+        conn.style.left = connFromX + "px";
+        conn.style.top = yRow + "px";
+        conn.style.width = Math.max(8, targetX - connFromX) + "px";
       }
-      if (yI != null) {
-        annI.style.left = xPos + "px";
-        annI.style.top = (yI - 6) + "px";
-        setTimeout(() => annI.classList.add("show"), 700);
-      }
+      // Export box near the top exporters; import box lower near India/Pakistan,
+      // with a vertical gap so the two boxes never overlap.
+      place(annE, connE, yE, -34);
+      place(annI, connI, yI, -8);
+      setTimeout(() => { annE.classList.add("show"); connE.classList.add("show"); }, 200);
+      setTimeout(() => { annI.classList.add("show"); connI.classList.add("show"); }, 700);
     }
 
-    // Legend collapse
+    // Legend collapse (collapsed by default; click pill to expand/re-collapse).
     const legend = document.getElementById("legend");
-    document.getElementById("legend-head").addEventListener("click", () => {
+    function toggleLegend() {
       const collapsed = legend.getAttribute("data-collapsed") === "true";
       legend.setAttribute("data-collapsed", collapsed ? "false" : "true");
-      document.getElementById("legend-toggle").innerHTML = collapsed ? "&minus;" : "+";
+      const btn = document.getElementById("legend-toggle");
+      btn.innerHTML = collapsed ? "&minus;" : "+";
+      btn.setAttribute("aria-label", collapsed ? "Minimize legend" : "Expand legend");
+      document.getElementById("legend-head").setAttribute("aria-expanded", collapsed ? "true" : "false");
+    }
+    document.getElementById("legend-head").addEventListener("click", toggleLegend);
+    document.getElementById("legend-head").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleLegend(); }
     });
 
     build();
