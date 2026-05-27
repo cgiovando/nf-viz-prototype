@@ -6,205 +6,145 @@
   <title>Agricultural production and water stress - Nourish and Flourish</title>
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
-    body { background: #fff; }
-    .viz-page { padding: 0.75rem 1rem; max-width: 1280px; margin: 0 auto; }
-    .viz-header h1 {
-      font-size: 1.1rem;
-      margin: 0 0 0.2rem;
-      color: var(--c-accent-dark);
-    }
-    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.78rem; line-height: 1.35; }
+    html, body { height: 100%; }
+    body { background: #eef2f5; }
+    .viz-page { padding: 0; margin: 0; }
 
-    .controls {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      margin: 0.6rem 0 0.5rem;
-      align-items: center;
-    }
-    .controls .group {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 99px;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.85rem;
-    }
-    .controls input[type="checkbox"] { accent-color: var(--c-accent); }
-    .controls label { cursor: pointer; }
-
-    .map-card {
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 10px;
-      padding: 0.6rem;
-      box-shadow: var(--shadow-sm);
+    /* Full-bleed map fills the whole media pane. */
+    .map-stage {
       position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 360px;
+      overflow: hidden;
+      background: #eaeef1;
     }
-    #map { width: 100%; }
-    #map svg { display: block; max-width: 100%; height: auto; }
+    #map { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #map svg { display: block; width: 100%; height: 100%; cursor: grab; background: #dde6ec; }
+    #map svg:active { cursor: grabbing; }
 
     .country-tip {
       position: absolute;
       pointer-events: none;
-      background: rgba(26, 39, 51, 0.94);
+      background: rgba(0, 38, 37, 0.94);
       color: #fff;
-      padding: 0.55rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.82rem;
+      padding: 0.5rem 0.7rem;
+      border-radius: 7px;
+      font-size: 0.8rem;
       line-height: 1.4;
-      max-width: 260px;
-      transform: translate(8px, -50%);
+      max-width: 240px;
+      transform: translate(10px, -50%);
       opacity: 0;
       transition: opacity 0.12s;
-      z-index: 5;
+      z-index: 30;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
     .country-tip.show { opacity: 1; }
-    .country-tip strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
-    .country-tip dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.6rem; }
-    .country-tip dt { color: rgba(255,255,255,0.7); margin: 0; }
+    .country-tip strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .country-tip dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 0.12rem 0.7rem; }
+    .country-tip dt { color: rgba(255,255,255,0.65); margin: 0; }
     .country-tip dd { margin: 0; font-weight: 600; }
     .country-tip .stressed-flag {
-      display: inline-block;
-      margin-top: 0.35rem;
-      padding: 0.1rem 0.4rem;
-      border-radius: 3px;
-      background: rgba(173, 50, 60, 0.75);
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      display: inline-block; margin-top: 0.3rem; padding: 0.08rem 0.4rem;
+      border-radius: 3px; background: rgba(173, 50, 60, 0.8); color: #fff;
+      font-size: 0.7rem; font-weight: 600;
     }
 
-    .legend-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.6rem;
-      margin-top: 0.6rem;
+    /* Zoom controls */
+    .zoom-ctl {
+      position: absolute; top: 14px; left: 14px; z-index: 20;
+      display: flex; flex-direction: column;
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     }
-    @media (min-width: 720px) { .legend-row { grid-template-columns: 1.2fr 1fr; } }
-    .legend-card {
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 8px;
-      padding: 0.5rem 0.75rem;
+    .zoom-ctl button {
+      width: 34px; height: 34px; border: none; background: #fff;
+      font-size: 1.2rem; line-height: 1; color: var(--c-text); cursor: pointer;
+      font-family: "Open Sans", system-ui, sans-serif;
     }
-    .legend-card h3 {
-      margin: 0 0 0.35rem;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--c-muted);
-      font-weight: 600;
+    .zoom-ctl button + button { border-top: 1px solid #e2e7eb; }
+    .zoom-ctl button:hover { background: #f1f5f8; }
+
+    /* Minimizable legend popup */
+    .legend-pop {
+      position: absolute; right: 14px; bottom: 14px; z-index: 20;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid #d8dee5; border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.14);
+      width: 246px; max-width: calc(100% - 28px);
+      backdrop-filter: blur(3px);
     }
-    .scale-bar {
-      display: flex;
-      height: 14px;
-      border-radius: 3px;
-      overflow: hidden;
-      border: 1px solid var(--c-border);
+    .legend-pop .lp-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 0.7rem; cursor: pointer; user-select: none;
     }
+    .legend-pop .lp-head h3 {
+      margin: 0; font-size: 0.74rem; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--c-muted); font-weight: 700;
+      font-family: "Open Sans", system-ui, sans-serif;
+    }
+    .legend-pop .lp-toggle {
+      border: none; background: none; cursor: pointer; color: var(--c-muted);
+      font-size: 1rem; line-height: 1; padding: 0 0.1rem;
+    }
+    .legend-pop .lp-body { padding: 0 0.7rem 0.7rem; }
+    .legend-pop[data-collapsed="true"] .lp-body { display: none; }
+    .legend-pop[data-collapsed="true"] { width: auto; }
+
+    .scale-bar { display: flex; height: 13px; border-radius: 3px; overflow: hidden; border: 1px solid #d8dee5; }
     .scale-bar div { flex: 1; }
-    .scale-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.72rem;
-      color: var(--c-muted);
-      margin-top: 0.3rem;
-    }
-    .stripe-key {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-    }
+    .scale-labels { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--c-muted); margin-top: 0.25rem; }
+    .lp-sub { font-size: 0.68rem; color: var(--c-muted); margin: 0.55rem 0 0.3rem; font-weight: 600; }
+    .stripe-key { display: flex; align-items: center; gap: 0.45rem; font-size: 0.74rem; color: var(--c-text); }
     .stripe-swatch {
-      width: 32px; height: 18px;
-      background-color: #5fa055;
-      background-image: repeating-linear-gradient(
-        45deg,
-        rgba(173, 50, 60, 0),
-        rgba(173, 50, 60, 0) 3px,
-        rgba(173, 50, 60, 0.7) 3px,
-        rgba(173, 50, 60, 0.7) 5px
-      );
-      border: 1px solid var(--c-border);
-      border-radius: 3px;
+      width: 28px; height: 16px; flex: none; border: 1px solid #d8dee5; border-radius: 3px;
+      background-color: #6aae62;
+      background-image: repeating-linear-gradient(45deg,
+        rgba(173,50,60,0) 0, rgba(173,50,60,0) 3px,
+        rgba(173,50,60,0.7) 3px, rgba(173,50,60,0.7) 5px);
     }
-
-    .footer-note {
-      font-size: 0.7rem;
-      color: var(--c-muted);
-      margin-top: 0.6rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--c-border);
-      line-height: 1.35;
-    }
+    .lp-source { font-size: 0.64rem; color: var(--c-muted); margin: 0.55rem 0 0; line-height: 1.35; }
+    .lp-source a { color: var(--c-accent-dark); }
     body[data-embed="storymap"] .back-link { display: none; }
-
-    /* Embed mode: the StoryMaps inline-embed box is hard-capped at ~655px
-       tall (not enlargeable). Compress the chrome so the viz fits without a
-       scrollbar when the reader clicks to interact. Map size is untouched. */
-    body[data-embed="storymap"] .viz-page { padding: 0.4rem 1rem 0.5rem; }
-    body[data-embed="storymap"] .viz-header h1 { font-size: 1rem; margin-bottom: 0.1rem; }
-    body[data-embed="storymap"] .viz-header p { font-size: 0.74rem; line-height: 1.3; }
-    body[data-embed="storymap"] .controls { margin: 0.4rem 0 0.35rem; }
-    body[data-embed="storymap"] .controls .group { padding: 0.22rem 0.55rem; }
-    body[data-embed="storymap"] .map-card { padding: 0.4rem; }
-    body[data-embed="storymap"] #map svg { max-height: 384px; }
-    body[data-embed="storymap"] .legend-row { margin-top: 0.4rem; gap: 0.45rem; }
-    body[data-embed="storymap"] .legend-card { padding: 0.35rem 0.6rem; }
-    body[data-embed="storymap"] .footer-note { margin-top: 0.4rem; padding-top: 0.35rem; }
   </style>
 </head>
 <body>
   <script>
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
-    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
   </script>
   <div class="viz-page">
-    <header class="viz-header">
-      <h1>Agricultural production and water stress</h1>
-      <p>Green shows total agricultural production (FAOSTAT, 2019, billion kcal). Red hatching marks countries above the WRI Aqueduct high-stress threshold.</p>
-    </header>
-
-    <div class="controls">
-      <div class="group">
-        <input type="checkbox" id="toggle-stress" checked />
-        <label for="toggle-stress">Show water stress overlay</label>
-      </div>
-      <div class="group">
-        <input type="checkbox" id="toggle-cases" />
-        <label for="toggle-cases">Mark case study countries</label>
-      </div>
-    </div>
-
-    <div class="map-card">
+    <div class="map-stage">
       <div id="map"></div>
       <div class="country-tip" id="tip"></div>
-    </div>
 
-    <div class="legend-row">
-      <div class="legend-card">
-        <h3>Agricultural production (billion kcal / year, log scale)</h3>
-        <div class="scale-bar" id="scale-bar"></div>
-        <div class="scale-labels"><span>100</span><span>1k</span><span>10k</span><span>100k</span><span>&ge; 1M</span></div>
+      <div class="zoom-ctl">
+        <button id="zoom-in" aria-label="Zoom in">+</button>
+        <button id="zoom-out" aria-label="Zoom out">&minus;</button>
+        <button id="zoom-reset" aria-label="Reset view" style="font-size:0.85rem;">&#8634;</button>
       </div>
-      <div class="legend-card">
-        <h3>Water stress overlay</h3>
-        <div class="stripe-key">
-          <span class="stripe-swatch"></span>
-          <span>Hatched = WRI baseline water stress &ge; 40% (high or extremely high stress)</span>
+
+      <div class="legend-pop" id="legend" data-collapsed="false">
+        <div class="lp-head" id="legend-head">
+          <h3>Legend</h3>
+          <button class="lp-toggle" id="legend-toggle" aria-label="Minimize legend">&minus;</button>
+        </div>
+        <div class="lp-body">
+          <p class="lp-sub">Agricultural production (billion kcal / year)</p>
+          <div class="scale-bar" id="scale-bar"></div>
+          <div class="scale-labels"><span>100</span><span>1k</span><span>10k</span><span>100k</span><span>&ge; 1M</span></div>
+          <p class="lp-sub">Water stress</p>
+          <div class="stripe-key">
+            <span class="stripe-swatch"></span>
+            <span>Hatched = high water stress (&ge; 40% of freshwater withdrawn)</span>
+          </div>
+          <p class="lp-source">
+            Sources: FAOSTAT food balance sheets 2019; WRI Aqueduct 3.0 baseline water stress. <em>Nourish and Flourish</em>, World Bank 2026.
+            <a class="back-link" href="../index.html">Back to gallery</a>
+          </p>
         </div>
       </div>
     </div>
-
-    <p class="footer-note">
-      Sources: FAOSTAT food balance sheets 2019 (production aggregated as billion kilocalories across crops, livestock and processed products); WRI Aqueduct 3.0 (baseline water stress, % of available freshwater withdrawn). Country boundaries: Natural Earth via the World Atlas TopoJSON CDN. Nourish and Flourish, World Bank 2026. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
-    </p>
   </div>
 
   <script type="module">
@@ -216,8 +156,7 @@
 
     function cleanM49(v) {
       if (v == null) return null;
-      const s = String(v).replace(/[^0-9]/g, "");
-      return s.padStart(3, "0");
+      return String(v).replace(/[^0-9]/g, "").padStart(3, "0");
     }
     const byM49 = new Map();
     for (const r of data) {
@@ -226,62 +165,56 @@
     }
 
     const countries = topojson.feature(world, world.objects.countries);
+    const STRESS_THRESHOLD = 40;
 
-    // Production color scale - log scale (data spans ~10 to ~2.5M bkcal)
     const prodScale = d3.scaleSequentialLog()
       .domain([100, 1_000_000])
       .interpolator(d3.interpolateYlGn)
       .clamp(true);
 
-    // Render scale bar
+    // Legend scale bar
     const sb = document.getElementById("scale-bar");
     const stops = 12;
     sb.innerHTML = "";
     for (let i = 0; i < stops; i++) {
-      const t = i / (stops - 1);
-      const v = Math.pow(10, 2 + t * 4); // 100 -> 1,000,000
+      const v = Math.pow(10, 2 + (i / (stops - 1)) * 4);
       const div = document.createElement("div");
       div.style.background = prodScale(v);
       sb.appendChild(div);
     }
 
-    const STRESS_THRESHOLD = 40;
+    const el = document.getElementById("map");
+    let svg, g, projection, path, zoom;
 
-    function render() {
-      const showStress = document.getElementById("toggle-stress").checked;
-      const showCases = document.getElementById("toggle-cases").checked;
-
-      const el = document.getElementById("map");
+    function build() {
       const width = el.clientWidth;
-      const height = Math.min(420, Math.max(320, width * 0.46));
+      const height = el.clientHeight;
+      el.innerHTML = "";
 
-      const projection = d3.geoNaturalEarth1()
-        .fitExtent([[8, 8], [width - 8, height - 8]], countries);
-      const path = d3.geoPath(projection);
+      // Center on inhabited latitudes: clip the projection so Antarctica and the
+      // high Arctic are trimmed from the default view.
+      projection = d3.geoNaturalEarth1();
+      // Fit to a clipped sphere (roughly -56 to +84 latitude band).
+      const clipBand = {
+        type: "Polygon",
+        coordinates: [[[-180, 84], [180, 84], [180, -56], [-180, -56], [-180, 84]]],
+      };
+      projection.fitExtent([[6, 6], [width - 6, height - 6]], clipBand);
+      path = d3.geoPath(projection);
 
-      const svg = d3.create("svg")
+      svg = d3.select(el).append("svg")
         .attr("viewBox", `0 0 ${width} ${height}`)
-        .attr("width", width)
-        .attr("height", height)
-        .style("background", "#f7f9fb");
+        .attr("width", width).attr("height", height);
 
-      // Hatch pattern for water stress overlay
       const defs = svg.append("defs");
       defs.append("pattern")
-        .attr("id", "stress-hatch")
-        .attr("width", 5)
-        .attr("height", 5)
-        .attr("patternUnits", "userSpaceOnUse")
-        .attr("patternTransform", "rotate(45)")
-        .append("rect")
-          .attr("width", 2.4)
-          .attr("height", 5)
-          .attr("fill", "#ad323c")
-          .attr("fill-opacity", 0.7);
+        .attr("id", "stress-hatch").attr("width", 5).attr("height", 5)
+        .attr("patternUnits", "userSpaceOnUse").attr("patternTransform", "rotate(45)")
+        .append("rect").attr("width", 2.4).attr("height", 5)
+        .attr("fill", "#ad323c").attr("fill-opacity", 0.7);
 
-      const g = svg.append("g");
+      g = svg.append("g");
 
-      // Country fills (agricultural production)
       g.selectAll("path.country")
         .data(countries.features)
         .join("path")
@@ -290,95 +223,84 @@
         .attr("fill", d => {
           const r = byM49.get(String(d.id).padStart(3, "0"));
           const v = r?.production_bkcal;
-          return v != null && v > 0 ? prodScale(v) : "#e3e8ed";
+          return v != null && v > 0 ? prodScale(v) : "#cdd6dd";
         })
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 0.4)
+        .attr("stroke", "#fff").attr("stroke-width", 0.4)
         .style("cursor", "pointer")
-        .on("pointerenter", function(event, d) {
-          d3.select(this).attr("stroke", "#1a2733").attr("stroke-width", 1.2).raise();
+        .on("pointerenter", function (event, d) {
+          d3.select(this).attr("stroke", "#002625").attr("stroke-width", 1.2).raise();
           showTip(event, d);
         })
         .on("pointermove", showTip)
-        .on("pointerleave", function() {
+        .on("pointerleave", function () {
           d3.select(this).attr("stroke", "#fff").attr("stroke-width", 0.4);
           hideTip();
         });
 
-      // Water stress overlay (hatch on stressed countries)
-      if (showStress) {
-        g.append("g")
-          .selectAll("path")
-          .data(countries.features.filter(d => {
-            const r = byM49.get(String(d.id).padStart(3, "0"));
-            return r && r.water_stress_baseline != null && r.water_stress_baseline >= STRESS_THRESHOLD;
-          }))
-          .join("path")
-          .attr("d", path)
-          .attr("fill", "url(#stress-hatch)")
-          .attr("stroke", "none")
-          .style("pointer-events", "none");
-      }
+      // Water-stress overlay (always on; no case-study markers here)
+      g.append("g").selectAll("path")
+        .data(countries.features.filter(d => {
+          const r = byM49.get(String(d.id).padStart(3, "0"));
+          return r && r.water_stress_baseline != null && r.water_stress_baseline >= STRESS_THRESHOLD;
+        }))
+        .join("path")
+        .attr("d", path)
+        .attr("fill", "url(#stress-hatch)").attr("stroke", "none")
+        .style("pointer-events", "none");
 
-      // Case-study highlights
-      if (showCases) {
-        g.append("g")
-          .selectAll("path")
-          .data(countries.features.filter(d => {
-            const r = byM49.get(String(d.id).padStart(3, "0"));
-            return r && r.is_case_study;
-          }))
-          .join("path")
-          .attr("d", path)
-          .attr("fill", "none")
-          .attr("stroke", "#0f4f78")
-          .attr("stroke-width", 1.8)
-          .style("pointer-events", "none");
-      }
-
-      function fmtProd(v) {
-        if (v == null) return "n/a";
-        if (v >= 1e6) return (v / 1e6).toFixed(2) + "M bkcal/yr";
-        if (v >= 1e3) return (v / 1e3).toFixed(1) + "k bkcal/yr";
-        return v.toFixed(0) + " bkcal/yr";
-      }
-
-      function showTip(event, d) {
-        const tip = document.getElementById("tip");
-        const r = byM49.get(String(d.id).padStart(3, "0"));
-        const prod = r?.production_bkcal;
-        const stress = r?.water_stress_baseline;
-        const region = r?.region || "";
-        const stressed = stress != null && stress >= STRESS_THRESHOLD;
-        tip.innerHTML = `
-          <strong>${r?.country || d.properties?.name || "Unknown"}</strong>
-          ${region ? `<div style="opacity:0.7;font-size:0.78rem;margin-bottom:0.3rem;">${region}</div>` : ""}
-          <dl>
-            <dt>Production</dt><dd>${fmtProd(prod)}</dd>
-            <dt>Water stress</dt><dd>${stress != null ? `${stress.toFixed(0)}%` : "n/a"}</dd>
-            ${r?.quadrant ? `<dt>Context</dt><dd>${r.quadrant}</dd>` : ""}
-            ${r?.is_case_study ? `<dt></dt><dd style="color:#7fc6e8;">case study</dd>` : ""}
-          </dl>
-          ${stressed ? `<span class="stressed-flag">High water stress</span>` : ""}`;
-        tip.style.left = (event.offsetX + 12) + "px";
-        tip.style.top = event.offsetY + "px";
-        tip.classList.add("show");
-      }
-      function hideTip() {
-        document.getElementById("tip").classList.remove("show");
-      }
-
-      el.replaceChildren(svg.node());
+      // Zoom + pan
+      zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([[0, 0], [width, height]])
+        .on("zoom", (event) => g.attr("transform", event.transform));
+      svg.call(zoom);
     }
 
-    document.getElementById("toggle-stress").addEventListener("change", render);
-    document.getElementById("toggle-cases").addEventListener("change", render);
+    function fmtProd(v) {
+      if (v == null) return "n/a";
+      if (v >= 1e6) return (v / 1e6).toFixed(2) + "M";
+      if (v >= 1e3) return (v / 1e3).toFixed(1) + "k";
+      return v.toFixed(0);
+    }
+    function showTip(event, d) {
+      const tip = document.getElementById("tip");
+      const r = byM49.get(String(d.id).padStart(3, "0"));
+      const stress = r?.water_stress_baseline;
+      const stressed = stress != null && stress >= STRESS_THRESHOLD;
+      tip.innerHTML = `
+        <strong>${r?.country || d.properties?.name || "Unknown"}</strong>
+        <dl>
+          <dt>Production</dt><dd>${fmtProd(r?.production_bkcal)} bkcal/yr</dd>
+          <dt>Water stress</dt><dd>${stress != null ? `${stress.toFixed(0)}%` : "n/a"}</dd>
+        </dl>
+        ${stressed ? `<span class="stressed-flag">High water stress</span>` : ""}`;
+      const rect = el.getBoundingClientRect();
+      tip.style.left = (event.clientX - rect.left + 12) + "px";
+      tip.style.top = (event.clientY - rect.top) + "px";
+      tip.classList.add("show");
+    }
+    function hideTip() { document.getElementById("tip").classList.remove("show"); }
 
-    render();
+    build();
+
+    // Zoom buttons
+    document.getElementById("zoom-in").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1.6));
+    document.getElementById("zoom-out").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1 / 1.6));
+    document.getElementById("zoom-reset").addEventListener("click", () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
+
+    // Legend collapse
+    const legend = document.getElementById("legend");
+    function toggleLegend() {
+      const collapsed = legend.getAttribute("data-collapsed") === "true";
+      legend.setAttribute("data-collapsed", collapsed ? "false" : "true");
+      document.getElementById("legend-toggle").innerHTML = collapsed ? "&minus;" : "+";
+    }
+    document.getElementById("legend-head").addEventListener("click", toggleLegend);
+
     let resizeTimer;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(render, 200);
+      resizeTimer = setTimeout(build, 200);
     });
   </script>
 </body>

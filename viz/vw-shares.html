@@ -3,387 +3,295 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Virtual water shares - Nourish and Flourish</title>
+  <title>Embedded water in food trade - Nourish and Flourish</title>
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
-    body { background: #fff; }
-    body { font-size: 14px; }
-    .viz-page { padding: 0.45rem 0.9rem; max-width: 827px; margin: 0 auto; }
-    .viz-header h1 {
-      font-size: 1.05rem;
-      margin: 0 0 0.15rem;
-      color: var(--c-accent-dark);
-    }
-    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.78rem; line-height: 1.3; }
-    .stage-caption {
-      margin: 0.2rem 0 0;
-      color: var(--c-muted);
-      font-size: 0.76rem;
-      font-style: italic;
-    }
+    body { background: #fff; font-size: 14px; }
+    .viz-page { padding: 0.9rem 1.1rem; max-width: 960px; margin: 0 auto; }
 
-    .controls {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-      align-items: center;
-      margin: 0.5rem 0 0.35rem;
+    /* Directional cue above the chart - the prominent organizing label. */
+    .dir-cue {
+      display: flex; align-items: baseline; justify-content: flex-end;
+      gap: 1.5rem; margin: 0 0 0.2rem;
+      font-family: "Open Sans", system-ui, sans-serif;
+      font-weight: 700; letter-spacing: 0.04em;
     }
-    .controls .ctrl-sep {
-      width: 1px;
-      align-self: stretch;
-      background: var(--c-border);
-      margin: 0 0.25rem;
-    }
-    .controls button {
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 99px;
-      padding: 0.28rem 0.7rem;
-      font: inherit;
-      font-size: 0.78rem;
-      color: var(--c-text);
-      cursor: pointer;
-    }
-    .controls button.active {
-      background: var(--c-accent);
-      color: #fff;
-      border-color: var(--c-accent);
-    }
-    .controls button:hover:not(.active) { border-color: var(--c-accent); color: var(--c-accent); }
+    .dir-cue .imports { color: var(--c-muted); font-size: 0.92rem; margin-right: auto; visibility: hidden; }
+    .dir-cue .exports { color: #002625; font-size: 1.15rem; }
+    .dir-cue .exports .arrow { font-size: 1.3rem; }
+    /* stages 2+ reveal the imports side of the cue */
+    body[data-stage="2"] .dir-cue .imports,
+    body[data-stage="3"] .dir-cue .imports { visibility: visible; }
 
-    .legend-line {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      font-size: 0.76rem;
-      color: var(--c-muted);
-      margin: 0.35rem 0 0.45rem;
+    .subtitle {
+      margin: 0 0 0.55rem; color: var(--c-muted); font-size: 0.8rem; line-height: 1.35;
+      visibility: hidden; min-height: 1.05rem;
     }
-    .legend-line span { display: flex; align-items: center; gap: 0.35rem; }
-    .legend-line .swatch {
-      display: inline-block;
-      width: 13px; height: 13px;
-      border-radius: 3px;
-    }
+    body[data-stage="2"] .subtitle,
+    body[data-stage="3"] .subtitle { visibility: visible; }
 
-    .plot-card {
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 10px;
-      padding: 0.5rem 0.7rem;
-      box-shadow: var(--shadow-sm);
-    }
-    #plot { width: 100%; transition: opacity 0.15s ease; }
+    .plot-wrap { position: relative; }
+    #plot { width: 100%; transition: opacity 0.2s ease; }
     #plot svg { display: block; max-width: 100%; height: auto; }
 
+    /* Minimizable legend popup (top-right of the plot) */
+    .legend-pop {
+      position: absolute; top: 6px; right: 6px; z-index: 12;
+      background: rgba(255,255,255,0.95); border: 1px solid #d8dee5;
+      border-radius: 9px; box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+      max-width: 240px; backdrop-filter: blur(2px);
+    }
+    .legend-pop .lp-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.4rem 0.55rem; cursor: pointer; user-select: none;
+    }
+    .legend-pop .lp-head h3 {
+      margin: 0; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--c-muted); font-weight: 700; font-family: "Open Sans", system-ui, sans-serif;
+    }
+    .legend-pop .lp-toggle { border: none; background: none; cursor: pointer; color: var(--c-muted); font-size: 0.95rem; line-height: 1; padding: 0 0.1rem; }
+    .legend-pop .lp-body { padding: 0 0.6rem 0.55rem; }
+    .legend-pop[data-collapsed="true"] .lp-body { display: none; }
+    .legend-pop[data-collapsed="true"] { max-width: none; }
+    .lp-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.74rem; color: var(--c-text); margin: 0.2rem 0; }
+    .lp-row .swatch { width: 13px; height: 13px; border-radius: 3px; flex: none; }
+    .lp-sub { font-size: 0.66rem; color: var(--c-muted); margin: 0.45rem 0 0.2rem; font-weight: 600; }
+    .stress-only { display: none; }
+    body[data-stage="2"] .lp-sub.stress-only,
+    body[data-stage="3"] .lp-sub.stress-only { display: block; }
+    body[data-stage="2"] .lp-row.stress-only,
+    body[data-stage="3"] .lp-row.stress-only { display: flex; }
+    .lp-row.stress-row { display: none; }
+    body[data-stage="2"] .lp-row.stress-row,
+    body[data-stage="3"] .lp-row.stress-row { display: flex; }
+
+    /* Atmospheric annotation that fades in over the chart (stage 3) */
+    .annotation {
+      position: absolute; z-index: 11;
+      background: rgba(0, 38, 37, 0.9); color: #fff;
+      font-family: "Open Sans", system-ui, sans-serif;
+      font-size: 0.82rem; font-weight: 600; line-height: 1.35;
+      padding: 0.45rem 0.65rem; border-radius: 8px;
+      max-width: 220px; pointer-events: none;
+      opacity: 0; transition: opacity 0.7s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+    }
+    .annotation.show { opacity: 1; }
+    .annotation::after {
+      content: ""; position: absolute; left: -7px; top: 18px;
+      border: 7px solid transparent; border-right-color: rgba(0,38,37,0.9); border-left: 0;
+    }
+
     .footer-note {
-      font-size: 0.72rem;
-      color: var(--c-muted);
-      margin-top: 0.5rem;
-      padding-top: 0.4rem;
-      border-top: 1px solid var(--c-border);
-      line-height: 1.3;
+      font-size: 0.72rem; color: var(--c-muted); margin-top: 0.7rem;
+      padding-top: 0.45rem; border-top: 1px solid var(--c-border); line-height: 1.35;
     }
     body[data-embed="storymap"] .back-link { display: none; }
-
-    /* Embed mode: fit within the ~655px-tall StoryMaps inline-embed box, and
-       use the full-width box (height is row-count driven, so widening only
-       lengthens the bars - it does not add height). */
-    body[data-embed="storymap"] .viz-page { padding: 0.35rem 0.9rem; max-width: 1240px; }
-    body[data-embed="storymap"] .viz-header h1 { font-size: 0.98rem; }
-    body[data-embed="storymap"] .viz-header p { font-size: 0.74rem; }
-    body[data-embed="storymap"] .controls { margin: 0.35rem 0 0.25rem; }
-    body[data-embed="storymap"] .legend-line { margin: 0.25rem 0 0.3rem; }
-    body[data-embed="storymap"] .plot-card { padding: 0.4rem 0.6rem; }
-    body[data-embed="storymap"] .footer-note { margin-top: 0.35rem; padding-top: 0.3rem; }
-
-    body[data-arrows="on"] .stage-note {
-      display: inline-block;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--c-muted);
-      margin-left: 0.6rem;
-      padding: 0.1rem 0.45rem;
-      border: 1px solid var(--c-border);
-      border-radius: 99px;
-    }
-    .stage-note { display: none; }
-
-    .legend-line .stress-legend { display: none; }
-    body[data-shade="on"] .legend-line .stress-legend { display: flex; }
-    .stress-legend .swatch { border: 1px solid var(--c-border); }
-
+    body[data-embed="storymap"] .viz-page { padding: 0.6rem 1.1rem; max-width: 1240px; }
   </style>
 </head>
 <body>
   <script>
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
-    if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+    const _s = _qp.get('stage');
+    document.body.setAttribute('data-stage', (_s === '2' || _s === '3') ? _s : '1');
   </script>
   <div class="viz-page">
-    <header class="viz-header">
-      <h1>Green and blue water embedded in food trade<span class="stage-note">Illustrative</span></h1>
-      <p>The water that grew the food a country imports or exports - split between rain-fed (green) and irrigation (blue). 2019, million m&sup3;.</p>
-      <p class="stage-caption" id="stageCaption"></p>
-    </header>
-
-    <div class="controls" id="controls">
-      <button data-stage="1" class="active">1. Exports</button>
-      <button data-stage="2">2. + Water stress</button>
-      <button data-stage="3">3. + Trade flows</button>
-      <span class="ctrl-sep"></span>
-      <button data-mode="top" class="active">Top 15 traders</button>
-      <button data-mode="cases">Case studies</button>
+    <div class="dir-cue">
+      <span class="imports">&larr; IMPORTS</span>
+      <span class="exports">EXPORTS <span class="arrow">&rarr;</span></span>
     </div>
+    <p class="subtitle">Rain-fed (green) and irrigation (blue) water embedded in food trade.</p>
 
-    <div class="legend-line">
-      <span><span class="swatch" style="background:#469e6e"></span>Green water (rain-fed)</span>
-      <span><span class="swatch" style="background:#1a73a7"></span>Blue water (irrigation)</span>
-      <span style="color:var(--c-text)">&larr; imports &nbsp;|&nbsp; exports &rarr;</span>
-      <span class="stress-legend">Row background:&nbsp;<span class="swatch" id="stressHighSwatch"></span>water-stressed country&nbsp;<span class="swatch" id="stressLowSwatch"></span>water-secure country</span>
-    </div>
-
-    <div class="plot-card">
+    <div class="plot-wrap">
       <div id="plot"></div>
+
+      <div class="legend-pop" id="legend" data-collapsed="false">
+        <div class="lp-head" id="legend-head">
+          <h3>Legend</h3>
+          <button class="lp-toggle" id="legend-toggle" aria-label="Minimize legend">&minus;</button>
+        </div>
+        <div class="lp-body">
+          <div class="lp-row"><span class="swatch" style="background:#3f7d63"></span>Green water (rain-fed)</div>
+          <div class="lp-row stress-only"><span class="swatch" style="background:#1a73a7"></span>Blue water (irrigation)</div>
+          <p class="lp-sub stress-only">Row background</p>
+          <div class="lp-row stress-row"><span class="swatch" id="sw-low"></span>Water-secure country</div>
+          <div class="lp-row stress-row"><span class="swatch" id="sw-high"></span>Water-stressed country</div>
+        </div>
+      </div>
+
+      <div class="annotation" id="ann-export"></div>
+      <div class="annotation" id="ann-import"></div>
     </div>
 
     <p class="footer-note">
-      Source: FAOSTAT food balance sheets (2019), with virtual water content factors applied to convert traded calories into embedded green and blue water. Bars show gross trade flows; net position can be inferred from the import-export balance. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+      Source: FAOSTAT food balance sheets (2019), converted to embedded green and blue water. Bars show gross trade flows.
+      <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 
   <script type="module">
     import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
 
-    const _initStage = _qp.get("stage");
-    let stage = (_initStage === "2" || _initStage === "3") ? _initStage : "1";
+    const stage = document.body.getAttribute("data-stage");
 
-    function hexToRgba(hex, alpha) {
+    function hexToRgba(hex, a) {
       const n = parseInt(hex.slice(1), 16);
-      return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+      return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
     }
 
-    const STRESS_FALLBACK = {
-      USA: 25, Brazil: 10, Argentina: 18, Russia: 8, Canada: 5, Australia: 22, France: 30,
-      India: 80, Pakistan: 95, Iran: 85, "Saudi Arabia": 95, "United Arab Emirates": 95,
-      Egypt: 88, Spain: 70,
-      China: 45, Indonesia: 30, Vietnam: 35, Turkey: 55, Mexico: 50, Italy: 50,
-      Germany: 35, Japan: 40, "Republic of Korea": 50,
-    };
+    const STRESS_TINT = { high: "#ad323c", low: "#469e6e", mid: "#8a98a5" };
+    const TINT_OPACITY = 0.22;
     function stressLevel(c) {
-      const v = (c.water_stress_baseline ?? STRESS_FALLBACK[c.country]);
+      const v = c.water_stress_baseline;
       if (v == null || isNaN(v)) return "mid";
       if (v >= 40) return "high";
       if (v <= 25) return "low";
       return "mid";
     }
-    const STRESS_TINT = {
-      high: "#ad323c",
-      low:  "#469e6e",
-      mid:  "#8a98a5",
-    };
-    const TINT_OPACITY = 0.28;
-
-    const ARROW_DOWN_COUNTRIES = new Set(["India", "Pakistan"]);
-    const ARROW_UP_COUNTRIES = new Set(["United States", "Brazil", "Argentina", "Russian Federation", "Canada", "Australia"]);
+    document.getElementById("sw-low").style.background = hexToRgba(STRESS_TINT.low, TINT_OPACITY);
+    document.getElementById("sw-high").style.background = hexToRgba(STRESS_TINT.high, TINT_OPACITY);
 
     const raw = await fetch("../data/dashboard.json").then(r => r.json());
-
-    // Filter rows with usable VW data
     const valid = raw.filter(r =>
-      r.iso3 &&
-      (r.vw_green_import_2019_mcm || r.vw_green_export_2019_mcm ||
-       r.vw_blue_import_2019_mcm || r.vw_blue_export_2019_mcm)
-    );
+      r.iso3 && (r.vw_green_import_2019_mcm || r.vw_green_export_2019_mcm ||
+                 r.vw_blue_import_2019_mcm || r.vw_blue_export_2019_mcm));
+    const totalVW = r => (r.vw_green_import_2019_mcm || 0) + (r.vw_green_export_2019_mcm || 0)
+                       + (r.vw_blue_import_2019_mcm || 0) + (r.vw_blue_export_2019_mcm || 0);
+    const countries = [...valid].sort((a, b) => totalVW(b) - totalVW(a)).slice(0, 15);
 
-    const totalVW = r => (r.vw_green_import_2019_mcm || 0)
-                      + (r.vw_green_export_2019_mcm || 0)
-                      + (r.vw_blue_import_2019_mcm || 0)
-                      + (r.vw_blue_export_2019_mcm || 0);
+    // Guided highlight sets for stage 3 (data-driven from the trade rows above)
+    const EXPORT_HL = new Set(["Brazil", "Argentina", "United States"]);
+    const IMPORT_HL = new Set(["India", "Pakistan"]);
 
-    const topCountries = [...valid].sort((a, b) => totalVW(b) - totalVW(a)).slice(0, 15);
-    const caseCountries = valid.filter(r => r.is_case_study)
-                               .sort((a, b) => totalVW(b) - totalVW(a));
-
-    function reshape(countries, showImports, showBlue) {
+    function reshape(showImports, showBlue) {
       const out = [];
       for (const c of countries) {
-        if (showImports) {
-          out.push({ country: c.country, type: "Green water", direction: "import",
-                     value: -(c.vw_green_import_2019_mcm || 0) });
-        }
-        out.push({ country: c.country, type: "Green water", direction: "export",
-                   value: (c.vw_green_export_2019_mcm || 0) });
+        if (showImports) out.push({ country: c.country, type: "Green water", direction: "import", value: -(c.vw_green_import_2019_mcm || 0) });
+        out.push({ country: c.country, type: "Green water", direction: "export", value: (c.vw_green_export_2019_mcm || 0) });
         if (showBlue) {
-          if (showImports) {
-            out.push({ country: c.country, type: "Blue water",  direction: "import",
-                       value: -(c.vw_blue_import_2019_mcm || 0) });
-          }
-          out.push({ country: c.country, type: "Blue water",  direction: "export",
-                     value: (c.vw_blue_export_2019_mcm || 0) });
+          if (showImports) out.push({ country: c.country, type: "Blue water", direction: "import", value: -(c.vw_blue_import_2019_mcm || 0) });
+          out.push({ country: c.country, type: "Blue water", direction: "export", value: (c.vw_blue_export_2019_mcm || 0) });
         }
       }
       return out;
     }
 
-    let mode = "top";
+    const plotEl = document.getElementById("plot");
+
     function build() {
       const showImports = stage !== "1";
       const showBlue = stage !== "1";
       const showShade = stage !== "1";
-      const showArrows = stage === "3";
+      const guide = stage === "3";
 
-      document.body.setAttribute("data-shade", showShade ? "on" : "off");
-      document.body.setAttribute("data-arrows", showArrows ? "on" : "off");
-
-      const countries = mode === "top" ? topCountries : caseCountries;
-      const data = reshape(countries, showImports, showBlue);
-
+      const data = reshape(showImports, showBlue);
       const yOrder = countries.map(c => c.country);
+      const width = plotEl.clientWidth || 600;
+      const rowHeight = 24;
+      const height = countries.length * rowHeight + 44;
 
-      const el = document.getElementById("plot");
-      const width = el.clientWidth;
-      const rowHeight = 26;
-      const height = countries.length * rowHeight + 56;
-
-      const xMax = Math.max(
-        ...countries.map(c => Math.max(
-          c.vw_green_export_2019_mcm || 0,
-          c.vw_blue_export_2019_mcm || 0,
-          c.vw_green_import_2019_mcm || 0,
-          c.vw_blue_import_2019_mcm || 0,
-        ))
-      );
+      const xMax = Math.max(...countries.map(c => Math.max(
+        c.vw_green_export_2019_mcm || 0, c.vw_blue_export_2019_mcm || 0,
+        c.vw_green_import_2019_mcm || 0, c.vw_blue_import_2019_mcm || 0)));
 
       const marks = [];
 
       if (showShade) {
-        const tintRows = countries.map(c => ({
-          country: c.country,
-          tint: STRESS_TINT[stressLevel(c)],
-        }));
-        marks.push(Plot.cell(tintRows, {
-          y: "country",
-          fill: "tint",
-          fillOpacity: TINT_OPACITY,
-          inset: 0,
-        }));
+        const tintRows = countries.map(c => ({ country: c.country, tint: STRESS_TINT[stressLevel(c)] }));
+        marks.push(Plot.cell(tintRows, { y: "country", fill: "tint", fillOpacity: TINT_OPACITY, inset: 0 }));
       }
+
+      // Stage-3 guided dimming: non-highlighted rows soften.
+      const rowOpacity = d => {
+        if (!guide) return 1;
+        if (d.direction === "export" && EXPORT_HL.has(d.country)) return 1;
+        if (d.direction === "import" && IMPORT_HL.has(d.country)) return 1;
+        if (EXPORT_HL.has(d.country) || IMPORT_HL.has(d.country)) return 0.9;
+        return 0.32;
+      };
 
       marks.push(Plot.barX(data, {
-        x: "value",
-        y: "country",
-        fill: "type",
-        stroke: "#fff",
-        strokeWidth: 0.5,
-        tip: true,
+        x: "value", y: "country", fill: "type",
+        fillOpacity: rowOpacity,
+        stroke: "#fff", strokeWidth: 0.5, tip: true,
         title: d => `${d.country}\n${d.type} - ${d.direction}\n${Math.abs(d.value).toLocaleString()} million m³`,
       }));
-
-      if (showArrows) {
-        const arrowRows = [];
-        for (const c of countries) {
-          const blueExp = c.vw_blue_export_2019_mcm || 0;
-          const greenExp = c.vw_green_export_2019_mcm || 0;
-          if (ARROW_DOWN_COUNTRIES.has(c.country) && blueExp > 0) {
-            arrowRows.push({ country: c.country, x: greenExp + blueExp * 0.5, symbol: "↓ shrink", color: "#1a2733" });
-          }
-          if (ARROW_UP_COUNTRIES.has(c.country) && greenExp > 0) {
-            arrowRows.push({ country: c.country, x: greenExp * 0.5, symbol: "↑ grow", color: "#1a2733" });
-          }
-        }
-        if (arrowRows.length) {
-          marks.push(Plot.text(arrowRows, {
-            x: "x",
-            y: "country",
-            text: "symbol",
-            fill: "color",
-            stroke: "#fff",
-            strokeWidth: 3,
-            fontSize: 11,
-            fontWeight: 700,
-            textAnchor: "middle",
-          }));
-        }
-      }
 
       marks.push(Plot.ruleX([0], { stroke: "#1a2733", strokeOpacity: 0.5 }));
       marks.push(Plot.frame({ stroke: "#d8dee5" }));
 
       const plot = Plot.plot({
         width, height,
-        marginLeft: 120, marginRight: 26, marginTop: 22, marginBottom: 30,
+        marginLeft: 116, marginRight: 22, marginTop: 12, marginBottom: 28,
         style: { fontSize: "11px" },
         x: {
-          label: "← imports                                  exports →",
-          grid: true,
+          label: null, grid: true,
           domain: stage === "1" ? [0, xMax * 1.05] : undefined,
           tickFormat: d => {
             const a = Math.abs(d);
-            if (a >= 1e6) return `${(a/1e6).toFixed(1)}M`;
-            if (a >= 1e3) return `${(a/1e3).toFixed(0)}k`;
+            if (a >= 1e6) return `${(a / 1e6).toFixed(1)}M`;
+            if (a >= 1e3) return `${(a / 1e3).toFixed(0)}k`;
             return `${a}`;
           },
         },
         y: { label: null, domain: yOrder },
-        color: {
-          domain: ["Green water", "Blue water"],
-          range: ["#469e6e", "#1a73a7"],
-          legend: false,
-        },
+        color: { domain: ["Green water", "Blue water"], range: ["#3f7d63", "#1a73a7"], legend: false },
         marks,
       });
 
-      el.replaceChildren(plot);
-      updateCaption();
+      plotEl.replaceChildren(plot);
+      positionAnnotations(plot, guide);
     }
 
-    function render() {
-      const el = document.getElementById("plot");
-      el.style.opacity = "0";
-      setTimeout(() => {
-        build();
-        el.style.opacity = "1";
-      }, 150);
+    // Stage-3 atmospheric annotations anchored near the relevant rows.
+    function positionAnnotations(plot, guide) {
+      const annE = document.getElementById("ann-export");
+      const annI = document.getElementById("ann-import");
+      annE.classList.remove("show"); annI.classList.remove("show");
+      if (!guide) return;
+
+      annE.textContent = "Large exporters of rain-fed green water";
+      annI.textContent = "Major exporters reliant on stressed irrigation systems";
+
+      const wrap = document.querySelector(".plot-wrap");
+      const wrapBox = wrap.getBoundingClientRect();
+      function rowY(name) {
+        // find the y tick label text node for this country
+        const labels = plot.querySelectorAll('g[aria-label="y-axis tick label"] text, g[aria-label="y-axis tick"] text');
+        for (const t of labels) {
+          if (t.textContent.trim() === name) {
+            const b = t.getBoundingClientRect();
+            return b.top - wrapBox.top + b.height / 2;
+          }
+        }
+        return null;
+      }
+      // Anchor export annotation near the top exporters (Brazil/Argentina);
+      // anchor import annotation lower near India/Pakistan, keeping a gap so
+      // the two boxes never overlap.
+      const yE = rowY("Brazil");
+      const yI = rowY("Pakistan");
+      const xPos = Math.min(wrapBox.width * 0.46, wrapBox.width - 240);
+      if (yE != null) {
+        annE.style.left = xPos + "px";
+        annE.style.top = (yE - 26) + "px";
+        setTimeout(() => annE.classList.add("show"), 200);
+      }
+      if (yI != null) {
+        annI.style.left = xPos + "px";
+        annI.style.top = (yI - 6) + "px";
+        setTimeout(() => annI.classList.add("show"), 700);
+      }
     }
 
-    function updateCaption() {
-      const captionEl = document.getElementById("stageCaption");
-      if (!captionEl) return;
-      const captions = {
-        "1": "Exports only - the green (rain-fed) water embedded in each country's food exports.",
-        "2": "Now split by water type, with each row shaded by the country's water stress.",
-        "3": "Full picture: imports added (left), plus the report's illustrative direction of change.",
-      };
-      captionEl.textContent = captions[stage];
-    }
-
-    const highSwatch = document.getElementById("stressHighSwatch");
-    const lowSwatch = document.getElementById("stressLowSwatch");
-    if (highSwatch) highSwatch.style.background = hexToRgba(STRESS_TINT.high, TINT_OPACITY);
-    if (lowSwatch) lowSwatch.style.background = hexToRgba(STRESS_TINT.low, TINT_OPACITY);
-
-    document.querySelectorAll("#controls button[data-stage]").forEach(btn => {
-      if (btn.dataset.stage === stage) btn.classList.add("active");
-      else btn.classList.remove("active");
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#controls button[data-stage]").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        stage = btn.dataset.stage;
-        render();
-      });
-    });
-
-    document.querySelectorAll("#controls button[data-mode]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#controls button[data-mode]").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        mode = btn.dataset.mode;
-        render();
-      });
+    // Legend collapse
+    const legend = document.getElementById("legend");
+    document.getElementById("legend-head").addEventListener("click", () => {
+      const collapsed = legend.getAttribute("data-collapsed") === "true";
+      legend.setAttribute("data-collapsed", collapsed ? "false" : "true");
+      document.getElementById("legend-toggle").innerHTML = collapsed ? "&minus;" : "+";
     });
 
     build();
