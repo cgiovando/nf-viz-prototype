@@ -41,13 +41,16 @@
     #plot { width: 100%; transition: opacity 0.2s ease; }
     #plot svg { display: block; max-width: 100%; height: auto; }
 
-    /* Minimizable legend popup - a small pill in the corner, collapsed by
-       default so it never overlaps the bars. */
+    /* Minimizable legend popup - a small pill in the BOTTOM-RIGHT corner,
+       collapsed by default so it never overlaps the bars. When expanded it
+       opens UPWARD (bottom-anchored) into the chart's lower-right whitespace,
+       below the shortest bars, never over the tall top rows. */
     .legend-pop {
-      position: absolute; top: 4px; right: 4px; z-index: 12;
-      background: rgba(255,255,255,0.96); border: 1px solid #d8dee5;
-      border-radius: 9px; box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+      position: absolute; bottom: 4px; right: 4px; z-index: 12;
+      background: rgba(255,255,255,0.97); border: 1px solid #d8dee5;
+      border-radius: 9px; box-shadow: 0 3px 12px rgba(0,0,0,0.12);
       max-width: 230px; backdrop-filter: blur(2px); overflow: hidden;
+      display: flex; flex-direction: column-reverse;
     }
     .legend-pop .lp-head {
       display: flex; align-items: center; gap: 0.35rem;
@@ -76,27 +79,38 @@
     body[data-stage="2"] .lp-row.stress-row,
     body[data-stage="3"] .lp-row.stress-row { display: flex; }
 
-    /* Stage-3 atmospheric annotations - parked in the LEFT margin whitespace
-       (over the country-label gutter, never over the bars) with a thin
-       connector line pointing to the highlighted rows. */
-    .annotation {
-      position: absolute; z-index: 11;
-      background: rgba(0, 38, 37, 0.92); color: #fff;
+    /* Stage-3 annotations. A light color-keyed caption band sits above the
+       chart; matching colored brackets on the chart mark the exact rows each
+       caption describes. Clean, professional, never overlaps the bars. */
+    .ann-caption-band {
+      display: none; flex-wrap: wrap; gap: 0.3rem 1.4rem;
+      margin: 0 0 0.45rem; padding: 0 0.35rem;
       font-family: "Open Sans", system-ui, sans-serif;
-      font-size: 0.74rem; font-weight: 600; line-height: 1.3;
-      padding: 0.4rem 0.55rem; border-radius: 8px;
-      max-width: 150px; pointer-events: none;
-      opacity: 0; transition: opacity 0.7s ease;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+      opacity: 0; transition: opacity 0.5s ease;
     }
-    .annotation.show { opacity: 1; }
-    /* connector line drawn separately as an SVG-free div */
-    .ann-connector {
-      position: absolute; z-index: 10; height: 0;
-      border-top: 1.5px dashed rgba(0,38,37,0.55);
-      pointer-events: none; opacity: 0; transition: opacity 0.7s ease;
+    body[data-stage="3"] .ann-caption-band { display: flex; }
+    body[data-stage="3"] .ann-caption-band.show { opacity: 1; }
+    .ann-cap {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.76rem; font-weight: 600; line-height: 1.25; color: var(--c-accent-dark);
     }
-    .ann-connector.show { opacity: 1; }
+    .ann-cap .ann-key {
+      width: 16px; height: 0; flex: none;
+      border-top: 3px solid #9aa7af; border-radius: 2px;
+    }
+    .ann-cap.ann-export .ann-key { border-color: #3f7d63; }
+    .ann-cap.ann-import .ann-key { border-color: #ad323c; }
+    /* Vertical bracket hugging the chart's left frame edge, spanning the
+       highlighted rows of each group. Color matches its caption. */
+    .ann-bracket {
+      position: absolute; z-index: 13; width: 8px;
+      border: 2.5px solid #9aa7af; border-right: none;
+      border-radius: 5px 0 0 5px;
+      pointer-events: none; opacity: 0; transition: opacity 0.6s ease;
+    }
+    .ann-bracket.ann-export { border-color: #3f7d63; }
+    .ann-bracket.ann-import { border-color: #ad323c; }
+    .ann-bracket.show { opacity: 1; }
 
     .footer-note {
       font-size: 0.72rem; color: var(--c-muted); margin-top: 0.7rem;
@@ -121,6 +135,11 @@
       <span class="exports">EXPORTS <span class="arrow">&rarr;</span></span>
     </div>
 
+    <div class="ann-caption-band" id="ann-band">
+      <span class="ann-cap ann-export"><span class="ann-key"></span>Large exporters of rain-fed green water</span>
+      <span class="ann-cap ann-import"><span class="ann-key"></span>Major exporters reliant on stressed irrigation systems</span>
+    </div>
+
     <div class="plot-wrap">
       <div id="plot"></div>
 
@@ -138,10 +157,8 @@
         </div>
       </div>
 
-      <div class="ann-connector" id="conn-export"></div>
-      <div class="ann-connector" id="conn-import"></div>
-      <div class="annotation" id="ann-export"></div>
-      <div class="annotation" id="ann-import"></div>
+      <div class="ann-bracket ann-export" id="brk-export"></div>
+      <div class="ann-bracket ann-import" id="brk-import"></div>
     </div>
 
     <p class="footer-note">
@@ -272,19 +289,17 @@
       positionAnnotations(plot, guide);
     }
 
-    // Stage-3 atmospheric annotations. Parked in the LEFT margin gutter (the
-    // marginLeft band that holds the country labels) so they never sit over
-    // the bars; a thin dashed connector links each box to its anchor row.
+    // Stage-3 annotations. Each callout is tied to its highlighted rows by a
+    // colored vertical bracket at the chart's left frame edge plus a short
+    // horizontal connector to a clean light box. Boxes are clamped inside the
+    // plot-wrap and offset vertically so they never overlap each other or the
+    // bars; the bracket makes the row-to-callout link explicit.
     function positionAnnotations(plot, guide) {
-      const annE = document.getElementById("ann-export");
-      const annI = document.getElementById("ann-import");
-      const connE = document.getElementById("conn-export");
-      const connI = document.getElementById("conn-import");
-      [annE, annI, connE, connI].forEach(e => e.classList.remove("show"));
+      const band = document.getElementById("ann-band");
+      const brkE = document.getElementById("brk-export");
+      const brkI = document.getElementById("brk-import");
+      [band, brkE, brkI].forEach(e => e.classList.remove("show"));
       if (!guide) return;
-
-      annE.textContent = "Large exporters of rain-fed green water";
-      annI.textContent = "Major exporters reliant on stressed irrigation systems";
 
       const wrap = document.querySelector(".plot-wrap");
       const wrapBox = wrap.getBoundingClientRect();
@@ -298,31 +313,29 @@
         }
         return null;
       }
-      // The zero line sits at marginLeft (116px) from the SVG left edge; the
-      // left gutter to the left of it is whitespace we can use. We anchor the
-      // boxes flush to the left edge and run a connector toward the row.
-      const yE = rowY("Brazil");
-      const yI = rowY("Pakistan");
-      const annW = 150;            // matches .annotation max-width
-      const leftPad = 2;           // hug the left edge of the wrap
-      const connFromX = leftPad + annW + 4;
+      // Row centers for each group's highlighted members present in the chart.
+      const expRows = ["United States", "Brazil", "Argentina"].map(rowY).filter(v => v != null);
+      const impRows = ["India", "Pakistan"].map(rowY).filter(v => v != null);
 
-      function place(ann, conn, yRow, topOffset) {
-        if (yRow == null) return;
-        ann.style.left = leftPad + "px";
-        ann.style.top = (yRow + topOffset) + "px";
-        // connector from box right edge across to (near) the zero baseline
-        const targetX = Math.min(112, wrapBox.width - 8);
-        conn.style.left = connFromX + "px";
-        conn.style.top = yRow + "px";
-        conn.style.width = Math.max(8, targetX - connFromX) + "px";
+      // Brackets sit in the far-left whitespace, embracing the country-name
+      // labels of each highlighted group (color matched to its caption). They
+      // never touch the bars. Offset horizontally so the two groups' brackets
+      // do not collide where their row ranges interleave.
+      const baseX = 2;
+      const pad = 5;
+
+      function place(brk, rows, xOff) {
+        if (!rows.length) { brk.style.display = "none"; return; }
+        brk.style.display = "block";
+        const yTop = Math.min(...rows), yBot = Math.max(...rows);
+        brk.style.left = (baseX + xOff) + "px";
+        brk.style.top = (yTop - pad) + "px";
+        brk.style.height = (yBot - yTop + pad * 2) + "px";
       }
-      // Export box near the top exporters; import box lower near India/Pakistan,
-      // with a vertical gap so the two boxes never overlap.
-      place(annE, connE, yE, -34);
-      place(annI, connI, yI, -8);
-      setTimeout(() => { annE.classList.add("show"); connE.classList.add("show"); }, 200);
-      setTimeout(() => { annI.classList.add("show"); connI.classList.add("show"); }, 700);
+      place(brkE, expRows, 0);
+      place(brkI, impRows, 11);
+
+      setTimeout(() => { band.classList.add("show"); brkE.classList.add("show"); brkI.classList.add("show"); }, 200);
     }
 
     // Legend collapse (collapsed by default; click pill to expand/re-collapse).

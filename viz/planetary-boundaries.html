@@ -202,11 +202,23 @@
     cBot.textContent = "exceeds limits";
     svg.appendChild(cBot);
 
-    // 4. "SAFE OPERATING SPACE" caption arced above the safe ring
-    const cap = el("text", { x: cx, y: cy - rSafe - 8, "text-anchor": "middle",
-      fill: "#4f6b5b", "font-size": 9, "font-weight": 700,
-      "letter-spacing": "0.08em", "font-family": '"Open Sans", system-ui, sans-serif' });
-    cap.textContent = "SAFE OPERATING SPACE";
+    // 4. "SAFE OPERATING SPACE" caption on a clean white chip, sitting in the
+    //    clear band just inside the safe ring (above the hub) for legibility.
+    const capText = "SAFE OPERATING SPACE";
+    const capY = cy - rSafe + 16;
+    const chipW = 168, chipH = 18;
+    const chip = el("rect", { x: cx - chipW / 2, y: capY - chipH / 2,
+      width: chipW, height: chipH, rx: 9, ry: 9,
+      fill: "#ffffff", "fill-opacity": 0.92,
+      stroke: "#2f5d44", "stroke-width": 1, "stroke-opacity": 0.5 });
+    chip.setAttribute("class", "n-cap-chip");
+    svg.appendChild(chip);
+    const cap = el("text", { x: cx, y: capY + 0.5, "text-anchor": "middle",
+      "dominant-baseline": "middle",
+      fill: "#1f4733", "font-size": 10, "font-weight": 800,
+      "letter-spacing": "0.09em", "font-family": '"Open Sans", system-ui, sans-serif' });
+    cap.setAttribute("class", "n-cap-text");
+    cap.textContent = capText;
     svg.appendChild(cap);
 
     // ---- Gentle grow-in (respects reduced-motion) -------------------------
