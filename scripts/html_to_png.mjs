@@ -4,8 +4,13 @@ import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const [url, out, widthArg] = process.argv.slice(2);
+const [url, out, widthArg, heightArg] = process.argv.slice(2);
 const width = parseInt(widthArg || "1280", 10);
+// Render-viewport height; lower this when you want a tighter PNG without the
+// page expanding to a full 900px (used to capture compact, narrative-panel
+// figures). The final PNG height clips to content + 8px so this is just the
+// floor below which the page won't shrink.
+const winHeight = parseInt(heightArg || "900", 10);
 const port = 9333 + Math.floor(Math.random() * 200);
 
 const chrome = spawn(CHROME, [
@@ -15,7 +20,7 @@ const chrome = spawn(CHROME, [
   "--no-first-run",
   "--no-default-browser-check",
   `--remote-debugging-port=${port}`,
-  `--window-size=${width},900`,
+  `--window-size=${width},${winHeight}`,
   "--force-device-scale-factor=2",
   "about:blank",
 ]);
@@ -59,7 +64,7 @@ try {
   await cdp(ws, id++, "Page.enable");
   await cdp(ws, id++, "Runtime.enable");
   await cdp(ws, id++, "Emulation.setDeviceMetricsOverride", {
-    width, height: 900, deviceScaleFactor: 2, mobile: false,
+    width, height: winHeight, deviceScaleFactor: 2, mobile: false,
   });
   await sleep(2500); // let Observable Plot / fonts / d3 render
   const evalRes = await cdp(ws, id++, "Runtime.evaluate", {
@@ -72,7 +77,7 @@ try {
       "(() => { let m=0; for (const el of document.body.children){ const b=el.getBoundingClientRect().bottom; if(b>m) m=b; } const vp=document.querySelector('.viz-page'); if(vp){ const b=vp.getBoundingClientRect().bottom; if(b>m) m=b; } return Math.ceil(m); })()",
     returnByValue: true,
   });
-  const height = (evalRes?.result?.value || 900) + 8;
+  const height = (evalRes?.result?.value || winHeight) + 8;
   const shot = await cdp(ws, id++, "Page.captureScreenshot", {
     format: "png",
     captureBeyondViewport: true,
