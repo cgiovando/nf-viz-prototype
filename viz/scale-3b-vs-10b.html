@@ -39,15 +39,15 @@
       width: 14px; height: 14px; border-radius: 4px; flex: none;
       border: 1px solid rgba(0,0,0,0.06);
     }
-    .ring-key .dot.boundary { background: transparent; border: 2px solid #6b8f7a; }
     .ring-key .dot.fed { background: #3f7d63; }
+    /* "Beyond current sustainable limits" swatch = red base with darker hatch. */
     .ring-key .dot.over {
-      background-color: #c9c2bb;
+      background-color: #cf5a55;
       background-image: repeating-linear-gradient(45deg,
-        rgba(173,50,60,0) 0, rgba(173,50,60,0) 3px,
-        rgba(173,50,60,0.55) 3px, rgba(173,50,60,0.55) 5px);
+        rgba(122,34,39,0) 0, rgba(122,34,39,0) 3px,
+        rgba(122,34,39,0.55) 3px, rgba(122,34,39,0.55) 5px);
     }
-    .ring-key .dot.future { background: #b8702f; }
+    .ring-key .dot.future { background: #cf5a55; }
     .ring-key strong { color: var(--c-text); font-weight: 700; }
 
     .footer-note {
@@ -86,9 +86,8 @@
     </div>
 
     <div class="ring-key">
-      <span class="item"><span class="dot boundary"></span>Safe operating space</span>
       <span class="item"><span class="dot fed"></span><strong>3.4B</strong>&nbsp;fed sustainably</span>
-      <span class="item"><span class="dot over"></span>beyond ecological limits</span>
+      <span class="item"><span class="dot over"></span>beyond current sustainable limits</span>
       <span class="item"><span class="dot future"></span><strong>10B</strong>&nbsp;to feed by 2050</span>
     </div>
 
@@ -123,12 +122,14 @@
       return n;
     }
 
-    // Hatch pattern for overshoot
+    // Hatch pattern for overshoot. Translucent stripes so the red base below
+    // shows through, signaling "beyond current sustainable limits".
     const defs = el("defs", {});
     const pat = el("pattern", { id: "overshoot", width: 7, height: 7,
       patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
-    pat.appendChild(el("rect", { width: 7, height: 7, fill: "#cabfb4", "fill-opacity": 0.55 }));
-    pat.appendChild(el("rect", { width: 3, height: 7, fill: "#ad323c", "fill-opacity": 0.6 }));
+    // Transparent base so the underlying red disc shows through.
+    pat.appendChild(el("rect", { width: 7, height: 7, fill: "transparent" }));
+    pat.appendChild(el("rect", { width: 3, height: 7, fill: "#7a2227", "fill-opacity": 0.55 }));
     defs.appendChild(pat);
     // soft drop shadow
     const filt = el("filter", { id: "soft", x: "-20%", y: "-20%", width: "140%", height: "140%" });
@@ -137,23 +138,18 @@
     defs.appendChild(filt);
     svg.appendChild(defs);
 
-    // 1. Safe operating space - dashed boundary ring + faint fill
-    svg.appendChild(el("circle", { cx, cy, r: rBoundary, fill: "#f1f5f1",
-      stroke: "#6b8f7a", "stroke-width": 2.5, "stroke-dasharray": "2 6",
-      "stroke-linecap": "round" }));
-
-    // 2. 2050 need disc (10B) - warm earth, sits as outer population ring
-    svg.appendChild(el("circle", { cx, cy, r: rFuture, fill: "#e7d3c1",
+    // 1. 2050 need disc (10B) - RED base, "beyond current sustainable limits".
+    //    Natasha's May 27 fix: drop the safe-operating-space layer; make the
+    //    10B circle red; extend hatch to the full 10B since it is also beyond
+    //    sustainable limits.
+    svg.appendChild(el("circle", { cx, cy, r: rFuture, fill: "#cf5a55",
       filter: "url(#soft)" }));
 
-    // 3. Today's population disc (8B) - neutral
-    svg.appendChild(el("circle", { cx, cy, r: rToday, fill: "#e3e8ed" }));
+    // 2. Hatch overlay across the full 10B (signals overshoot zone in its
+    //    entirety; pattern base is transparent so the red shows through).
+    svg.appendChild(el("circle", { cx, cy, r: rFuture, fill: "url(#overshoot)" }));
 
-    // 4. Overshoot portion of today (the part beyond what's sustainable) -
-    //    render the full today disc as hatch, then overlay the fed wedge.
-    svg.appendChild(el("circle", { cx, cy, r: rToday, fill: "url(#overshoot)" }));
-
-    // 5. Sustainably fed (3.4B) - solid green disc, centered
+    // 3. Sustainably fed (3.4B) - solid green disc on top, the safe core.
     svg.appendChild(el("circle", { cx, cy, r: rFed, fill: "#3f7d63" }));
 
     // ---- Labels ----------------------------------------------------------
@@ -166,25 +162,20 @@
     fedSub.textContent = "FED SUSTAINABLY";
     svg.appendChild(fedSub);
 
-    // 8B label on today's ring (lower band, on the hatch)
-    const eight = el("text", { x: cx, y: cy + rFed + 34, "text-anchor": "middle", fill: "#7a3036" });
+    // "8B today" label - kept as a muted reference inside the hatched zone.
+    const eight = el("text", { x: cx, y: cy + rFed + 34, "text-anchor": "middle",
+      fill: "#fff", "fill-opacity": 0.85 });
     eight.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 20 }), { textContent: "8B today" }));
     svg.appendChild(eight);
 
-    // 10B label near top of the 2050 ring
-    const ten = el("text", { x: cx, y: cy - rToday - 26, "text-anchor": "middle", fill: "#8c4f21" });
-    ten.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 26 }), { textContent: "10B" }));
+    // 10B label near top of the 2050 ring (white for legibility on red).
+    const ten = el("text", { x: cx, y: cy - rFuture + 30, "text-anchor": "middle", fill: "#fff" });
+    ten.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 30, "font-weight": 800 }), { textContent: "10B" }));
     svg.appendChild(ten);
-    const tenSub = el("text", { x: cx, y: cy - rToday - 8, "text-anchor": "middle",
-      fill: "#8c4f21", class: "n-sub", "font-size": 9.5 });
+    const tenSub = el("text", { x: cx, y: cy - rFuture + 48, "text-anchor": "middle",
+      fill: "#fff", "fill-opacity": 0.85, class: "n-sub", "font-size": 10.5 });
     tenSub.textContent = "BY 2050";
     svg.appendChild(tenSub);
-
-    // Boundary caption, top of dashed ring
-    const bnd = el("text", { x: cx, y: cy - rBoundary - 6, "text-anchor": "middle",
-      fill: "#4f6b5b", class: "n-sub", "font-size": 9 });
-    bnd.textContent = "SAFE OPERATING SPACE";
-    svg.appendChild(bnd);
 
     // ---- Gentle grow-in animation (respects reduced-motion) --------------
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
