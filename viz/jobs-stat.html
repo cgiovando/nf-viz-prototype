@@ -161,6 +161,15 @@
       /* Docked-panel embed fit: center the infographic in the iframe pane. */
     body[data-embed="storymap"] { margin: 0; }
     body[data-embed="storymap"] .viz-page { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+    /* ?compact=1 = drop min-height + shrink padding for the compact PNG used
+       inside a narrative panel. */
+    body[data-compact="1"][data-embed="storymap"] .viz-page {
+      min-height: 0; padding: 0.4rem 0.8rem;
+    }
+    /* Compact mode: drop the page heading/title and the trailing source-note,
+       so the PNG is just the bar + label (much shorter aspect ratio). */
+    body[data-compact="1"] .viz-header,
+    body[data-compact="1"] .footer-note { display: none; }
 </style>
 </head>
 <body>
@@ -168,6 +177,7 @@
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
     if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
+    if (_qp.get('compact') === '1') document.body.setAttribute('data-compact', '1');
   </script>
   <div class="viz-page">
     <header class="viz-header">

@@ -117,7 +117,15 @@
       padding-top: 0.45rem; border-top: 1px solid var(--c-border); line-height: 1.35;
     }
     body[data-embed="storymap"] .back-link { display: none; }
-    body[data-embed="storymap"] .viz-page { padding: 0.6rem 1.1rem; max-width: 1240px; }
+    body[data-embed="storymap"] { margin: 0; }
+    /* Vertically center the viz within the docked StoryMap pane (Natasha:
+       "If possible, center data viz on page (right now it sits at the top of
+       the screen)"). */
+    body[data-embed="storymap"] .viz-page {
+      padding: 0.6rem 1.1rem; max-width: 1240px;
+      min-height: 100vh; box-sizing: border-box;
+      display: flex; flex-direction: column; justify-content: center;
+    }
   </style>
 </head>
 <body>

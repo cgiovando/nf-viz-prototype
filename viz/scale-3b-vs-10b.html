@@ -61,6 +61,12 @@
     }
     body[data-embed="storymap"] .back-link { display: none; }
     body[data-embed="storymap"] { margin: 0; }
+    /* ?compact=1 drops the min-height (used to generate compact PNGs for the
+       narrative-panel placement; without compact, the page fills the docked
+       pane vertically). */
+    body[data-compact="1"][data-embed="storymap"] .viz-page {
+      min-height: 0; padding-top: 0.4rem; padding-bottom: 0.4rem;
+    }
     body[data-embed="storymap"] .viz-page {
       min-height: 100vh; box-sizing: border-box;
       display: flex; flex-direction: column; justify-content: center;
@@ -76,6 +82,7 @@
   <script>
     const _qp = new URLSearchParams(location.search);
     if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+    if (_qp.get('compact') === '1') document.body.setAttribute('data-compact', '1');
     if (_qp.get('layout') === 'right') document.body.setAttribute('data-layout', 'right');
   </script>
   <div class="viz-page">

@@ -6,60 +6,84 @@
   <title>Investment gap - Nourish and Flourish</title>
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
+    /* One bar chart that progressively reveals two related figures:
+       Stage 1 = $24-70B annual investment need (a narrow warm segment, the
+                 rest of the bar empty - dramatic "small need" framing).
+       Stage 2 = the rest of the bar fills with the $490B existing agricultural
+                 support (calorie subsidies + commodity-linked payments). The
+                 $24-70B segment stays where it was, now visibly tiny next to
+                 the much larger existing spend. Implements Natasha's note:
+                 "490m should appear on the same bar chart as 6.1 so they are
+                 one stacked bar chart. Remove the 27B figure." */
     body { background: #fff; }
-    .viz-page { padding: 1.2rem 1.5rem; max-width: 980px; margin: 0 auto; }
+    .viz-page { padding: 1.4rem 1.6rem; max-width: 1000px; margin: 0 auto; }
 
-    .bars { display: flex; flex-direction: column; gap: 1.2rem; }
-    .bar-row {
-      display: grid; grid-template-columns: minmax(0, 200px) 1fr;
-      gap: 1.2rem; align-items: center;
-    }
-    @media (max-width: 620px) { .bar-row { grid-template-columns: 1fr; gap: 0.35rem; } }
-    .bar-label {
-      font-size: 1rem; color: var(--c-text); font-weight: 700; min-width: 0;
+    .stack-wrap { padding: 1rem 0 0.4rem; }
+    .scale-axis {
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem; color: var(--c-muted);
       font-family: "Open Sans", system-ui, sans-serif;
+      margin: 0 0 0.4rem;
     }
-    .bar-label small {
-      display: block; font-weight: 400; color: var(--c-muted);
-      font-size: 0.8rem; margin-top: 0.2rem; font-family: inherit;
-    }
+
     .bar-track {
-      position: relative; background: #f1f4f7; border-radius: 8px;
-      height: 56px; min-width: 0;
+      position: relative;
+      background: #f1f4f7;
+      border-radius: 9px;
+      height: 78px; min-width: 0;
+      overflow: hidden;
     }
-    .bar-fill {
-      position: absolute; top: 0; left: 0; height: 100%; border-radius: 8px;
-      display: flex; align-items: center; padding: 0 1rem;
+    /* Two stacked segments inside the same bar. The "need" sits at the LEFT
+       and is the same width at both stages; only the existing-support
+       segment (to its right) toggles visibility. */
+    .seg {
+      position: absolute; top: 0; height: 100%;
+      display: flex; align-items: center;
+      padding: 0 1rem;
       color: #fff; font-weight: 800; font-size: 1.15rem; white-space: nowrap;
       font-family: "Open Sans", system-ui, sans-serif;
-      transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
-      width: 0;
+      transition: opacity 0.7s ease;
     }
-    .bar-fill.need    { background: var(--c-warm); }
-    .bar-fill.subsidy { background: var(--c-accent); }
-    .bar-fill .out-label {
-      position: absolute; left: calc(100% + 0.55rem); color: var(--c-text);
-      font-weight: 800; font-size: 1.15rem; pointer-events: none;
-    }
-    .bar-fill.need .out-label { display: none; }
-    .bar-fill.need.label-out .in-label  { display: none; }
-    .bar-fill.need.label-out .out-label { display: inline; }
+    .seg.need     { left: 0; background: var(--c-warm); width: 14.3%; z-index: 2; }
+    .seg.existing { background: var(--c-accent); }
 
-    /* The $490B row is always present so the page reserves its space; at
-       stage 1 the row is hidden (the need bar gets the spotlight); at stage 2
-       it fades in and the need bar transitions to its true relative scale. */
-    .stage2-only { visibility: hidden; opacity: 0; transition: opacity 0.45s ease; }
-    body[data-stage="2"] .stage2-only { visibility: visible; opacity: 1; }
+    /* Stage 1: only the need segment is visible. Stage 2: existing segment
+       fades in to the right of the need segment, filling out to the full
+       $490B width. */
+    body[data-stage="1"] .seg.existing { opacity: 0; }
+    body[data-stage="2"] .seg.existing { opacity: 1; }
+
+    .seg .out-label {
+      position: absolute; left: calc(100% + 0.6rem); top: 50%;
+      transform: translateY(-50%);
+      color: var(--c-text); font-weight: 800; font-size: 1.05rem; white-space: nowrap;
+    }
+    .seg.need .out-label { display: none; }
+    .seg.need.label-out .in-label  { display: none; }
+    .seg.need.label-out .out-label { display: inline; }
+
+    /* Captions appearing under the bar, one per segment. */
+    .captions {
+      display: grid; grid-template-columns: 14.3% 1fr;
+      gap: 0; margin-top: 0.7rem;
+      font-family: "Open Sans", system-ui, sans-serif;
+    }
+    .cap { padding: 0 0.4rem; }
+    .cap-title { font-size: 0.9rem; font-weight: 700; color: var(--c-text);
+                 margin: 0 0 0.1rem; line-height: 1.25; }
+    .cap-sub   { font-size: 0.78rem; color: var(--c-muted); margin: 0; }
+    body[data-stage="1"] .cap.existing { visibility: hidden; }
 
     .annot {
-      font-size: 0.85rem; color: var(--c-muted); margin: 0.15rem 0 0;
-      grid-column: 2 / -1; line-height: 1.45;
+      font-size: 0.85rem; color: var(--c-muted);
+      margin: 0.9rem 0 0; line-height: 1.45;
     }
-    @media (max-width: 620px) { .annot { grid-column: 1 / -1; } }
+    body[data-stage="1"] .annot { visibility: hidden; }
 
     .footer-note {
-      font-size: 0.78rem; color: var(--c-muted); margin-top: 1.4rem;
-      padding-top: 0.7rem; border-top: 1px solid var(--c-border); line-height: 1.45;
+      font-size: 0.78rem; color: var(--c-muted);
+      margin-top: 1.4rem; padding-top: 0.7rem;
+      border-top: 1px solid var(--c-border); line-height: 1.45;
     }
     body[data-embed="storymap"] .back-link { display: none; }
     body[data-embed="storymap"] { margin: 0; }
@@ -77,30 +101,32 @@
     document.body.setAttribute('data-stage', _s === '2' ? '2' : '1');
   </script>
   <div class="viz-page">
-    <div class="bars">
-      <div class="bar-row">
-        <div class="bar-label">Investment needed
-          <small>$ billion / year, to 2050</small></div>
-        <div class="bar-track">
-          <div class="bar-fill need" id="bar-need">
-            <span class="in-label">$24-70B</span>
-            <span class="out-label">$24-70B</span>
-          </div>
+    <div class="stack-wrap">
+      <div class="scale-axis"><span>$0</span><span>$490B</span></div>
+      <div class="bar-track">
+        <div class="seg need" id="seg-need">
+          <span class="in-label">$24-70B</span>
+          <span class="out-label">$24-70B</span>
+        </div>
+        <div class="seg existing" id="seg-existing">$490B</div>
+      </div>
+
+      <div class="captions">
+        <div class="cap need">
+          <p class="cap-title">Investment needed</p>
+          <p class="cap-sub">$ billion / year, to 2050</p>
+        </div>
+        <div class="cap existing">
+          <p class="cap-title">Existing agricultural support</p>
+          <p class="cap-sub">$ billion / year, all forms</p>
         </div>
       </div>
 
-      <div class="bar-row stage2-only">
-        <div class="bar-label">Existing agricultural support
-          <small>$ billion / year, all forms</small></div>
-        <div class="bar-track">
-          <div class="bar-fill subsidy" id="bar-sub">$490B</div>
-        </div>
-        <p class="annot">
-          About three-quarters goes to subsidies and commodity-linked payments.
-          Redirecting even part of this could cover the investment need without
-          new spending.
-        </p>
-      </div>
+      <p class="annot">
+        About three-quarters of existing agricultural support goes to subsidies
+        and commodity-linked payments. Redirecting even part of it could cover
+        the investment need without new spending.
+      </p>
     </div>
 
     <p class="footer-note">
@@ -110,31 +136,23 @@
   </div>
 
   <script>
-    /* Stage 1: the need bar is the only thing on screen - give it visual
-       weight (~78% of the track) so it reads as a serious number. Stage 2:
-       reveal the $490B reference; the need bar transitions to its TRUE
-       relative scale (~14%) so the contrast lands as a single comparison. */
-    const MAX_STAGE2 = 490;
-    const stage = document.body.getAttribute("data-stage");
-    function pct(v) { return (v / MAX_STAGE2) * 100; }
-    function fitNeedLabel() {
-      const need = document.getElementById("bar-need");
-      const inLabel = need.querySelector(".in-label");
-      need.classList.remove("label-out");
-      const avail = need.clientWidth - 28;
-      if (inLabel.scrollWidth > avail) need.classList.add("label-out");
-    }
+    /* At stage 1 the existing-support segment is invisible (opacity 0). At
+       stage 2 it fades in. The need segment stays at 14.3% of the bar (the
+       $70B / $490B ratio), and the existing segment fills the rest. */
     requestAnimationFrame(() => {
-      if (stage === "2") {
-        document.getElementById("bar-need").style.width = pct(70) + "%";
-        document.getElementById("bar-sub").style.width = "100%";
-      } else {
-        // Stage 1 only: need bar takes most of the track for impact.
-        document.getElementById("bar-need").style.width = "78%";
+      const need = document.getElementById("seg-need");
+      const ex   = document.getElementById("seg-existing");
+      ex.style.left  = "14.3%";
+      ex.style.width = "85.7%";
+      // If the inside label would clip on a narrow need segment, swap to outside.
+      function fit() {
+        need.classList.remove("label-out");
+        const inLabel = need.querySelector(".in-label");
+        if (inLabel.scrollWidth > need.clientWidth - 24) need.classList.add("label-out");
       }
-      setTimeout(fitNeedLabel, 950);
+      fit();
+      window.addEventListener("resize", fit);
     });
-    window.addEventListener("resize", fitNeedLabel);
   </script>
 </body>
 </html>
