@@ -85,11 +85,29 @@
       margin-top: 1.4rem; padding-top: 0.7rem;
       border-top: 1px solid var(--c-border); line-height: 1.45;
     }
+    /* Photo grid below the bar chart (Natasha's Panel 6.1 + 6.2 notes:
+       "include some photos on the right hand side below the bar chart...
+        It looks a little lonely!" and "If you were able to add a photo
+        grid"). Same photos for both stages. */
+    .photo-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0.55rem; margin-top: 1.4rem;
+    }
+    @media (max-width: 720px) { .photo-grid { grid-template-columns: repeat(2, 1fr); } }
+    .photo-grid img {
+      width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+      border-radius: 6px; display: block;
+    }
+
     body[data-embed="storymap"] .back-link { display: none; }
     body[data-embed="storymap"] { margin: 0; }
+    /* In storymap mode the chart anchors to the top of the pane and the
+       photo grid sits below it (per Natasha: push chart higher + photos
+       under). justify-content:flex-start instead of center. */
     body[data-embed="storymap"] .viz-page {
       min-height: 100vh; box-sizing: border-box;
-      display: flex; flex-direction: column; justify-content: center;
+      display: flex; flex-direction: column; justify-content: flex-start;
+      padding-top: 1.6rem;
     }
   </style>
 </head>
@@ -127,6 +145,13 @@
         and commodity-linked payments. Redirecting even part of it could cover
         the investment need without new spending.
       </p>
+    </div>
+
+    <div class="photo-grid" aria-label="Agricultural water photos">
+      <img src="img/panel-2.1-guinea.jpg" alt="" loading="lazy" />
+      <img src="img/panel-3.3-orchard.jpg" alt="" loading="lazy" />
+      <img src="img/panel-6.3-vietnam.jpg" alt="" loading="lazy" />
+      <img src="img/panel-6.4.jpg" alt="" loading="lazy" />
     </div>
 
     <p class="footer-note">
