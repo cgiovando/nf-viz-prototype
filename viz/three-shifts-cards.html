@@ -10,17 +10,18 @@
     .viz-page { padding: 1rem 1.1rem; max-width: 1200px; margin: 0 auto; }
 
     /* Three columns on desktop so all three shifts fit horizontally and an
-       expanded card cannot push the iframe past its docked-pane height. Falls
-       back to two and one column on narrower viewports. */
+       expanded card cannot push the iframe past its docked-pane height. Hold
+       3 cols all the way down to ~520px (the docked sidecar pane is typically
+       ~600-900px so 3 cols is what reads); only collapse to a single column
+       on actual phone widths. */
     .cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.85rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.7rem;
       margin: 0.4rem 0 0.8rem;
       align-items: start;
     }
-    @media (max-width: 880px) { .cards { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .cards { grid-template-columns: 1fr; } }
 
     .card {
       background: #fff;

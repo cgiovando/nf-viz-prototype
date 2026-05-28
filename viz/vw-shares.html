@@ -17,10 +17,8 @@
     }
     .subtitle {
       margin: 0 0 0.5rem; color: var(--c-muted); font-size: 0.8rem; line-height: 1.35;
-      visibility: hidden; min-height: 1.05rem;
+      min-height: 1.05rem;
     }
-    body[data-stage="2"] .subtitle,
-    body[data-stage="3"] .subtitle { visibility: visible; }
 
     /* Directional cue above the chart - the prominent organizing label. */
     .dir-cue {
@@ -30,12 +28,11 @@
       font-family: "Open Sans", system-ui, sans-serif;
       font-weight: 700; letter-spacing: 0.04em;
     }
-    .dir-cue .imports { color: var(--c-muted); font-size: 0.92rem; margin-right: auto; visibility: hidden; }
+    .dir-cue .imports { color: var(--c-muted); font-size: 0.92rem; margin-right: auto; }
     .dir-cue .exports { color: #002625; font-size: 1.1rem; white-space: nowrap; }
     .dir-cue .exports .arrow { font-size: 1.25rem; }
-    /* stages 2+ reveal the imports side of the cue */
-    body[data-stage="2"] .dir-cue .imports,
-    body[data-stage="3"] .dir-cue .imports { visibility: visible; }
+    /* IMPORTS cue visible from stage 1 - both sides of trade are shown from
+       the start per Natasha's 2026-05-28 call. */
 
     .plot-wrap { position: relative; }
     #plot { width: 100%; transition: opacity 0.2s ease; }
@@ -158,7 +155,7 @@
         </div>
         <div class="lp-body">
           <div class="lp-row"><span class="swatch" style="background:#3f7d63"></span>Green water (rain-fed)</div>
-          <div class="lp-row stress-only"><span class="swatch" style="background:#1a73a7"></span>Blue water (irrigation)</div>
+          <div class="lp-row"><span class="swatch" style="background:#1a73a7"></span>Blue water (irrigation)</div>
           <p class="lp-sub stress-only">Row background</p>
           <div class="lp-row stress-row"><span class="swatch" id="sw-low"></span>Water-secure country</div>
           <div class="lp-row stress-row"><span class="swatch" id="sw-high"></span>Water-stressed country</div>
@@ -180,10 +177,12 @@
 
     const stage = document.body.getAttribute("data-stage");
 
-    // Per-stage title (Natasha's exact phrasing). Subtitle is fixed in markup.
+    // Per-stage title. Stage 1 already shows the green/blue + imports/exports
+    // view per Natasha's 2026-05-28 call ("the green and blue water imports
+    // and exports here"); stage 2 adds the water-stress background shading.
     const STAGE_TITLE = {
-      "1": "Embedded Water Exports",
-      "2": "Embedded Water In Global Food Trade",
+      "1": "Embedded Water In Global Food Trade",
+      "2": "Embedded Water Trade and Water Stress, 2019",
       "3": "Embedded Water Trade and Water Stress, 2019",
     };
     document.getElementById("viz-title").textContent = STAGE_TITLE[stage] || STAGE_TITLE["1"];
@@ -233,8 +232,11 @@
     const plotEl = document.getElementById("plot");
 
     function build() {
-      const showImports = stage !== "1";
-      const showBlue = stage !== "1";
+      // Stage 1 already shows green+blue + imports+exports (no stress shading);
+      // stress shading reveals at stage 2. (Was: stage 1 = exports-only single
+      // color, stage 2 = full view with shading.)
+      const showImports = true;
+      const showBlue = true;
       const showShade = stage !== "1";
       const guide = stage === "3";
 
@@ -280,7 +282,8 @@
         style: { fontSize: "11px" },
         x: {
           label: null, grid: true,
-          domain: stage === "1" ? [0, xMax * 1.05] : undefined,
+          // Symmetric imports/exports domain at all stages (no more
+          // exports-only x-axis - stage 1 now shows both sides too).
           tickFormat: d => {
             const a = Math.abs(d);
             if (a >= 1e6) return `${(a / 1e6).toFixed(1)}M`;
