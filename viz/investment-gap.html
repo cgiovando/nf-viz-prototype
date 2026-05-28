@@ -7,58 +7,59 @@
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
     body { background: #fff; }
-    .viz-page { padding: 1.1rem 1.25rem; max-width: 880px; margin: 0 auto; }
+    .viz-page { padding: 1.2rem 1.5rem; max-width: 980px; margin: 0 auto; }
 
-    .compare-bar-wrap { padding: 0.4rem 0 0; }
-    .bars { display: flex; flex-direction: column; gap: 1rem; }
-    .bar-row { display: grid; grid-template-columns: minmax(0, 150px) 1fr; gap: 1rem; align-items: center; }
-    @media (max-width: 560px) { .bar-row { grid-template-columns: 1fr; gap: 0.3rem; } }
+    .bars { display: flex; flex-direction: column; gap: 1.2rem; }
+    .bar-row {
+      display: grid; grid-template-columns: minmax(0, 200px) 1fr;
+      gap: 1.2rem; align-items: center;
+    }
+    @media (max-width: 620px) { .bar-row { grid-template-columns: 1fr; gap: 0.35rem; } }
     .bar-label {
-      font-size: 0.9rem; color: var(--c-text); font-weight: 700; min-width: 0;
+      font-size: 1rem; color: var(--c-text); font-weight: 700; min-width: 0;
       font-family: "Open Sans", system-ui, sans-serif;
     }
     .bar-label small {
       display: block; font-weight: 400; color: var(--c-muted);
-      font-size: 0.76rem; margin-top: 0.15rem; font-family: inherit;
+      font-size: 0.8rem; margin-top: 0.2rem; font-family: inherit;
     }
-    .bar-track { position: relative; background: #f1f4f7; border-radius: 7px; height: 40px; min-width: 0; }
+    .bar-track {
+      position: relative; background: #f1f4f7; border-radius: 8px;
+      height: 56px; min-width: 0;
+    }
     .bar-fill {
-      position: absolute; top: 0; left: 0; height: 100%; border-radius: 7px;
-      display: flex; align-items: center; padding: 0 0.8rem;
-      color: #fff; font-weight: 800; font-size: 1rem; white-space: nowrap;
+      position: absolute; top: 0; left: 0; height: 100%; border-radius: 8px;
+      display: flex; align-items: center; padding: 0 1rem;
+      color: #fff; font-weight: 800; font-size: 1.15rem; white-space: nowrap;
       font-family: "Open Sans", system-ui, sans-serif;
-      transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+      width: 0;
     }
-    .bar-fill.need     { background: var(--c-warm); }
-    .bar-fill.irr      { background: var(--c-accent); opacity: 0.5; }
-    .bar-fill.subsidy  { background: var(--c-accent); }
-    /* Value label that sits to the right of a short bar (kept legible). */
+    .bar-fill.need    { background: var(--c-warm); }
+    .bar-fill.subsidy { background: var(--c-accent); }
     .bar-fill .out-label {
-      position: absolute; left: calc(100% + 0.5rem); color: var(--c-text);
-      font-weight: 800; font-size: 1rem;
+      position: absolute; left: calc(100% + 0.55rem); color: var(--c-text);
+      font-weight: 800; font-size: 1.15rem; pointer-events: none;
     }
-    /* The need bar carries both an inside and an outside value label; JS shows
-       whichever fits so the text never clips on a narrow bar. */
     .bar-fill.need .out-label { display: none; }
-    .bar-fill.need.label-out .in-label { display: none; }
+    .bar-fill.need.label-out .in-label  { display: none; }
     .bar-fill.need.label-out .out-label { display: inline; }
 
-    /* The comparison rows are always present so the layout is reserved across
-       stages (the need bar never moves). At stage 1 they are invisible but
-       still occupy their space; at stage 2 they fade in. */
-    .stage2-only { visibility: hidden; }
-    body[data-stage="2"] .stage2-only { visibility: visible; }
+    /* The $490B row is always present so the page reserves its space; at
+       stage 1 the row is hidden (the need bar gets the spotlight); at stage 2
+       it fades in and the need bar transitions to its true relative scale. */
+    .stage2-only { visibility: hidden; opacity: 0; transition: opacity 0.45s ease; }
+    body[data-stage="2"] .stage2-only { visibility: visible; opacity: 1; }
 
-    /* Small annotation under the irrigation bar */
     .annot {
-      font-size: 0.78rem; color: var(--c-muted); margin: 0.1rem 0 0;
-      grid-column: 2 / -1; line-height: 1.35;
+      font-size: 0.85rem; color: var(--c-muted); margin: 0.15rem 0 0;
+      grid-column: 2 / -1; line-height: 1.45;
     }
-    @media (max-width: 560px) { .annot { grid-column: 1 / -1; } }
+    @media (max-width: 620px) { .annot { grid-column: 1 / -1; } }
 
     .footer-note {
-      font-size: 0.74rem; color: var(--c-muted); margin-top: 1.2rem;
-      padding-top: 0.6rem; border-top: 1px solid var(--c-border); line-height: 1.4;
+      font-size: 0.78rem; color: var(--c-muted); margin-top: 1.4rem;
+      padding-top: 0.7rem; border-top: 1px solid var(--c-border); line-height: 1.45;
     }
     body[data-embed="storymap"] .back-link { display: none; }
     body[data-embed="storymap"] { margin: 0; }
@@ -66,7 +67,6 @@
       min-height: 100vh; box-sizing: border-box;
       display: flex; flex-direction: column; justify-content: center;
     }
-
   </style>
 </head>
 <body>
@@ -77,56 +77,62 @@
     document.body.setAttribute('data-stage', _s === '2' ? '2' : '1');
   </script>
   <div class="viz-page">
-    <div class="compare-bar-wrap">
-      <div class="bars">
-        <div class="bar-row">
-          <div class="bar-label">Investment needed <small>$ billion / year</small></div>
-          <div class="bar-track"><div class="bar-fill need" id="bar-need"><span class="in-label">$24-70B</span><span class="out-label">$24-70B</span></div></div>
+    <div class="bars">
+      <div class="bar-row">
+        <div class="bar-label">Investment needed
+          <small>$ billion / year, to 2050</small></div>
+        <div class="bar-track">
+          <div class="bar-fill need" id="bar-need">
+            <span class="in-label">$24-70B</span>
+            <span class="out-label">$24-70B</span>
+          </div>
         </div>
+      </div>
 
-        <div class="bar-row stage2-only">
-          <div class="bar-label">Reaching irrigation today <small>$ billion / year</small></div>
-          <div class="bar-track"><div class="bar-fill irr" id="bar-irr"><span class="out-label">$27B</span></div></div>
+      <div class="bar-row stage2-only">
+        <div class="bar-label">Existing agricultural support
+          <small>$ billion / year, all forms</small></div>
+        <div class="bar-track">
+          <div class="bar-fill subsidy" id="bar-sub">$490B</div>
         </div>
-
-        <div class="bar-row stage2-only">
-          <div class="bar-label">Agricultural public expenditure <small>$ billion / year</small></div>
-          <div class="bar-track"><div class="bar-fill subsidy" id="bar-sub">$490B</div></div>
-          <p class="annot">About three-quarters goes to direct farm payments, subsidies, or commodity-linked support.</p>
-        </div>
+        <p class="annot">
+          About three-quarters goes to subsidies and commodity-linked payments.
+          Redirecting even part of this could cover the investment need without
+          new spending.
+        </p>
       </div>
     </div>
 
     <p class="footer-note">
-      Source: <em>Nourish and Flourish</em>, World Bank 2026 - chapter 5 financing figures (p. 41). Bars are drawn to a common scale.
+      Source: <em>Nourish and Flourish</em>, World Bank 2026 - chapter 5 financing figures.
       <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 
   <script>
-    // Bar widths scaled to a common max ($490B = 100%). The need bar spans the
-    // low-high range; at stage 1 (need only) it uses the full width for impact.
-    const MAX = 490;
+    /* Stage 1: the need bar is the only thing on screen - give it visual
+       weight (~78% of the track) so it reads as a serious number. Stage 2:
+       reveal the $490B reference; the need bar transitions to its TRUE
+       relative scale (~14%) so the contrast lands as a single comparison. */
+    const MAX_STAGE2 = 490;
     const stage = document.body.getAttribute("data-stage");
-    function pct(v) { return (v / MAX) * 100; }
+    function pct(v) { return (v / MAX_STAGE2) * 100; }
     function fitNeedLabel() {
       const need = document.getElementById("bar-need");
       const inLabel = need.querySelector(".in-label");
-      // Compare the bar's inner width against the label's natural width; if the
-      // label would clip, move it outside the bar.
       need.classList.remove("label-out");
-      const avail = need.clientWidth - 24; // padding allowance
+      const avail = need.clientWidth - 28;
       if (inLabel.scrollWidth > avail) need.classList.add("label-out");
     }
     requestAnimationFrame(() => {
-      // The need bar keeps the SAME width across both stages (scaled to the
-      // $490B common reference) so it never jumps when stage 2 reveals the
-      // comparison bars below it.
-      document.getElementById("bar-need").style.width = pct(70) + "%";
-      document.getElementById("bar-irr").style.width = pct(27) + "%";
-      document.getElementById("bar-sub").style.width = "100%";
-      // Run after the width transition so measurement reflects the final size.
-      setTimeout(fitNeedLabel, 750);
+      if (stage === "2") {
+        document.getElementById("bar-need").style.width = pct(70) + "%";
+        document.getElementById("bar-sub").style.width = "100%";
+      } else {
+        // Stage 1 only: need bar takes most of the track for impact.
+        document.getElementById("bar-need").style.width = "78%";
+      }
+      setTimeout(fitNeedLabel, 950);
     });
     window.addEventListener("resize", fitNeedLabel);
   </script>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Food-system planetary boundaries (Nature Food, 2025)</title>
+  <style>
+    /* Wide landscape figure shown fit-contained (never cover-cropped) inside a
+       docked StoryMap pane, with a small attribution caption beneath. */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; height: 100%; background: #fff;
+      font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   system-ui, sans-serif;
+      color: #1b2a33;
+    }
+    .wrap {
+      width: 100%; min-height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 1rem; gap: 0.75rem;
+    }
+    .figure { display: flex; align-items: center; justify-content: center; width: 100%; }
+    .figure img {
+      display: block;
+      max-width: 100%; max-height: 80vh;
+      width: auto; height: auto;
+      object-fit: contain;
+    }
+    .caption {
+      font-size: 0.78rem; line-height: 1.45; color: #5a6a78;
+      max-width: 78ch; text-align: center;
+    }
+    .caption a { color: inherit; text-decoration: underline; }
+    body[data-embed="storymap"] .wrap { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get("embed") === "storymap") document.body.setAttribute("data-embed", "storymap");
+  </script>
+  <div class="wrap">
+    <div class="figure">
+      <img src="img/planetary-boundaries-nature-fig2.png"
+           alt="Food-system planetary boundaries dial (Nature Food, 2025, Figure 2)" />
+    </div>
+    <p class="caption">
+      Figure 2 from te Wierik et al.,
+      &ldquo;Identifying the safe operating space for food systems,&rdquo;
+      <i>Nature Food</i> (2025).
+      <a href="https://doi.org/10.1038/s43016-025-01252-6"
+         target="_blank" rel="noopener noreferrer">doi.org/10.1038/s43016-025-01252-6</a>.
+      Licensed under
+      <a href="https://creativecommons.org/licenses/by/4.0/"
+         target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.
+    </p>
+  </div>
+</body>
+</html>
