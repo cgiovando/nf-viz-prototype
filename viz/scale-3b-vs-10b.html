@@ -88,40 +88,37 @@
   <div class="viz-page">
     <div class="ring-stage">
       <svg id="rings" viewBox="0 0 520 520" role="img"
-           aria-label="Concentric rings showing that current food systems sustainably support 3.4 billion of today's 8 billion people, while 10 billion will need feeding by 2050.">
+           aria-label="Concentric rings: today's food systems sustainably support only about half of the current world population. The full current population, and the 10 billion projected by 2050, both fall beyond sustainable limits.">
       </svg>
     </div>
 
     <div class="ring-key">
-      <span class="item"><span class="dot fed"></span><strong>3.4B</strong>&nbsp;fed sustainably</span>
-      <span class="item"><span class="dot over"></span>beyond current sustainable limits</span>
-      <span class="item"><span class="dot future"></span><strong>10B</strong>&nbsp;to feed by 2050</span>
+      <span class="item"><span class="dot fed"></span>Half of today's population&nbsp;&mdash;&nbsp;<strong>fed sustainably</strong></span>
+      <span class="item"><span class="dot over"></span>beyond sustainable limits</span>
     </div>
 
     <p class="footer-note">
-      Source: <em>Nourish and Flourish</em>, World Bank 2026. Current production systems can sustainably support about 3.4 billion people within planetary boundaries; today's population is near 8 billion and is projected to reach 10 billion by mid-century.
+      Source: <em>Nourish and Flourish</em>, World Bank 2026. Today's food systems can sustainably feed only about half of the world's current population. The full population today, and the roughly 10 billion projected by 2050, both lie beyond what current systems can sustain.
       <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
 
   <script>
-    // ---- Concentric "safe operating space" rings -------------------------
-    // Geometry: a fixed safe-operating-space band (outer green ring) holds the
-    // 2050 need (10B, warm outer ring). Inside sits today's 8B population disc,
-    // of which only 3.4B is sustainably supported (green wedge); the rest is
-    // ecological overshoot (muted-red hatch). Areas roughly track the numbers.
+    // ---- Three concentric rings -----------------------------------------
+    // Natasha's spec (2026-05-29): inner disc = half of today's population,
+    // fed sustainably (green); the full current population and the ~10B
+    // projected for 2050 both lie beyond sustainable limits (red + hatch).
+    // Nesting: green core (half today) -> today's full population band ->
+    // 2050 projection band. Radii tuned so inner area is ~half the today
+    // disc (the key "only half" message) while leaving room to label bands.
     const SVG_NS = "http://www.w3.org/2000/svg";
     const svg = document.getElementById("rings");
     const cx = 260, cy = 260;
 
-    // Radii (px). Outer boundary ring is the bound; 2050 disc fills most of it;
-    // today's 8B disc nests inside. Tuned for clear nesting, not exact area.
-    const rBoundary = 238;   // safe operating space outline
-    const rFuture   = 210;   // 10B (2050 need)
-    const rToday    = 150;   // 8B (today)
-    // 3.4B sustainably-fed share of today's population, by AREA.
-    // area ratio 3.4/8 -> radius ratio sqrt(3.4/8) = 0.652
-    const rFed      = rToday * Math.sqrt(3.4 / 8);
+    // Radii (px). Inner is ~half the AREA of the today disc (116^2/168^2≈0.48).
+    const rFuture = 210;   // ~10B projected for 2050
+    const rToday  = 168;   // current world population
+    const rFed    = 116;   // half of today's population, fed sustainably
 
     function el(name, attrs) {
       const n = document.createElementNS(SVG_NS, name);
@@ -129,14 +126,13 @@
       return n;
     }
 
-    // Hatch pattern for overshoot. Translucent stripes so the red base below
-    // shows through, signaling "beyond current sustainable limits".
+    // Hatch pattern for the "beyond sustainable limits" zone. Translucent
+    // stripes so the red base below shows through.
     const defs = el("defs", {});
     const pat = el("pattern", { id: "overshoot", width: 7, height: 7,
       patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
-    // Transparent base so the underlying red disc shows through.
     pat.appendChild(el("rect", { width: 7, height: 7, fill: "transparent" }));
-    pat.appendChild(el("rect", { width: 3, height: 7, fill: "#7a2227", "fill-opacity": 0.55 }));
+    pat.appendChild(el("rect", { width: 3, height: 7, fill: "#7a2227", "fill-opacity": 0.5 }));
     defs.appendChild(pat);
     // soft drop shadow
     const filt = el("filter", { id: "soft", x: "-20%", y: "-20%", width: "140%", height: "140%" });
@@ -145,44 +141,43 @@
     defs.appendChild(filt);
     svg.appendChild(defs);
 
-    // 1. 2050 need disc (10B) - RED base, "beyond current sustainable limits".
-    //    Natasha's May 27 fix: drop the safe-operating-space layer; make the
-    //    10B circle red; extend hatch to the full 10B since it is also beyond
-    //    sustainable limits.
-    svg.appendChild(el("circle", { cx, cy, r: rFuture, fill: "#cf5a55",
+    // 1. 2050 projection disc (~10B) - lighter red, the outermost (and most
+    //    over-extended) band, drawn first so inner discs sit on top.
+    svg.appendChild(el("circle", { cx, cy, r: rFuture, fill: "#e07f7a",
       filter: "url(#soft)" }));
 
-    // 2. Hatch overlay across the full 10B (signals overshoot zone in its
-    //    entirety; pattern base is transparent so the red shows through).
+    // 2. Current population disc - full red. Shows only in the band between
+    //    the today radius and the 2050 radius once inner discs are stacked.
+    svg.appendChild(el("circle", { cx, cy, r: rToday, fill: "#cf5a55" }));
+
+    // 3. Hatch overlay across the whole "beyond limits" area (both red bands).
     svg.appendChild(el("circle", { cx, cy, r: rFuture, fill: "url(#overshoot)" }));
 
-    // 3. Sustainably fed (3.4B) - solid green disc on top, the safe core.
+    // 4. Half of today's population, fed sustainably - solid green core.
     svg.appendChild(el("circle", { cx, cy, r: rFed, fill: "#3f7d63" }));
 
     // ---- Labels ----------------------------------------------------------
-    // 3.4B inside the green core
-    const fed = el("text", { x: cx, y: cy - 4, "text-anchor": "middle", fill: "#fff" });
-    fed.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 34 }), { textContent: "3.4B" }));
+    // Green core: "1/2" hero with "fed sustainably" beneath.
+    const fed = el("text", { x: cx, y: cy + 4, "text-anchor": "middle", fill: "#fff" });
+    fed.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 46 }), { textContent: "½" }));
     svg.appendChild(fed);
-    const fedSub = el("text", { x: cx, y: cy + 18, "text-anchor": "middle",
+    const fedSub = el("text", { x: cx, y: cy + 26, "text-anchor": "middle",
       fill: "#fff", class: "n-sub", "font-size": 10, "fill-opacity": 0.92 });
     fedSub.textContent = "FED SUSTAINABLY";
     svg.appendChild(fedSub);
 
-    // "8B today" label - kept as a muted reference inside the hatched zone.
-    const eight = el("text", { x: cx, y: cy + rFed + 34, "text-anchor": "middle",
-      fill: "#fff", "fill-opacity": 0.85 });
-    eight.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 20 }), { textContent: "8B today" }));
-    svg.appendChild(eight);
+    // Current-population band label (top of the today band, above the core).
+    const today = el("text", { x: cx, y: cy - rFed - 16, "text-anchor": "middle",
+      fill: "#fff" });
+    today.appendChild(Object.assign(el("tspan", { class: "n-sub", "font-size": 11,
+      "fill-opacity": 0.95 }), { textContent: "TODAY'S POPULATION" }));
+    svg.appendChild(today);
 
-    // 10B label near top of the 2050 ring (white for legibility on red).
-    const ten = el("text", { x: cx, y: cy - rFuture + 30, "text-anchor": "middle", fill: "#fff" });
-    ten.appendChild(Object.assign(el("tspan", { class: "n-big", "font-size": 30, "font-weight": 800 }), { textContent: "10B" }));
+    // 2050 projection band label, near the top of the outer band.
+    const ten = el("text", { x: cx, y: cy - rToday - 8, "text-anchor": "middle", fill: "#fff" });
+    ten.appendChild(Object.assign(el("tspan", { class: "n-sub", "font-size": 11,
+      "fill-opacity": 0.95 }), { textContent: "BY 2050" }));
     svg.appendChild(ten);
-    const tenSub = el("text", { x: cx, y: cy - rFuture + 48, "text-anchor": "middle",
-      fill: "#fff", "fill-opacity": 0.85, class: "n-sub", "font-size": 10.5 });
-    tenSub.textContent = "BY 2050";
-    svg.appendChild(tenSub);
 
     // ---- Gentle grow-in animation (respects reduced-motion) --------------
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
