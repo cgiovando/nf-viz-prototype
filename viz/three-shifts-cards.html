@@ -6,91 +6,88 @@
   <title>Three shifts to feed the future - Nourish and Flourish</title>
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
-    body { background: #fff; }
-    .viz-page { padding: 1rem 1.1rem; max-width: 720px; margin: 0 auto; }
-
-    /* Single column of stacked shift cards. Designed for the ~1/3 sidecar
-       panel: each card carries a short lead by default, then three
-       independently expandable reveals (problem / shift / in practice). */
-    .cards { display: flex; flex-direction: column; gap: 0.85rem; margin: 0.3rem 0 0.6rem; }
-
-    .card {
-      background: #fff;
-      border: 1px solid var(--c-border);
-      border-radius: 14px;
-      padding: 1rem 1.05rem 1.1rem;
-      position: relative;
-      box-shadow: 0 2px 10px rgba(15, 79, 120, 0.06);
-      min-width: 0;
-      overflow: hidden;
+    html, body { background: #fff; height: 100%; }
+    body { margin: 0; }
+    .viz-page {
+      box-sizing: border-box; height: 100vh; width: 100%;
+      padding: 0.7rem 0.8rem 0.55rem; display: flex; flex-direction: column;
     }
-    .card::before {
+
+    /* Three columns, one per shift. Each column carries a compact header and
+       a 3-item accordion (problem / shift / in practice); only one item is
+       open per column at a time, so the viz stays within the sidecar height
+       without an internal scrollbar. */
+    .cols {
+      flex: 1; min-height: 0; display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem;
+    }
+    @media (max-width: 680px) { .cols { grid-template-columns: 1fr; overflow-y: auto; } }
+
+    .col {
+      background: #fff; border: 1px solid var(--c-border); border-radius: 12px;
+      position: relative; min-width: 0; min-height: 0;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(15, 79, 120, 0.05);
+    }
+    .col::before {
       content: ""; position: absolute; top: 0; left: 0;
-      width: 100%; height: 5px; background: var(--accent);
+      width: 100%; height: 4px; background: var(--accent);
     }
-
-    .card-num {
-      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--c-muted); margin: 0 0 0.3rem; font-weight: 700;
+    .col-hd { padding: 0.7rem 0.75rem 0.45rem; }
+    .col-num {
+      font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--c-muted); margin: 0 0 0.2rem; font-weight: 700;
       font-family: "Open Sans", system-ui, sans-serif;
     }
-    .card-title {
-      font-size: 1.22rem; font-weight: 700; margin: 0 0 0.4rem;
-      color: var(--c-text); line-height: 1.22;
-    }
-    .card-lead {
-      font-size: 1rem; font-style: italic; margin: 0 0 0.7rem;
-      line-height: 1.4; color: var(--accent-dark);
-    }
+    .col-title { font-size: 1.02rem; font-weight: 700; margin: 0 0 0.3rem;
+      color: var(--c-text); line-height: 1.18; }
+    .col-lead { font-size: 0.82rem; font-style: italic; margin: 0;
+      line-height: 1.32; color: var(--accent-dark); }
 
-    /* Reveal list - three rows per card */
-    .reveals { display: flex; flex-direction: column; gap: 0.45rem; }
-    .reveal { border-top: 1px solid var(--c-border); padding-top: 0.45rem; }
+    /* Accordion fills the rest of the column. */
+    .acc { flex: 1; min-height: 0; display: flex; flex-direction: column;
+      border-top: 1px solid var(--c-border); }
+    .reveal { display: flex; flex-direction: column; min-height: 0;
+      border-bottom: 1px solid var(--c-border); }
+    .reveal:last-child { border-bottom: none; }
     .reveal-btn {
-      display: flex; align-items: center; gap: 0.55rem; width: 100%;
-      border: none; background: none; cursor: pointer; padding: 0.1rem 0;
-      text-align: left;
+      display: flex; align-items: center; gap: 0.4rem; width: 100%;
+      border: none; background: none; cursor: pointer;
+      padding: 0.5rem 0.75rem; text-align: left;
       font-family: "Open Sans", system-ui, sans-serif;
-      font-size: 0.92rem; font-weight: 700; letter-spacing: 0.01em;
-      color: var(--c-text);
+      font-size: 0.82rem; font-weight: 700; color: var(--c-text);
     }
     .reveal-btn .plus {
-      width: 24px; height: 24px; border-radius: 50%; flex: none;
+      width: 19px; height: 19px; border-radius: 50%; flex: none;
       display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 1.1rem; font-weight: 700; line-height: 1;
+      color: #fff; font-size: 0.9rem; font-weight: 700; line-height: 1;
       background: var(--accent);
     }
     .reveal-btn .rl { flex: 1; }
-    .reveal-btn .hint {
-      font-size: 0.74rem; font-weight: 600; color: var(--c-muted);
-      letter-spacing: 0.02em;
-    }
-    .reveal[data-open="true"] .hint { opacity: 0; }
+    .reveal[data-open="true"] { flex: 1; min-height: 0; }
+    .reveal[data-open="true"] .reveal-btn { color: var(--accent-dark); }
 
     .reveal-body {
-      font-size: 0.92rem; line-height: 1.55; color: var(--c-text);
-      max-height: 0; opacity: 0; overflow: hidden; margin: 0;
-      transition: max-height 0.45s ease, opacity 0.3s ease, margin 0.3s ease;
+      font-size: 0.76rem; line-height: 1.45; color: var(--c-text);
+      padding: 0 0.75rem; overflow: hidden; max-height: 0;
     }
     .reveal[data-open="true"] .reveal-body {
-      max-height: 1400px; opacity: 1; margin: 0.5rem 0 0.1rem;
+      flex: 1; min-height: 0; overflow-y: auto; max-height: none;
+      padding: 0 0.75rem 0.65rem;
     }
-    .reveal-body p { margin: 0 0 0.6rem; }
+    .reveal-body p { margin: 0 0 0.5rem; }
     .reveal-body p:last-child { margin-bottom: 0; }
-    .reveal-body ul { margin: 0.3rem 0 0.6rem; padding-left: 1.1rem; }
-    .reveal-body li { margin: 0 0 0.35rem; }
-    .reveal-body .ex { display: block; margin: 0 0 0.5rem; }
+    .reveal-body ul { margin: 0.2rem 0 0.45rem; padding-left: 1rem; }
+    .reveal-body li { margin: 0 0 0.28rem; }
+    .reveal-body .ex { display: block; margin: 0 0 0.42rem; }
     .reveal-body .ex:last-child { margin-bottom: 0; }
     .reveal-body .ex b { color: var(--accent-dark); }
 
     .footer-note {
-      font-size: 0.76rem; color: var(--c-muted);
-      margin-top: 0.7rem; padding-top: 0.55rem;
-      border-top: 1px solid var(--c-border); line-height: 1.4;
+      font-size: 0.68rem; color: var(--c-muted); flex: none;
+      margin: 0.5rem 0 0; line-height: 1.35;
     }
     body[data-embed="storymap"] .back-link { display: none; }
-    body[data-embed="storymap"] { margin: 0; }
-    body[data-embed="storymap"] .viz-page { box-sizing: border-box; }
   </style>
 </head>
 <body>
@@ -190,11 +187,9 @@
   </script>
 
   <div class="viz-page">
-    <div class="cards" id="cards"></div>
-    <p class="footer-note">
-      <span id="footer"></span>
-      <a class="back-link" href="../index.html">&larr; Back to gallery</a>
-    </p>
+    <div class="cols" id="cols"></div>
+    <p class="footer-note"><span id="footer"></span>
+      <a class="back-link" href="../index.html">&larr; Back to gallery</a></p>
   </div>
 
   <script>
@@ -210,37 +205,49 @@
       return html;
     }
 
-    const cards = document.getElementById("cards");
+    const cols = document.getElementById("cols");
+    const keys = Object.keys(DATA.revealLabels);
     DATA.shifts.forEach((s) => {
-      const rev = Object.keys(DATA.revealLabels).map((k) => `
-        <div class="reveal" data-open="false">
-          <button class="reveal-btn" aria-expanded="false">
-            <span class="plus" aria-hidden="true">+</span>
+      // First reveal (the problem) open by default so each column shows content.
+      const acc = keys.map((k, i) => `
+        <div class="reveal" data-open="${i === 0}">
+          <button class="reveal-btn" aria-expanded="${i === 0}">
+            <span class="plus" aria-hidden="true">${i === 0 ? "-" : "+"}</span>
             <span class="rl">${DATA.revealLabels[k]}</span>
-            <span class="hint">Read more</span>
           </button>
           <div class="reveal-body">${renderBody(s.reveals[k])}</div>
         </div>`).join("");
 
-      cards.insertAdjacentHTML("beforeend", `
-        <div class="card" style="--accent:${s.accent};--accent-dark:${s.accentDark}">
-          <p class="card-num">${s.num}</p>
-          <p class="card-title">${s.title}</p>
-          <p class="card-lead">${s.lead}</p>
-          <div class="reveals">${rev}</div>
+      cols.insertAdjacentHTML("beforeend", `
+        <div class="col" style="--accent:${s.accent};--accent-dark:${s.accentDark}">
+          <div class="col-hd">
+            <p class="col-num">${s.num}</p>
+            <p class="col-title">${s.title}</p>
+            <p class="col-lead">${s.lead}</p>
+          </div>
+          <div class="acc">${acc}</div>
         </div>`);
     });
 
     document.getElementById("footer").innerHTML = DATA.footer;
 
-    document.querySelectorAll(".reveal").forEach((r) => {
-      const btn = r.querySelector(".reveal-btn");
-      const plus = r.querySelector(".plus");
-      btn.addEventListener("click", () => {
-        const open = r.getAttribute("data-open") === "true";
-        r.setAttribute("data-open", open ? "false" : "true");
-        btn.setAttribute("aria-expanded", open ? "false" : "true");
-        plus.textContent = open ? "+" : "-"; // plain hyphen when open
+    // Accordion: one item open per column at a time (keeps height bounded).
+    cols.querySelectorAll(".col").forEach((col) => {
+      const reveals = [...col.querySelectorAll(".reveal")];
+      reveals.forEach((r) => {
+        r.querySelector(".reveal-btn").addEventListener("click", () => {
+          const wasOpen = r.getAttribute("data-open") === "true";
+          reveals.forEach((o) => {
+            o.setAttribute("data-open", "false");
+            o.querySelector(".reveal-btn").setAttribute("aria-expanded", "false");
+            o.querySelector(".plus").textContent = "+";
+          });
+          if (!wasOpen) {
+            r.setAttribute("data-open", "true");
+            r.querySelector(".reveal-btn").setAttribute("aria-expanded", "true");
+            r.querySelector(".plus").textContent = "-";
+          }
+        });
       });
     });
   </script>
