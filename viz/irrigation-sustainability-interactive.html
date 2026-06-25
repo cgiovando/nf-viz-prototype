@@ -232,15 +232,20 @@
         version: 8,
         // Glyphs only needed if we add labels; omitted for a label-free base.
         sources: {
-          countries: {
-            type: 'geojson',
-            data: BASE + 'countries.geojson'
+          osm: {
+            type: 'raster',
+            tiles: [
+              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+            ],
+            tileSize: 256, maxzoom: 19,
+            attribution: '© OpenStreetMap contributors © CARTO | Data: Rosa et al. (sustainable irrigation)'
           },
           expansion: {
             type: 'raster',
             tiles: [ABS + BASE + 'expansion/{z}/{x}/{y}.png'],
-            tileSize: 256, minzoom: 0, maxzoom: 7, bounds: [-180, -56, 180, 84],
-            attribution: 'Data: Rosa et al. (sustainable irrigation). Boundaries: Natural Earth.'
+            tileSize: 256, minzoom: 0, maxzoom: 7, bounds: [-180, -56, 180, 84]
           },
           sust: {
             type: 'raster',
@@ -254,15 +259,8 @@
           }
         },
         layers: [
-          // White background.
-          { id: 'bg', type: 'background', paint: { 'background-color': '#ffffff' } },
-          // Subtle country fill to give faint land/sea separation (very light).
-          {
-            id: 'country-fill',
-            type: 'fill',
-            source: 'countries',
-            paint: { 'fill-color': '#fbfcfd', 'fill-opacity': 1 }
-          },
+          // Light OSM (CARTO Positron) basemap.
+          { id: 'osm', type: 'raster', source: 'osm', paint: { 'raster-opacity': 1 } },
           // Green expansion ramp at the bottom of the data stack.
           {
             id: 'expansion',
@@ -283,24 +281,13 @@
             type: 'raster',
             source: 'unsust',
             paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
-          },
-          // Thin grey country outlines on top of everything.
-          {
-            id: 'country-line',
-            type: 'line',
-            source: 'countries',
-            paint: {
-              'line-color': '#9aa6b2',
-              'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.4, 4, 0.7, 7, 1.0],
-              'line-opacity': 0.85
-            }
           }
         ]
       },
       center: [30, 22],
       zoom: 1.4,
       minZoom: 0,
-      maxZoom: 7.5,
+      maxZoom: 6,
       attributionControl: false,
       renderWorldCopies: true
     });
