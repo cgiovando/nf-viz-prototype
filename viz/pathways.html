@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pathways by context - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1rem 1.05rem; max-width: 720px; margin: 0 auto; }
+
+    /* Tab strip - one tab per context, colored by canonical context color.
+       Wraps to two rows on narrow sidecar widths. */
+    .tabs {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.45rem; margin: 0.3rem 0 0.8rem;
+    }
+    @media (min-width: 560px) { .tabs { grid-template-columns: repeat(4, 1fr); } }
+    .tab {
+      border: 1px solid var(--c-border); border-radius: 10px;
+      background: #fff; cursor: pointer; padding: 0.55rem 0.5rem;
+      text-align: center; min-width: 0;
+      font-family: "Open Sans", system-ui, sans-serif;
+      transition: background 0.15s ease, border-color 0.15s ease;
+      border-top: 4px solid var(--accent);
+    }
+    .tab .t-num {
+      font-size: 0.74rem; font-weight: 800; letter-spacing: 0.04em;
+      color: var(--accent); display: block;
+    }
+    .tab .t-lbl {
+      font-size: 0.74rem; line-height: 1.2; color: var(--c-muted);
+      font-weight: 600; display: block; margin-top: 0.15rem;
+    }
+    .tab[aria-selected="true"] {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .tab[aria-selected="true"] .t-num,
+    .tab[aria-selected="true"] .t-lbl { color: #fff; }
+
+    /* Active panel */
+    .panel {
+      border: 1px solid var(--c-border); border-radius: 14px;
+      border-top: 6px solid var(--accent);
+      padding: 1.1rem 1.15rem 1.2rem;
+      box-shadow: 0 2px 10px rgba(15, 79, 120, 0.06);
+    }
+    .p-head { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--accent); font-weight: 800; margin: 0 0 0.25rem;
+      font-family: "Open Sans", system-ui, sans-serif; }
+    .p-title { font-size: 1.3rem; font-weight: 700; color: var(--c-text);
+      margin: 0 0 0.15rem; line-height: 1.2; }
+    .p-sub { font-size: 0.96rem; font-style: italic; color: var(--accent-dark);
+      margin: 0 0 0.9rem; }
+
+    .block { margin: 0 0 0.9rem; }
+    .block:last-child { margin-bottom: 0; }
+    .b-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em;
+      font-weight: 800; color: var(--c-muted); margin: 0 0 0.25rem;
+      font-family: "Open Sans", system-ui, sans-serif; }
+    .b-text { font-size: 0.95rem; line-height: 1.5; color: var(--c-text); margin: 0; }
+    .b-list { margin: 0.1rem 0 0; padding-left: 1.1rem; }
+    .b-list li { font-size: 0.95rem; line-height: 1.45; margin: 0 0 0.4rem; color: var(--c-text); }
+
+    .see {
+      margin-top: 1rem; padding-top: 0.7rem; border-top: 1px solid var(--c-border);
+      font-size: 0.9rem; color: var(--c-text);
+    }
+    .see b { color: var(--accent-dark); }
+
+    .footer-note {
+      font-size: 0.76rem; color: var(--c-muted);
+      margin-top: 0.7rem; padding-top: 0.55rem;
+      border-top: 1px solid var(--c-border); line-height: 1.4;
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+    body[data-embed="storymap"] { margin: 0; }
+    body[data-embed="storymap"] .viz-page { box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+  </script>
+
+  <script>
+    /* =====================================================================
+       ALL DISPLAY COPY lives in this DATA object. Swap text here after
+       author sign-off without touching markup/logic. Contexts are keyed
+       c1..c4 and rendered in order. Each carries canonical context colors,
+       a short tab label, sub-heading, pathway priority, key trade-off, an
+       array of policy actions, and the "See" countries.
+       NO em-dashes or en-dashes - plain hyphens only.
+       ===================================================================== */
+    const DATA = {
+      footer: "Source: <em>Nourish and Flourish</em>, World Bank 2026. How the three shifts translate into policy depends on a country's water availability and food trade position.",
+      order: ["c1", "c2", "c3", "c4"],
+      contexts: {
+        c1: {
+          accent: "#6a8aa8", accentDark: "#2f4663",
+          num: "Context 1", tab: "Water-secure importer",
+          title: "Water-secure food importer", sub: "Water surplus and calorie deficit",
+          priority: "Expand irrigation and agricultural production to reduce import dependence and drive economic transformation - while staying within local environmental and water thresholds.",
+          tradeoff: "Balancing investment in accessible, quick-win areas against higher-potential regions that require greater up-front infrastructure and capacity building.",
+          actions: [
+            "Invest in AWM to increase productivity and reduce hydrological risks",
+            "Enhance smallholder farmers' access to finance and de-risk private investment",
+            "Strengthen AWM institutions and markets to drive economic transformation",
+            "Focus AWM solutions on employment and income gains, with emphasis on smallholders",
+            "Enhance food security through trade and strategic grain reserves while domestic production scales"
+          ],
+          see: "Mali, Uganda, Senegal, Burundi"
+        },
+        c2: {
+          accent: "#469e6e", accentDark: "#1f543f",
+          num: "Context 2", tab: "Water-secure exporter",
+          title: "Water-secure food exporter", sub: "Water and calorie surplus",
+          priority: "Maintain and strengthen competitive agricultural production and export - expanding where water resources allow, while protecting the resource base that makes production viable long-term.",
+          tradeoff: "Pursuing growth today without creating the water stress that would undermine production tomorrow.",
+          actions: [
+            "Improve AWM production with or without increased freshwater use, and strengthen institutions and markets to maintain or increase export revenues",
+            "Establish and enforce water allocation and land zoning based on basin-level assessments",
+            "Accelerate green growth through renewable energy and reduced energy use in irrigation",
+            "Pair AWM investments with complementary transportation and cold storage to maximize trade potential",
+            "Promote water-smart food systems through producer incentives and consumer awareness"
+          ],
+          see: "France, Peru, Ukraine"
+        },
+        c3: {
+          accent: "#c46b3b", accentDark: "#7d4316",
+          num: "Context 3", tab: "Water-stressed exporter",
+          title: "Water-stressed food exporter", sub: "Water deficit and calorie surplus",
+          priority: "Produce more value from less water - shifting toward higher-value, less water-intensive production, improving irrigation efficiency, and adjusting export strategies to reflect tightening freshwater availability.",
+          tradeoff: "Maintaining the agricultural livelihoods and export revenues that current production supports, while reducing water use that is no longer sustainable.",
+          actions: [
+            "Prioritize production of crops that consume less water for equal or greater economic returns",
+            "Invest in more efficient and modern irrigation practices",
+            "Establish and enforce water use caps and allocation frameworks based on basin-level assessments",
+            "Develop markets for less water-intensive crops and strengthen trade strategies for accessing premium markets",
+            "Provide financial, technical, and policy support to buffer the economic and human impacts of production shifts"
+          ],
+          see: "India (West Bengal), Chile, Spain, Pakistan"
+        },
+        c4: {
+          accent: "#ad323c", accentDark: "#6b2424",
+          num: "Context 4", tab: "Water-stressed importer",
+          title: "Water-stressed food importer", sub: "Water and calorie deficit",
+          priority: "Ensure scarce water resources generate the greatest possible economic, social, and food security value - combining water use efficiency, strategic trade, and investment in non-conventional water sources.",
+          tradeoff: "Not all food can or should be produced domestically. Deciding where limited water creates the greatest value - and where imports are the more sustainable answer - requires difficult choices that most policy frameworks are not yet equipped to make explicitly.",
+          actions: [
+            "Focus on economic water productivity - high-value crops that generate maximum returns per unit of water",
+            "Augment irrigation freshwater with reused treated wastewater and other non-conventional sources",
+            "Diversify import sources to reduce exposure to global market and climate shocks",
+            "Enforce water use caps and quotas, and value freshwater for maximized economic returns",
+            "Invest in alternative livelihoods and economic diversification for communities transitioning away from water-intensive agriculture"
+          ],
+          see: "Morocco, Jordan, China"
+        }
+      }
+    };
+  </script>
+
+  <div class="viz-page">
+    <div class="tabs" id="tabs" role="tablist" aria-label="Four contexts"></div>
+    <div class="panel" id="panel" role="tabpanel"></div>
+    <p class="footer-note">
+      <span id="footer"></span>
+      <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script>
+    const tabsEl = document.getElementById("tabs");
+    const panelEl = document.getElementById("panel");
+
+    DATA.order.forEach((key, i) => {
+      const c = DATA.contexts[key];
+      tabsEl.insertAdjacentHTML("beforeend", `
+        <button class="tab" role="tab" data-key="${key}"
+                style="--accent:${c.accent}" aria-selected="${i === 0}">
+          <span class="t-num">${c.num}</span>
+          <span class="t-lbl">${c.tab}</span>
+        </button>`);
+    });
+
+    function render(key) {
+      const c = DATA.contexts[key];
+      panelEl.setAttribute("style", `--accent:${c.accent};--accent-dark:${c.accentDark}`);
+      panelEl.innerHTML = `
+        <p class="p-head">${c.num}</p>
+        <h2 class="p-title">${c.title}</h2>
+        <p class="p-sub">${c.sub}</p>
+        <div class="block">
+          <p class="b-label">Pathway priority</p>
+          <p class="b-text">${c.priority}</p>
+        </div>
+        <div class="block">
+          <p class="b-label">Key trade-off</p>
+          <p class="b-text">${c.tradeoff}</p>
+        </div>
+        <div class="block">
+          <p class="b-label">Core policy actions</p>
+          <ul class="b-list">${c.actions.map(a => `<li>${a}</li>`).join("")}</ul>
+        </div>
+        <p class="see"><b>See:</b> ${c.see}</p>`;
+      tabsEl.querySelectorAll(".tab").forEach(t =>
+        t.setAttribute("aria-selected", t.dataset.key === key));
+    }
+
+    tabsEl.querySelectorAll(".tab").forEach(t =>
+      t.addEventListener("click", () => render(t.dataset.key)));
+
+    document.getElementById("footer").innerHTML = DATA.footer;
+    render(DATA.order[0]);
+  </script>
+</body>
+</html>

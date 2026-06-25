@@ -28,8 +28,11 @@
       font-family: "Open Sans", system-ui, sans-serif;
       font-weight: 700; letter-spacing: 0.04em;
     }
-    .dir-cue .imports { color: var(--c-muted); font-size: 0.92rem; margin-right: auto; }
-    .dir-cue .exports { color: #002625; font-size: 1.1rem; white-space: nowrap; }
+    /* IMPORTS and EXPORTS share one color + font so the two trade directions
+       read as a matched pair. Dark blue (WB accent-dark) reads best against
+       the white chart and green/blue bars. */
+    .dir-cue .imports { color: var(--c-accent-dark); font-size: 1.1rem; margin-right: auto; }
+    .dir-cue .exports { color: var(--c-accent-dark); font-size: 1.1rem; white-space: nowrap; }
     .dir-cue .exports .arrow { font-size: 1.25rem; }
     /* IMPORTS cue visible from stage 1 - both sides of trade are shown from
        the start per Natasha's 2026-05-28 call. */

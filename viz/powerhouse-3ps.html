@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A powerhouse for human development and resilience - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    /* The "3Ps" panel (Chapter 4): People, Prosperity, Planet. Remade in the
+       clean icon style of the other custom vizzes - no illustrative imagery,
+       just icons + type, big numbers, bold highlights, WB palette. Three
+       color-coded columns, each with an icon, a theme heading, and stat rows
+       (big highlight figure + supporting line). */
+    body { background: #fff; }
+    .viz-page { padding: 1rem 1.2rem; max-width: 1240px; margin: 0 auto; }
+
+    /* Three columns on desktop; stack on narrow docked panes / phones. */
+    .ps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.1rem;
+      margin: 0.3rem 0 0.6rem;
+      align-items: stretch;
+    }
+    @media (max-width: 760px) { .ps-grid { grid-template-columns: 1fr; gap: 0.9rem; } }
+
+    .ps-col {
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 14px;
+      padding: 1.2rem 1.25rem 1.35rem;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(15, 79, 120, 0.06);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .ps-col::before {
+      content: "";
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 5px;
+    }
+    /* Theme colors: People green, Prosperity blue, Planet teal. */
+    .ps-col.people::before    { background: linear-gradient(90deg, #1f6c45 0%, #6abf95 100%); }
+    .ps-col.prosperity::before{ background: linear-gradient(90deg, #0f4f78 0%, #4ea4d6 100%); }
+    .ps-col.planet::before    { background: linear-gradient(90deg, #166b60 0%, #4fc0ae 100%); }
+
+    /* Icon + theme eyebrow */
+    .ps-head { display: flex; align-items: center; gap: 0.6rem; margin: 0.25rem 0 0.15rem; }
+    .ps-icon {
+      width: 42px; height: 42px; border-radius: 11px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ps-col.people     .ps-icon { background: rgba(70, 158, 110, 0.14); }
+    .ps-col.prosperity .ps-icon { background: rgba(26, 115, 167, 0.14); }
+    .ps-col.planet     .ps-icon { background: rgba(31, 138, 122, 0.14); }
+    .ps-icon svg { width: 24px; height: 24px; display: block; }
+    .ps-col.people     .ps-icon svg { stroke: #1f6c45; }
+    .ps-col.prosperity .ps-icon svg { stroke: #0f4f78; }
+    .ps-col.planet     .ps-icon svg { stroke: #166b60; }
+
+    .ps-eyebrow {
+      font-size: 0.92rem; text-transform: uppercase; letter-spacing: 0.1em;
+      font-weight: 800; margin: 0;
+      font-family: "Open Sans", system-ui, sans-serif;
+    }
+    .ps-col.people     .ps-eyebrow { color: #1f6c45; }
+    .ps-col.prosperity .ps-eyebrow { color: #0f4f78; }
+    .ps-col.planet     .ps-eyebrow { color: #166b60; }
+
+    .ps-theme {
+      font-size: 1.35rem; font-weight: 800; line-height: 1.2;
+      margin: 0.65rem 0 0.9rem; color: var(--c-text); letter-spacing: -0.01em;
+    }
+
+    /* Stat rows: a leading bullet icon + the figure/highlight text. */
+    .ps-stats { display: flex; flex-direction: column; gap: 0.95rem; margin-top: auto; }
+    .ps-stat { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .ps-bullet {
+      width: 26px; height: 26px; border-radius: 50%; flex: none; margin-top: 0.1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ps-col.people     .ps-bullet { background: rgba(70, 158, 110, 0.16); }
+    .ps-col.prosperity .ps-bullet { background: rgba(26, 115, 167, 0.16); }
+    .ps-col.planet     .ps-bullet { background: rgba(31, 138, 122, 0.16); }
+    .ps-bullet svg { width: 15px; height: 15px; display: block; }
+    .ps-col.people     .ps-bullet svg { stroke: #1f6c45; }
+    .ps-col.prosperity .ps-bullet svg { stroke: #0f4f78; }
+    .ps-col.planet     .ps-bullet svg { stroke: #166b60; }
+
+    .ps-stat-body { min-width: 0; }
+    .ps-figure {
+      font-size: 1.55rem; font-weight: 800; line-height: 1.15;
+      letter-spacing: -0.01em; display: block; margin: 0 0 0.1rem;
+      font-family: "Open Sans", system-ui, sans-serif;
+    }
+    .ps-col.people     .ps-figure { color: #1f6c45; }
+    .ps-col.prosperity .ps-figure { color: #0f4f78; }
+    .ps-col.planet     .ps-figure { color: #166b60; }
+    .ps-detail {
+      font-size: 1rem; line-height: 1.4; color: var(--c-text); margin: 0;
+    }
+    .ps-detail strong { font-weight: 800; color: var(--c-text); }
+
+    .footer-note {
+      font-size: 0.78rem; color: var(--c-muted);
+      margin-top: 1rem; padding-top: 0.7rem;
+      border-top: 1px solid var(--c-border); line-height: 1.45;
+    }
+
+    body[data-embed="storymap"] .back-link { display: none; }
+    body[data-embed="storymap"] { margin: 0; }
+    body[data-embed="storymap"] .viz-page {
+      min-height: 100vh; box-sizing: border-box;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+  </script>
+  <div class="viz-page">
+    <div class="ps-grid">
+
+      <!-- PEOPLE -->
+      <div class="ps-col people">
+        <div class="ps-head">
+          <span class="ps-icon" aria-hidden="true">
+            <!-- Group of people -->
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="7" r="3.2"/>
+              <path d="M3.5 20 a5.5 5.5 0 0 1 11 0"/>
+              <circle cx="17" cy="8" r="2.4"/>
+              <path d="M15 20 a4 4 0 0 1 6.5 -3.2"/>
+            </svg>
+          </span>
+          <p class="ps-eyebrow">People</p>
+        </div>
+        <h2 class="ps-theme">Jobs and human development</h2>
+        <div class="ps-stats">
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">-20%</span>
+              <p class="ps-detail"><strong>childhood stunting</strong> where households gain reliable access to water</p>
+            </div>
+          </div>
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">+245M</span>
+              <p class="ps-detail"><strong>jobs</strong> created directly and indirectly worldwide, about 218M of them in Sub-Saharan Africa</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROSPERITY -->
+      <div class="ps-col prosperity">
+        <div class="ps-head">
+          <span class="ps-icon" aria-hidden="true">
+            <!-- Rising bar chart with trend arrow -->
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 20h18"/>
+              <rect x="5" y="13" width="3.2" height="6"/>
+              <rect x="10.4" y="9" width="3.2" height="10"/>
+              <rect x="15.8" y="5" width="3.2" height="14"/>
+            </svg>
+          </span>
+          <p class="ps-eyebrow">Prosperity</p>
+        </div>
+        <h2 class="ps-theme">Higher productivity</h2>
+        <div class="ps-stats">
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M16 7.5a3.5 3.5 0 0 0-3.5-2.5h-1A3 3 0 0 0 11 11h2a3 3 0 0 1 0 6h-1A3.5 3.5 0 0 1 8 14.5"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">Up to $4</span>
+              <p class="ps-detail">in economic returns for <strong>every $1 invested</strong></p>
+            </div>
+          </div>
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-5 4 4 7-8"/><path d="M16 7h4v4"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">2.5% - 3%</span>
+              <p class="ps-detail">a 10% gain in agricultural productivity can <strong>reduce the likelihood of poverty</strong> by this much</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLANET -->
+      <div class="ps-col planet">
+        <div class="ps-head">
+          <span class="ps-icon" aria-hidden="true">
+            <!-- Globe -->
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0 -18z"/>
+            </svg>
+          </span>
+          <p class="ps-eyebrow">Planet</p>
+        </div>
+        <h2 class="ps-theme">Climate resilience</h2>
+        <div class="ps-stats">
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2.5 1.5 5-.5 8.5"/><path d="M2 22c2-6 7-9 13-10"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">Higher yields</span>
+              <p class="ps-detail">mean <strong>less pressure to clear new land</strong> for farming</p>
+            </div>
+          </div>
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c4 4 6 7 6 11a6 6 0 0 1-12 0c0-4 2-7 6-11z"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">+6%</span>
+              <p class="ps-detail">irrigation can <strong>boost soil carbon storage</strong></p>
+            </div>
+          </div>
+          <div class="ps-stat">
+            <span class="ps-bullet" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4a3 3 0 1 1 3 5H3"/><path d="M14 19a3 3 0 1 0 3-5H3"/></svg>
+            </span>
+            <div class="ps-stat-body">
+              <span class="ps-figure">Up to -53%</span>
+              <p class="ps-detail">alternate wetting and drying cuts <strong>methane emissions</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="footer-note">
+      Source: <em>Nourish and Flourish</em>, World Bank 2026, Figure 2.1 (adapted). Underlying studies: Rodella et al. 2023; Giordano et al. 2023; Oseni et al. 2014; Damania et al. 2023; Emde et al. 2021; Qin et al. 2024 and IPCC AR6; Jiang et al. 2019; Taheripour and Chepeliev (forthcoming).
+      <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+</body>
+</html>

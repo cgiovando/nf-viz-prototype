@@ -3,18 +3,42 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>2x2 Water-Food Nexus - Nourish and Flourish</title>
+  <title>Water-Food Compass: Where does your country stand? - Nourish and Flourish</title>
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
     body { background: #fff; }
     .viz-page { padding: 0.7rem 1rem; max-width: 1280px; margin: 0 auto; }
-    .viz-header { margin: 0 0 0.5rem; }
+    .viz-header { margin: 0 0 0.5rem; position: relative; }
     .viz-header h1 {
-      font-size: 1.15rem;
+      font-size: 1.4rem;
       margin: 0 0 0.2rem;
       color: var(--c-accent-dark);
+      letter-spacing: -0.01em;
+      padding-right: 3rem;
     }
-    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.82rem; line-height: 1.35; }
+    .viz-header p { margin: 0; color: var(--c-muted); font-size: 0.86rem; line-height: 1.35; }
+
+    /* info icon button - top-right of the header */
+    .info-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--c-border);
+      background: #fff;
+      color: var(--c-accent-dark);
+      font-weight: 800;
+      font-size: 0.95rem;
+      font-family: Georgia, "Times New Roman", serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .info-btn:hover { border-color: var(--c-accent); color: var(--c-accent); }
 
     .controls {
       display: flex;
@@ -39,13 +63,53 @@
       border-color: var(--c-accent);
     }
     .controls button:hover:not(.active) { border-color: var(--c-accent); color: var(--c-accent); }
-    .controls .selected-inline {
+
+    /* country search bar */
+    .search-wrap {
+      position: relative;
       margin-left: auto;
-      font-size: 0.78rem;
-      color: var(--c-muted);
-      white-space: nowrap;
     }
-    .controls .selected-inline strong { color: var(--c-text); }
+    .search-wrap input {
+      font: inherit;
+      font-size: 0.8rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+      width: 12rem;
+      color: var(--c-text);
+    }
+    .search-wrap input:focus { outline: none; border-color: var(--c-accent); }
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 0.2rem;
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      z-index: 30;
+      max-height: 14rem;
+      overflow-y: auto;
+      display: none;
+    }
+    .search-results.open { display: block; }
+    .search-results button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: none;
+      border-radius: 0;
+      padding: 0.4rem 0.7rem;
+      font: inherit;
+      font-size: 0.8rem;
+      color: var(--c-text);
+      cursor: pointer;
+    }
+    .search-results button:hover { background: rgba(26, 115, 167, 0.1); }
+    .search-results .none { padding: 0.4rem 0.7rem; font-size: 0.8rem; color: var(--c-muted); }
 
     .plot-card {
       background: #fff;
@@ -59,24 +123,41 @@
     #plot svg { display: block; max-width: 100%; height: auto; }
     #plot circle,
     #plot rect[class*="q-bg-"],
-    #plot text[class*="q-prom-"],
-    #plot g.q-case-label text {
+    #plot text[class*="q-prom-"] {
       transition: fill-opacity 200ms ease, stroke-opacity 200ms ease;
     }
+    /* clickable context labels */
+    #plot g.q-clicklabel text { cursor: pointer; }
+    /* The staged-embed highlight overlays (prominent labels + region rects) are
+       invisible most of the time but would otherwise intercept clicks meant for
+       the clickable quadrant labels. Make them transparent to pointer events. */
+    #plot [class*="q-prom-"],
+    #plot [class*="q-bg-"] { pointer-events: none; }
 
-    /* quadrant label overlay (positioned by JS) */
-    .q-label {
-      position: absolute;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-weight: 700;
-      color: rgba(26, 39, 51, 0.55);
-      pointer-events: none;
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      background: rgba(255,255,255,0.7);
+    /* selected-country readout under the controls */
+    .selected-line {
+      font-size: 0.8rem;
+      color: var(--c-muted);
+      margin: 0 0 0.45rem;
+      min-height: 1.1em;
     }
+    .selected-line strong { color: var(--c-text); }
+
+    /* zoom-reset chip (shown only while zoomed) */
+    .zoom-chip {
+      display: none;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--c-accent-dark);
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      padding: 0.28rem 0.75rem;
+      font: inherit;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .zoom-chip.show { display: inline-flex; }
 
     .footer-note {
       font-size: 0.68rem;
@@ -86,7 +167,8 @@
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
-    /* Embed mode: fit within the ~655px-tall StoryMaps inline-embed box. */
+    /* Embed mode: fit within the ~655px-tall StoryMaps inline-embed box.
+       In the staged sidecar embed we keep the compact header used before. */
     body[data-embed="storymap"] .viz-page { padding: 0.4rem 1rem 0.5rem; }
     body[data-embed="storymap"] .viz-header { margin-bottom: 0.35rem; }
     body[data-embed="storymap"] .viz-header h1 { font-size: 1.02rem; }
@@ -94,6 +176,44 @@
     body[data-embed="storymap"] .controls { margin-bottom: 0.4rem; }
     body[data-embed="storymap"] .plot-card { padding: 0.45rem 0.6rem 0.3rem; }
     body[data-embed="storymap"] .footer-note { margin-top: 0.35rem; }
+    /* In the staged sidecar embed, hide the standalone-only chrome (search,
+       info, quadrant filter buttons) so the staged story panels stay clean. */
+    body[data-embed="storymap"] .standalone-only { display: none !important; }
+
+    /* info modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 30, 45, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1.2rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 34rem;
+      padding: 1.4rem 1.6rem 1.5rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .modal h2 { margin: 0 0 0.6rem; font-size: 1.05rem; color: var(--c-accent-dark); }
+    .modal p { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--c-text); }
+    .modal-close {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.7rem;
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      line-height: 1;
+      color: var(--c-muted);
+      cursor: pointer;
+    }
+    .modal-close:hover { color: var(--c-text); }
   </style>
 </head>
 <body>
@@ -107,20 +227,42 @@
     if (_quad) document.body.setAttribute('data-quad', _quad);
   </script>
   <div class="viz-page">
-    <div class="controls" id="controls">
-      <button data-quad="all" class="active">All countries</button>
-      <button data-quad="ws-fi">Water-secure importers</button>
-      <button data-quad="ws-fe">Water-secure exporters</button>
-      <button data-quad="wst-fe">Water-stressed exporters</button>
-      <button data-quad="wst-fi">Water-stressed importers</button>
-      <span class="selected-inline" id="selected">Hover a point for its profile</span>
+    <div class="viz-header">
+      <button class="info-btn standalone-only" id="infoBtn" type="button" aria-label="About this data" title="About this data">i</button>
+      <h1>Water-Food Compass: Where does your country stand?</h1>
+      <p>Every country sits in one of four contexts, set by its freshwater stress and whether it is a net food importer or exporter.</p>
     </div>
+
+    <div class="controls">
+      <button data-quad="all" class="active">All countries</button>
+      <button data-quad="ws-fi" class="standalone-only">Water-secure importers</button>
+      <button data-quad="ws-fe" class="standalone-only">Water-secure exporters</button>
+      <button data-quad="wst-fe" class="standalone-only">Water-stressed exporters</button>
+      <button data-quad="wst-fi" class="standalone-only">Water-stressed importers</button>
+
+      <div class="search-wrap standalone-only">
+        <input id="search" type="text" placeholder="Search a country..." autocomplete="off" aria-label="Search a country" />
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+
+    <p class="selected-line standalone-only" id="selected">Hover a point for its profile, or search and click a quadrant label to zoom in.</p>
+    <button class="zoom-chip standalone-only" id="zoomChip" type="button">&larr; Back to all quadrants</button>
 
     <div class="plot-card">
       <div id="plot"></div>
       <p class="footer-note">
-        Source: WRI Aqueduct (baseline water stress) and FAOSTAT food balance sheets (2019). Context labels per Figure 3.1 of the published <em>Nourish and Flourish</em> report. Thresholds: water stress &ge; 40% (high stress), net food imports &gt; 0 (importer). Borderline countries may land in a different context here than in the report's narrative (e.g. Peru sits within ~0.01% of the importer/exporter line).
+        Source: WRI Aqueduct 4.0 (baseline water stress) and FAOSTAT food balance sheets (2019). Context labels per Figure 3.1 of the published <em>Nourish and Flourish</em> report. Thresholds: water stress &ge; 40% (high stress), net food calorie imports &gt; 0 (importer). Borderline countries may land in a different context here than in the report's narrative (e.g. Peru sits within ~0.01% of the importer/exporter line).
       </p>
+    </div>
+  </div>
+
+  <!-- info modal -->
+  <div class="modal-backdrop" id="infoModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+      <button class="modal-close" id="infoClose" aria-label="Close">&times;</button>
+      <h2 id="infoTitle">About this data</h2>
+      <p>A country's food trade position is measured by whether it is a net importer or exporter of calories, based on FAO food balance sheets. This focuses on food crops - data limitations mean fiber and non-food export crops such as coffee and cocoa are not included. A country's position reflects a national average; most countries contain diverse subnational contexts that may differ significantly from the overall picture.</p>
     </div>
   </div>
 
@@ -128,8 +270,10 @@
     import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.16/+esm";
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-    // ----- load + prep data ---------------------------------------------------
-
+    // ----- staged-embed state (preserved exactly) -----------------------------
+    // The StoryMap sidecar embeds use ?embed=storymap&stage=1 and
+    // ?embed=storymap&stage=2&quad=ws-fi|ws-fe|wst-fe|wst-fi. These drive the
+    // dim/highlight behaviour below; do NOT change their semantics.
     const stage = document.body.getAttribute("data-stage");
     const initialQuad = document.body.getAttribute("data-quad");
     const QUAD_TO_CONTEXT = { "ws-fi": "C1", "ws-fe": "C2", "wst-fe": "C3", "wst-fi": "C4" };
@@ -137,36 +281,58 @@
     let activeQuad = (stage === "2" && QUAD_TO_CONTEXT[initialQuad]) ? initialQuad : "all";
     let highlightContext = QUAD_TO_CONTEXT[activeQuad] || null;
     let dimNonHighlight = !!highlightContext;
-    let highlightRegion = null;
+
+    // ----- axis orientation (report Figure 3.1) -------------------------------
+    // Report layout: freshwater stress runs LOW (top) -> HIGH (bottom);
+    // net food trade runs importer (LEFT) -> exporter (RIGHT). So:
+    //   X = net trade balance (negative = importer/left, positive = exporter/right)
+    //   Y = freshwater stress, axis INVERTED so low sits at the top.
+    // Corners then match the report exactly:
+    //   top-left  C1 water-secure importer   (blue)
+    //   top-right C2 water-secure exporter   (green)
+    //   bot-left  C4 water-stressed importer (red)
+    //   bot-right C3 water-stressed exporter (orange)
+    const X_MIN = -10, X_MAX = 10;   // net trade %, exporter positive
+    const Y_MIN = 0,  Y_MAX = 100;   // freshwater stress %
+    const X_THRESH = 0;              // importer/exporter divide
+    const Y_THRESH = 40;             // high-stress divide
+
+    // Context regions in the new (trade-x, stress-y) coordinate space.
+    // Canonical context colors (kept identical to the live scatter for
+    // visual continuity with the embedded story).
+    const CONTEXT_REGION = {
+      C1: { x1: X_MIN, x2: X_THRESH, y1: Y_MIN,   y2: Y_THRESH, fill: "#6a8aa8",
+            lx: -5,  ly: 6,  label: "Water-secure importers" },                  // top-left
+      C2: { x1: X_THRESH, x2: X_MAX, y1: Y_MIN,   y2: Y_THRESH, fill: "#469e6e",
+            lx: 5,   ly: 6,  label: "Water-secure exporters" },                  // top-right
+      C4: { x1: X_MIN, x2: X_THRESH, y1: Y_THRESH, y2: Y_MAX,   fill: "#ad323c",
+            lx: -5,  ly: 94, label: "Water-stressed importers" },               // bottom-left
+      C3: { x1: X_THRESH, x2: X_MAX, y1: Y_THRESH, y2: Y_MAX,   fill: "#c46b3b",
+            lx: 5,   ly: 94, label: "Water-stressed exporters" },               // bottom-right
+    };
 
     function dotOpacity(d, base) {
+      if (zoomContext) return d.context === zoomContext ? base : base * 0.06;
       if (!dimNonHighlight) return base;
       return d.context === highlightContext ? base : base * 0.18;
     }
-    const CONTEXT_REGION = {
-      C1: { x1: 0,  x2: 40,  y1: 0,  y2: 10, fill: "#6a8aa8", lx: 20, ly: 9.3, label: "Water-secure food importers" },
-      C2: { x1: 0,  x2: 40,  y1: -3, y2: 0,  fill: "#469e6e", lx: 20, ly: -2.6, label: "Water-secure food exporters" },
-      C3: { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", lx: 70, ly: -2.6, label: "Water-stressed food exporters" },
-      C4: { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", lx: 70, ly: 9.3, label: "Water-stressed food importers" },
-    };
-    highlightRegion = highlightContext ? CONTEXT_REGION[highlightContext] : null;
     function strokeOpacity(d) {
+      if (zoomContext) return d.context === zoomContext ? 1 : 0.05;
       if (!dimNonHighlight) return 1;
       return d.context === highlightContext ? 1 : 0.2;
     }
 
     const raw = await fetch("../data/countries_2x2.json").then(r => r.json());
 
-    // Convert net_imports_pct from fraction to percentage points for axis display
+    // net_export_pct: positive = exporter (goes right), negative = importer (left).
     const data = raw.map(r => ({
       ...r,
-      net_imports_display: (r.net_imports_pct ?? 0) * 100,    // > 0 = importer
-      net_export_display: (r.net_export_pct ?? 0) * 100,
-      water_stress_display: r.water_stress_baseline,           // 0-100 already
+      net_export_display: (r.net_export_pct ?? 0) * 100,       // x axis
+      water_stress_display: r.water_stress_baseline,            // y axis (0-100)
       pop_millions: (r.population ?? 0) / 1e6,
     }));
 
-    // Region color scale (12 distinct, palette friendly)
+    // Region color scale (used for the dots).
     const regions = Array.from(new Set(data.map(d => d.region))).sort();
     const regionColors = d3.scaleOrdinal()
       .domain(regions)
@@ -176,55 +342,67 @@
         "#06796a", "#9c4a7c", "#3a6e9d", "#a35e2c",
       ]);
 
-    // ----- main plot ----------------------------------------------------------
-
+    // ----- interactive state (standalone) ------------------------------------
+    let zoomContext = null;     // when set, plot domain is limited to a quadrant
+    let searchedIso = null;     // iso3 of a searched/located country
     let dotCircleMap = [];
-    let caseLabelMap = [];
     let currentPlot = null;
+
+    // ----- main plot ----------------------------------------------------------
 
     function renderPlot() {
       const el = document.getElementById("plot");
       const width = el.clientWidth;
-      // Embed mode: the StoryMaps inline-embed box is hard-capped ~655px tall,
-      // so keep the plot shorter to avoid a scrollbar on interaction.
       const _embed = document.body.getAttribute("data-embed") === "storymap";
       const height = _embed
         ? Math.max(380, Math.min(448, width * 0.5))
-        : Math.max(400, Math.min(500, width * 0.6));
+        : Math.max(420, Math.min(560, width * 0.62));
+
+      // Domains: full view, or limited to the zoomed quadrant.
+      let xDomain = [X_MIN, X_MAX];
+      let yDomain = [Y_MAX, Y_MIN];   // inverted so low stress is at the top
+      if (zoomContext) {
+        const r = CONTEXT_REGION[zoomContext];
+        const xpad = (r.x2 - r.x1) * 0.08;
+        const ypad = (r.y2 - r.y1) * 0.08;
+        xDomain = [r.x1 - xpad, r.x2 + xpad];
+        yDomain = [r.y2 + ypad, r.y1 - ypad]; // inverted
+      }
+
+      const labelData = zoomContext
+        ? data.filter(d => d.context === zoomContext)
+        : [];
 
       const plot = Plot.plot({
         width, height,
-        marginLeft: 64, marginBottom: 44, marginTop: 30, marginRight: 30,
+        marginLeft: 64, marginBottom: 46, marginTop: 30, marginRight: 30,
         x: {
-          label: "Freshwater stress  (% of available water withdrawn)  →",
-          domain: [0, 100],
+          label: "← net food importer      net food trade balance      net food exporter →",
+          domain: xDomain,
           grid: true,
+          tickFormat: d => `${d > 0 ? "+" : ""}${d}%`,
+          labelAnchor: "center",
         },
         y: {
-          label: "↑ net importer   ·   net food trade position   ·   net exporter ↓",
-          // net imports % - empirical range roughly -3% to +9%. Pad a bit.
-          domain: [-3, 10],
+          label: "↑ low freshwater stress   ·   high freshwater stress ↓",
+          domain: yDomain,
           grid: true,
-          tickFormat: d => `${d > 0 ? "+" : ""}${d.toFixed(1)}%`,
+          tickFormat: d => `${d}%`,
           labelAnchor: "center",
         },
         color: {
-          legend: false,  // we render our own legend in the sidebar
+          legend: false,
           domain: regions,
           range: regions.map(r => regionColors(r)),
         },
         marks: [
-          // Context background tints (low-stress left, high-stress right; importer top, exporter bottom)
-          // Context 1 (water-secure importer)   = upper-left   - cool blue
-          // Context 2 (water-secure exporter)   = lower-left   - green
-          // Context 3 (water-stressed exporter) = lower-right  - orange
-          // Context 4 (water-stressed importer) = upper-right  - red
-          Plot.rect([{}], { x1: 0,  x2: 40,  y1: 0,  y2: 10, fill: "#6a8aa8", fillOpacity: 0.06 }), // C1
-          Plot.rect([{}], { x1: 0,  x2: 40,  y1: -3, y2: 0,  fill: "#469e6e", fillOpacity: 0.05 }), // C2
-          Plot.rect([{}], { x1: 40, x2: 100, y1: -3, y2: 0,  fill: "#c46b3b", fillOpacity: 0.06 }), // C3
-          Plot.rect([{}], { x1: 40, x2: 100, y1: 0,  y2: 10, fill: "#ad323c", fillOpacity: 0.07 }), // C4
+          // Context background tints (corners match report Figure 3.1).
+          Plot.rect([CONTEXT_REGION.C1], { x1: "x1", x2: "x2", y1: "y1", y2: "y2", fill: CONTEXT_REGION.C1.fill, fillOpacity: 0.06 }),
+          Plot.rect([CONTEXT_REGION.C2], { x1: "x1", x2: "x2", y1: "y1", y2: "y2", fill: CONTEXT_REGION.C2.fill, fillOpacity: 0.05 }),
+          Plot.rect([CONTEXT_REGION.C3], { x1: "x1", x2: "x2", y1: "y1", y2: "y2", fill: CONTEXT_REGION.C3.fill, fillOpacity: 0.06 }),
+          Plot.rect([CONTEXT_REGION.C4], { x1: "x1", x2: "x2", y1: "y1", y2: "y2", fill: CONTEXT_REGION.C4.fill, fillOpacity: 0.07 }),
 
-          // Selected-quadrant highlight regions (one per context, toggled in place)
+          // Selected-quadrant highlight regions (staged embed dim/highlight).
           ...["C1","C2","C3","C4"].map(c =>
             Plot.rect([CONTEXT_REGION[c]], {
               x1: "x1", x2: "x2", y1: "y1", y2: "y2",
@@ -234,81 +412,61 @@
             })
           ),
 
-          // Threshold rules
-          Plot.ruleX([40], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
-          Plot.ruleY([0],  { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
+          // Threshold rules.
+          Plot.ruleX([X_THRESH], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
+          Plot.ruleY([Y_THRESH], { stroke: "#1a2733", strokeOpacity: 0.4, strokeDasharray: "4 3" }),
 
-          // Context labels - placed inside each context block, away from edges.
-          // Naming matches the report's Figure 3.1 ("Four local contexts").
+          // Clickable context labels - one per corner. Clicking zooms in.
           Plot.text(
-            [
-              { x: 20,  y: 9.3, label: "Context 1  water-secure importer" },
-              { x: 70,  y: 9.3, label: "Context 4  water-stressed importer" },
-              { x: 20,  y: -2.6, label: "Context 2  water-secure exporter" },
-              { x: 70,  y: -2.6, label: "Context 3  water-stressed exporter" },
-            ],
-            { x: "x", y: "y", text: "label",
+            ["C1","C2","C3","C4"].map(c => ({ ...CONTEXT_REGION[c], ctx: c })),
+            { x: "lx", y: "ly", text: d => `${d.label}  ⤢`,
               textAnchor: "middle",
-              fill: "#1a2733", fillOpacity: 0.55,
-              fontSize: 11, fontWeight: 700 }
+              fill: d => d.fill, fillOpacity: 0.95,
+              fontSize: 13, fontWeight: 700,
+              stroke: "#fff", strokeWidth: 4, paintOrder: "stroke",
+              className: "q-clicklabel" }
           ),
 
-          // Prominent label per context (toggled in place)
+          // Prominent label per context (toggled in place by staged embed).
           ...["C1","C2","C3","C4"].map(c =>
             Plot.text([CONTEXT_REGION[c]], {
               x: "lx", y: "ly", text: "label",
               textAnchor: "middle",
               fill: CONTEXT_REGION[c].fill,
               fillOpacity: 0,
-              fontSize: 14, fontWeight: 700,
+              fontSize: 15, fontWeight: 800,
               stroke: "#fff", strokeWidth: 4, paintOrder: "stroke", strokeOpacity: 0,
               className: `q-prom-${c}`,
             })
           ),
 
-          // Non-case-study points
-          Plot.dot(data.filter(d => !d.is_case_study), {
-            x: "water_stress_display",
-            y: "net_imports_display",
+          // All country points - rendered uniformly (no case-study emphasis).
+          Plot.dot(data, {
+            x: "net_export_display",
+            y: "water_stress_display",
             r: d => Math.max(3, Math.sqrt(d.pop_millions) * 1.2),
             fill: d => regionColors(d.region),
-            fillOpacity: d => dotOpacity(d, 0.55),
+            fillOpacity: d => dotOpacity(d, 0.6),
             stroke: "#fff",
             strokeWidth: 0.6,
             strokeOpacity: d => strokeOpacity(d),
             channels: { country: "country", iso3: "iso3" },
             tip: true,
-            title: d => `${d.country} (${d.iso3})\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
+            title: d => `${d.country} (${d.iso3})\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet trade: ${d.net_export_display > 0 ? "+" : ""}${d.net_export_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
           }),
 
-          // Case-study points (rendered on top, with darker stroke)
-          Plot.dot(data.filter(d => d.is_case_study), {
-            x: "water_stress_display",
-            y: "net_imports_display",
-            r: d => Math.max(5, Math.sqrt(d.pop_millions) * 1.2),
-            fill: d => regionColors(d.region),
-            fillOpacity: d => dotOpacity(d, 0.85),
-            stroke: "#1a2733",
-            strokeWidth: 1.6,
-            strokeOpacity: d => strokeOpacity(d),
-            tip: true,
-            title: d => `${d.country} (${d.iso3}) - case study\n${d.region}\nWater stress: ${d.water_stress_display.toFixed(0)}%\nNet imports: ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% (${d.is_importer ? "importer" : "exporter"})\nPopulation: ${(d.pop_millions).toFixed(1)}M\nContext: ${d.context}`,
-          }),
-
-          // Case-study labels
-          Plot.text(data.filter(d => d.is_case_study), {
-            x: "water_stress_display",
-            y: "net_imports_display",
+          // ISO3 abbreviations - shown only when zoomed into a quadrant.
+          Plot.text(labelData, {
+            x: "net_export_display",
+            y: "water_stress_display",
             text: "iso3",
-            dy: -10,
+            dy: -9,
             fontSize: 10,
             fontWeight: 700,
             fill: "#1a2733",
-            fillOpacity: d => dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1,
             stroke: "#fff",
-            strokeWidth: 3,
-            strokeOpacity: d => dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1,
-            className: "q-case-label",
+            strokeWidth: 2.5,
+            paintOrder: "stroke",
           }),
 
           Plot.frame({ stroke: "#d8dee5" }),
@@ -317,37 +475,50 @@
 
       el.replaceChildren(plot);
 
-      // Plot renders dots as <circle> inside g[aria-label="dot"] groups; data
-      // index aligns with the dot order in each group, in the order we passed
-      // the data to Plot.dot. We rebuild the lookup using the same filters.
-      const nonCase = data.filter(d => !d.is_case_study);
-      const cases = data.filter(d => d.is_case_study);
+      // Build the dot lookup (data order matches the single Plot.dot mark).
       const dotGroups = plot.querySelectorAll('g[aria-label="dot"]');
       dotCircleMap = [];
-      [nonCase, cases].forEach((dataset, gi) => {
-        const group = dotGroups[gi];
-        if (!group) return;
-        const circles = group.querySelectorAll("circle");
-        circles.forEach((circle, i) => {
-          const d = dataset[i];
+      const group = dotGroups[0];
+      if (group) {
+        group.querySelectorAll("circle").forEach((circle, i) => {
+          const d = data[i];
           if (!d) return;
           circle.style.cursor = "pointer";
           circle.addEventListener("pointerenter", () => showSelected(d));
           circle.addEventListener("focus", () => showSelected(d));
-          dotCircleMap.push({ circle, d, base: d.is_case_study ? 0.85 : 0.55 });
-        });
-      });
-
-      caseLabelMap = [];
-      const caseLabelGroup = plot.querySelector("g.q-case-label");
-      if (caseLabelGroup) {
-        caseLabelGroup.querySelectorAll("text").forEach((t, i) => {
-          if (cases[i]) caseLabelMap.push({ node: t, d: cases[i] });
+          dotCircleMap.push({ circle, d, base: 0.6 });
         });
       }
 
+      // Wire clickable context labels -> zoom. Observable Plot lays an invisible
+      // interaction overlay (the "tip" layer) above all marks, so a click never
+      // reaches the label <text> directly. Instead we hit-test the click against
+      // each label's bounding box at the container level, which works regardless
+      // of the overlay. We capture on the SVG so the tip layer cannot swallow it.
+      const clickGroup = plot.querySelector("g.q-clicklabel");
+      const labelHitboxes = [];
+      if (clickGroup) {
+        const labelNodes = clickGroup.querySelectorAll("text");
+        ["C1","C2","C3","C4"].forEach((c, i) => {
+          const node = labelNodes[i];
+          if (node) labelHitboxes.push({ ctx: c, node });
+        });
+      }
+      plot.addEventListener("click", (e) => {
+        for (const { ctx, node } of labelHitboxes) {
+          const r = node.getBoundingClientRect();
+          // generous padding so the label is easy to hit
+          if (e.clientX >= r.left - 8 && e.clientX <= r.right + 8 &&
+              e.clientY >= r.top - 8 && e.clientY <= r.bottom + 8) {
+            toggleZoom(ctx);
+            return;
+          }
+        }
+      }, true);
+
       currentPlot = plot;
       applyDimming();
+      applySearchHighlight();
       return plot;
     }
 
@@ -355,11 +526,6 @@
       dotCircleMap.forEach(({ circle, d, base }) => {
         circle.setAttribute("fill-opacity", dotOpacity(d, base));
         circle.setAttribute("stroke-opacity", strokeOpacity(d));
-      });
-      caseLabelMap.forEach(({ node, d }) => {
-        const o = dimNonHighlight ? (d.context === highlightContext ? 1 : 0.15) : 1;
-        node.setAttribute("fill-opacity", o);
-        node.setAttribute("stroke-opacity", o);
       });
       if (!currentPlot) return;
       ["C1","C2","C3","C4"].forEach(c => {
@@ -377,49 +543,119 @@
       });
     }
 
-    // ----- selected-country inline readout ------------------------------------
+    // ----- search-highlight: ring + enlarge the located country --------------
+    function applySearchHighlight() {
+      dotCircleMap.forEach(({ circle, d }) => {
+        if (searchedIso && d.iso3 === searchedIso) {
+          circle.setAttribute("stroke", "#1a2733");
+          circle.setAttribute("stroke-width", "3");
+          circle.setAttribute("stroke-opacity", "1");
+          circle.setAttribute("fill-opacity", "0.95");
+        } else {
+          circle.setAttribute("stroke", "#fff");
+          circle.setAttribute("stroke-width", "0.6");
+        }
+      });
+      // re-apply normal dim on top so non-searched dots keep their opacity
+      if (!searchedIso) applyDimming();
+    }
 
+    // ----- selected-country readout ------------------------------------------
     function showSelected(d) {
       const el = document.getElementById("selected");
       el.innerHTML =
         `<strong>${d.country}</strong> (${d.iso3}) &middot; ${d.region} &middot; ` +
         `stress ${d.water_stress_display.toFixed(0)}% &middot; ` +
-        `net ${d.net_imports_display > 0 ? "+" : ""}${d.net_imports_display.toFixed(2)}% ` +
+        `net ${d.net_export_display > 0 ? "+" : ""}${d.net_export_display.toFixed(2)}% ` +
         `(${d.is_importer ? "importer" : "exporter"}) &middot; ` +
-        `${d.pop_millions.toFixed(1)}M &middot; ${d.context || '?'}` +
-        `${d.is_case_study ? " &middot; case study" : ""}`;
+        `${d.pop_millions.toFixed(1)}M &middot; ${d.context || '?'}`;
     }
 
-    // ----- step controls ------------------------------------------------------
-
+    // ----- quadrant filter buttons (staged + standalone) ----------------------
     function setQuad(q) {
       activeQuad = q;
       highlightContext = QUAD_TO_CONTEXT[q] || null;
       dimNonHighlight = !!highlightContext;
-      highlightRegion = highlightContext ? CONTEXT_REGION[highlightContext] : null;
       applyDimming();
     }
-
-    function syncButtons() {
-      document.querySelectorAll("#controls button").forEach(b => {
-        b.classList.toggle("active", b.dataset.quad === activeQuad);
-      });
-    }
-
-    document.querySelectorAll("#controls button").forEach(btn => {
+    document.querySelectorAll("#controls button, .controls button[data-quad]").forEach(btn => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll("#controls button").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".controls button[data-quad]").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         setQuad(btn.dataset.quad);
       });
     });
 
-    // ----- init ---------------------------------------------------------------
+    // ----- zoom into a quadrant ----------------------------------------------
+    const zoomChip = document.getElementById("zoomChip");
+    function toggleZoom(c) {
+      zoomContext = (zoomContext === c) ? null : c;
+      zoomChip.classList.toggle("show", !!zoomContext);
+      renderPlot();
+    }
+    function clearZoom() {
+      zoomContext = null;
+      zoomChip.classList.remove("show");
+      renderPlot();
+    }
+    zoomChip.addEventListener("click", clearZoom);
 
-    syncButtons();
+    // ----- country search -----------------------------------------------------
+    const searchInput = document.getElementById("search");
+    const searchResults = document.getElementById("searchResults");
+    if (searchInput) {
+      const sorted = [...data].sort((a, b) => a.country.localeCompare(b.country));
+      function runSearch() {
+        const q = searchInput.value.trim().toLowerCase();
+        if (!q) { searchResults.classList.remove("open"); return; }
+        const matches = sorted.filter(d =>
+          d.country.toLowerCase().includes(q) || (d.iso3 || "").toLowerCase().includes(q)
+        ).slice(0, 8);
+        if (!matches.length) {
+          searchResults.innerHTML = `<div class="none">No country found</div>`;
+        } else {
+          searchResults.innerHTML = matches.map(d =>
+            `<button type="button" data-iso="${d.iso3}">${d.country} <span style="color:var(--c-muted)">(${d.iso3})</span></button>`
+          ).join("");
+        }
+        searchResults.classList.add("open");
+      }
+      function locate(iso) {
+        const d = data.find(x => x.iso3 === iso);
+        if (!d) return;
+        searchedIso = iso;
+        searchResults.classList.remove("open");
+        searchInput.value = d.country;
+        // zoom to the country's quadrant so its abbreviation is visible too
+        zoomContext = d.context;
+        zoomChip.classList.add("show");
+        renderPlot();
+        showSelected(d);
+      }
+      searchInput.addEventListener("input", runSearch);
+      searchInput.addEventListener("focus", runSearch);
+      searchResults.addEventListener("click", e => {
+        const btn = e.target.closest("button[data-iso]");
+        if (btn) locate(btn.dataset.iso);
+      });
+      document.addEventListener("click", e => {
+        if (!e.target.closest(".search-wrap")) searchResults.classList.remove("open");
+      });
+    }
+
+    // ----- info modal ---------------------------------------------------------
+    const infoModal = document.getElementById("infoModal");
+    document.getElementById("infoBtn")?.addEventListener("click", () => infoModal.classList.add("open"));
+    document.getElementById("infoClose")?.addEventListener("click", () => infoModal.classList.remove("open"));
+    infoModal.addEventListener("click", e => { if (e.target === infoModal) infoModal.classList.remove("open"); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") infoModal.classList.remove("open"); });
+
+    // ----- init ---------------------------------------------------------------
+    document.querySelectorAll(".controls button[data-quad]").forEach(b => {
+      b.classList.toggle("active", b.dataset.quad === activeQuad);
+    });
     renderPlot();
 
-    // re-render plot on resize for responsiveness
     let resizeTimer;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);

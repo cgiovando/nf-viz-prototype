@@ -3,85 +3,114 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Four contexts framework - Nourish and Flourish</title>
+  <title>Water-Food Compass - Nourish and Flourish</title>
   <link rel="stylesheet" href="../assets/styles.css" />
   <style>
+    /* ------------------------------------------------------------------
+       Water-Food Compass (the BOXES viz). Canonical conceptual 2x2 of the
+       water-food nexus framework. Corner layout replicates the published
+       report Figure 3.1 (p. 26 / PDF p. 46) EXACTLY:
+
+                          LOW freshwater stress (top)
+            importers |  C1  water-secure importer  |  C2  water-secure exporter
+              (left)  |--------------------------------------------------------
+                      |  C4  water-stressed importer|  C3  water-stressed exporter
+                          HIGH freshwater stress (bottom)            (right) exporters
+
+       Axes: freshwater stress runs LOW (top) -> HIGH (bottom);
+             net food trade runs importer (left) -> exporter (right).
+       ------------------------------------------------------------------ */
     body { background: #fff; }
+
     /* Two layouts:
-       - Default (max-width 1100px, centered): for the standalone gallery page.
-       - Sidecar mode (?layout=right): content shifted to right 65%, leaving
-         the left 35% as whitespace so a StoryMap floating-panel narrative
-         can overlay without covering the quadrants. Triggered by adding
-         a `data-layout="right"` to <body> via the URL.
-    */
-    .frame-page { padding: 1.25rem 1.25rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+       - Default (centered) for the standalone gallery page.
+       - Sidecar mode (?layout=right): content shifted to the right 65%, the
+         left 35% left as whitespace so a StoryMap floating panel can overlay. */
+    .frame-page { padding: 1.25rem 1.25rem 1.5rem; max-width: 1180px; margin: 0 auto; }
     body[data-layout="right"] .frame-page {
       max-width: none;
       width: 65%;
       margin-left: 35%;
       padding-right: 2rem;
     }
+
+    .frame-header { position: relative; }
     .frame-header h1 {
-      font-size: 1.35rem;
-      margin: 0 0 0.25rem;
+      font-size: 1.85rem;
+      margin: 0 0 0.3rem;
       color: var(--c-accent-dark);
+      letter-spacing: -0.01em;
     }
     .frame-header p {
       margin: 0;
       color: var(--c-muted);
-      font-size: 0.92rem;
+      font-size: 1.02rem;
+      line-height: 1.4;
+      max-width: 60ch;
     }
+
+    /* Fullscreen toggle button (top-right of the header). */
+    .fs-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #fff;
+      border: 1px solid var(--c-border);
+      border-radius: 99px;
+      padding: 0.4rem 0.85rem;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--c-accent-dark);
+      cursor: pointer;
+    }
+    .fs-btn:hover { border-color: var(--c-accent); color: var(--c-accent); }
+    .fs-btn svg { width: 16px; height: 16px; }
 
     .frame-wrap {
       display: grid;
-      grid-template-columns: auto 1fr;
-      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 2.4rem 1fr;
+      grid-template-rows: 2.4rem 1fr 2.4rem;
       gap: 0;
-      margin: 1.5rem 0 1rem;
+      margin: 1.6rem 0 1rem;
       align-items: stretch;
     }
 
-    .axis-y {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
+    /* Top + bottom axis captions (freshwater stress: low at top, high at bottom). */
+    .axis-stress {
+      grid-column: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--c-text);
+      font-weight: 800;
+    }
+    .axis-stress.top    { grid-row: 1; }
+    .axis-stress.bottom { grid-row: 3; }
+
+    /* Left axis caption (net food trade: importers left, exporters right). The
+       left rail holds the importer caption; the exporter caption is mirrored on
+       the right inside the grid frame. */
+    .axis-trade {
       grid-row: 2;
       grid-column: 1;
-      padding: 0 0.5rem 0 0;
-      gap: 1rem;
-    }
-    .axis-y span {
       writing-mode: vertical-rl;
       transform: rotate(180deg);
-      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--c-muted);
-      font-weight: 600;
-      align-self: center;
-      justify-self: end;
+      letter-spacing: 0.12em;
+      color: var(--c-text);
+      font-weight: 800;
       text-align: center;
-    }
-
-    .axis-x {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-row: 1;
-      grid-column: 2;
-      padding-bottom: 0.5rem;
-      gap: 1rem;
-    }
-    .axis-x span {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--c-muted);
-      font-weight: 600;
-      text-align: center;
-    }
-    .axis-x-bottom {
-      grid-row: 3;
-      grid-column: 2;
-      padding-top: 0.5rem;
     }
 
     .grid {
@@ -90,120 +119,223 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 0.85rem;
+      gap: 0.9rem;
+      position: relative;
+    }
+
+    /* Exporter caption mirrored on the right edge of the grid. */
+    .axis-trade-right {
+      position: absolute;
+      top: 0;
+      right: -2.4rem;
+      height: 100%;
+      width: 2.4rem;
+      writing-mode: vertical-rl;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--c-text);
+      font-weight: 800;
+      text-align: center;
     }
 
     .qcard {
       position: relative;
-      border-radius: 12px;
-      padding: 1.1rem 1.2rem 1.2rem;
-      border: 1px solid var(--c-border);
+      border-radius: 14px;
+      padding: 1.3rem 1.4rem 1.4rem;
+      border: 2px solid transparent;
       display: flex;
       flex-direction: column;
-      min-height: 235px;
+      min-height: 250px;
     }
-    .qcard.c1 { background: var(--q4-bg); border-color: rgba(106, 138, 168, 0.4); }
-    .qcard.c2 { background: var(--q1-bg); border-color: rgba(70, 158, 110, 0.4); }
-    .qcard.c3 { background: var(--q2-bg); border-color: rgba(196, 107, 59, 0.4); }
-    .qcard.c4 { background: var(--q3-bg); border-color: rgba(173, 50, 60, 0.4); }
+    /* Tints + borders use the canonical context colors. */
+    .qcard.c1 { background: rgba(69, 101, 140, 0.09);  border-color: rgba(69, 101, 140, 0.45); }
+    .qcard.c2 { background: rgba(46, 115, 91, 0.09);   border-color: rgba(46, 115, 91, 0.45); }
+    .qcard.c3 { background: rgba(166, 91, 33, 0.09);   border-color: rgba(166, 91, 33, 0.45); }
+    .qcard.c4 { background: rgba(142, 49, 49, 0.09);   border-color: rgba(142, 49, 49, 0.45); }
 
     .qbadge {
       position: absolute;
-      top: -10px;
-      left: 1rem;
-      width: 28px;
-      height: 28px;
+      top: -14px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       color: #fff;
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      box-shadow: 0 2px 7px rgba(0,0,0,0.18);
     }
-    .qcard.c1 .qbadge { background: #6a8aa8; }
-    .qcard.c2 .qbadge { background: #469e6e; }
-    .qcard.c3 .qbadge { background: #c46b3b; }
-    .qcard.c4 .qbadge { background: #ad323c; }
+    /* badge sits on the OUTER corner of each box, matching the report figure */
+    .qcard.c1 .qbadge { left: 1.1rem;  background: #6a8aa8; }   /* top-left */
+    .qcard.c2 .qbadge { right: 1.1rem; background: #469e6e; }   /* top-right */
+    .qcard.c4 .qbadge { left: 1.1rem;  background: #ad323c; }   /* bottom-left */
+    .qcard.c3 .qbadge { right: 1.1rem; background: #c46b3b; }   /* bottom-right */
 
+    .qcontext {
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 800;
+      margin: 0.25rem 0 0.1rem;
+    }
     .qtitle {
-      font-size: 1.02rem;
-      font-weight: 700;
-      color: var(--c-text);
-      margin: 0.2rem 0 0.15rem;
-      line-height: 1.25;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 0.2rem;
+      line-height: 1.18;
+      letter-spacing: -0.01em;
     }
+    /* color-coded headings per context */
+    .qcard.c1 .qcontext, .qcard.c1 .qtitle { color: #6a8aa8; }
+    .qcard.c2 .qcontext, .qcard.c2 .qtitle { color: #469e6e; }
+    .qcard.c3 .qcontext, .qcard.c3 .qtitle { color: #c46b3b; }
+    .qcard.c4 .qcontext, .qcard.c4 .qtitle { color: #ad323c; }
+
     .qdescriptor {
-      font-size: 0.82rem;
-      color: var(--c-muted);
-      margin: 0 0 0.55rem;
-      font-style: italic;
-    }
-    .qframing {
-      font-size: 0.88rem;
+      font-size: 1.02rem;
       color: var(--c-text);
       margin: 0 0 0.55rem;
       font-weight: 600;
     }
-    .qframing.c1 { color: #2a4d70; }
-    .qframing.c2 { color: #1f6c45; }
-    .qframing.c3 { color: #8c4623; }
-    .qframing.c4 { color: #7a1f27; }
+    .qframing {
+      font-size: 1.05rem;
+      margin: 0 0 0.6rem;
+      font-weight: 700;
+      font-style: italic;
+    }
+    .qcard.c1 .qframing { color: #34506f; }
+    .qcard.c2 .qframing { color: #245c48; }
+    .qcard.c3 .qframing { color: #84481a; }
+    .qcard.c4 .qframing { color: #722727; }
 
     .qstrats {
       list-style: none;
       padding: 0;
       margin: 0;
-      font-size: 0.82rem;
-      line-height: 1.4;
+      font-size: 0.98rem;
+      line-height: 1.45;
       color: var(--c-text);
     }
     .qstrats li {
       position: relative;
-      padding: 0.15rem 0 0.15rem 1rem;
+      padding: 0.2rem 0 0.2rem 1.1rem;
     }
     .qstrats li::before {
       content: "";
       position: absolute;
       left: 0.1rem;
-      top: 0.55rem;
-      width: 5px;
-      height: 5px;
+      top: 0.65rem;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: currentColor;
-      opacity: 0.5;
+      opacity: 0.55;
     }
 
     .footer-note {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       color: var(--c-muted);
-      margin-top: 1rem;
-      padding-top: 0.6rem;
+      margin-top: 1.1rem;
+      padding-top: 0.7rem;
       border-top: 1px solid var(--c-border);
+      line-height: 1.4;
     }
 
-    @media (max-width: 720px) {
-      .frame-wrap { grid-template-columns: 24px 1fr; }
-      .axis-x span, .axis-y span { font-size: 0.72rem; letter-spacing: 0.06em; }
-      .grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, auto); gap: 0.75rem; }
+    /* ----- Fullscreen behaviour --------------------------------------------
+       When the page enters the Fullscreen API (or, as a fallback when the API
+       is blocked - e.g. inside a sandboxed StoryMaps iframe - when body carries
+       the .fs-active class), we scale the layout UP to fill the viewport:
+       bigger type, taller boxes, the grid grows to use the available height.
+       This is what makes fullscreen actually enlarge the viz instead of just
+       reopening it at the same size. The .fs-active fallback uses a fixed
+       full-viewport overlay so it enlarges even without the native API. */
+    body.fs-active { overflow: hidden; }
+    body.fs-active .frame-page {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: #fff;
+      overflow: auto;
+    }
+    :fullscreen .frame-page,
+    :-webkit-full-screen .frame-page,
+    body.fs-active .frame-page {
+      max-width: none;
+      width: 100%;
+      height: 100vh;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+    :fullscreen .frame-header h1,
+    :-webkit-full-screen .frame-header h1,
+    body.fs-active .frame-header h1 { font-size: 2.6rem; }
+    :fullscreen .frame-header p,
+    :-webkit-full-screen .frame-header p,
+    body.fs-active .frame-header p { font-size: 1.25rem; max-width: 80ch; }
+    :fullscreen .frame-wrap,
+    :-webkit-full-screen .frame-wrap,
+    body.fs-active .frame-wrap { flex: 1; min-height: 0; margin: 1.6rem 0 0.8rem; }
+    :fullscreen .grid,
+    :-webkit-full-screen .grid,
+    body.fs-active .grid { height: 100%; }
+    :fullscreen .qcard,
+    :-webkit-full-screen .qcard,
+    body.fs-active .qcard { min-height: 0; padding: 1.7rem 1.9rem; }
+    :fullscreen .qtitle,
+    :-webkit-full-screen .qtitle,
+    body.fs-active .qtitle { font-size: 1.95rem; }
+    :fullscreen .qcontext,
+    :-webkit-full-screen .qcontext,
+    body.fs-active .qcontext { font-size: 1.05rem; }
+    :fullscreen .qdescriptor,
+    :-webkit-full-screen .qdescriptor,
+    body.fs-active .qdescriptor { font-size: 1.2rem; }
+    :fullscreen .qframing,
+    :-webkit-full-screen .qframing,
+    body.fs-active .qframing { font-size: 1.25rem; }
+    :fullscreen .qstrats,
+    :-webkit-full-screen .qstrats,
+    body.fs-active .qstrats { font-size: 1.15rem; }
+    :fullscreen .axis-stress,
+    :fullscreen .axis-trade,
+    :fullscreen .axis-trade-right,
+    :-webkit-full-screen .axis-stress,
+    :-webkit-full-screen .axis-trade,
+    :-webkit-full-screen .axis-trade-right,
+    body.fs-active .axis-stress,
+    body.fs-active .axis-trade,
+    body.fs-active .axis-trade-right { font-size: 1.2rem; }
+    :fullscreen .footer-note,
+    :-webkit-full-screen .footer-note,
+    body.fs-active .footer-note { display: none; }
+
+    @media (max-width: 760px) {
+      .frame-header h1 { font-size: 1.45rem; }
+      .frame-wrap { grid-template-columns: 1.6rem 1fr; grid-template-rows: 1.8rem auto 1.8rem; }
+      .axis-stress, .axis-trade, .axis-trade-right { font-size: 0.78rem; letter-spacing: 0.06em; }
+      .axis-trade-right { display: none; }
+      .grid { grid-template-columns: 1fr; grid-template-rows: repeat(4, auto); gap: 0.8rem; }
       .qcard { min-height: 0; }
-      .axis-x { grid-template-columns: 1fr; }
-      .axis-x span:nth-child(2) { display: none; }
-      .axis-x-bottom span:first-child { display: none; }
+      .qtitle { font-size: 1.25rem; }
     }
     body[data-embed="storymap"] .back-link { display: none; }
 
-      /* Docked-panel embed fit: center the infographic in the iframe pane. */
+    /* Docked-panel embed fit: center the infographic in the iframe pane. */
     body[data-embed="storymap"] { margin: 0; }
-    body[data-embed="storymap"] .viz-page { min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
-
-    /* Visible review flag for content not yet approved by the author. */
-    .review-flag { background:#fdf0d5; border:1px solid #e0b54a; color:#8a5a00;
-      font-size:0.72rem; font-weight:600; padding:0.35rem 0.6rem; border-radius:6px;
-      margin:0 0 0.6rem; line-height:1.3; }
-    .review-flag::before { content:"\26A0\FE0F  "; }
-</style>
+    body[data-embed="storymap"] .frame-page {
+      min-height: 100vh; box-sizing: border-box;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+  </style>
 </head>
 <body>
   <script>
@@ -213,52 +345,41 @@
   </script>
   <div class="frame-page">
     <header class="frame-header">
-      <h1>Four contexts, four pathways</h1>
-      <p>The water-food nexus framework groups countries by freshwater stress and net food trade position. Each context implies a different starting point for agricultural water management.</p>
+      <button class="fs-btn" id="fsBtn" type="button" aria-label="Toggle fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        <span id="fsLabel">Fullscreen</span>
+      </button>
+      <h1>Water-Food Compass</h1>
+      <p>Two factors shape a country's choices: how much freshwater stress it faces, and whether it is a net food importer or exporter. Together they define four local contexts - each with a different starting point for agricultural water management.</p>
     </header>
 
     <div class="frame-wrap">
-      <div class="axis-x">
-        <span>Low freshwater stress</span>
-        <span>High freshwater stress</span>
-      </div>
+      <div class="axis-stress top">Low freshwater stress</div>
 
-      <div class="axis-y">
-        <span>Net food importers</span>
-        <span>Net food exporters</span>
-      </div>
+      <div class="axis-trade">Net food importers</div>
 
       <div class="grid">
+        <!-- TOP-LEFT: low stress + importer = Context 1 (blue) -->
         <div class="qcard c1">
           <div class="qbadge">1</div>
+          <p class="qcontext">Context 1</p>
           <p class="qtitle">Water-secure food importers</p>
           <p class="qdescriptor">Water surplus, calorie deficit</p>
-          <p class="qframing c1">An unprecedented opportunity</p>
+          <p class="qframing">An unprecedented opportunity</p>
           <ul class="qstrats">
             <li>Expand irrigation and AWM responsibly to reduce import dependence</li>
             <li>Use trade strategically where agroclimate or market access dictate</li>
-            <li>Internalize risks of sourcing from water-stressed countries</li>
+            <li>Internalize the risks of sourcing from water-stressed countries</li>
           </ul>
         </div>
 
-        <div class="qcard c4">
-          <div class="qbadge">4</div>
-          <p class="qtitle">Water-stressed food importers</p>
-          <p class="qdescriptor">Water deficit, calorie deficit</p>
-          <p class="qframing c4">Precarious dependence, structural change</p>
-          <ul class="qstrats">
-            <li>Shift to high-value crops with limited water (economic productivity)</li>
-            <li>Diversify the economy and protect transitions with safety nets</li>
-            <li>Augment supply with reused treated wastewater</li>
-            <li>Enforce water use caps; diversify import sources</li>
-          </ul>
-        </div>
-
+        <!-- TOP-RIGHT: low stress + exporter = Context 2 (green) -->
         <div class="qcard c2">
           <div class="qbadge">2</div>
+          <p class="qcontext">Context 2</p>
           <p class="qtitle">Water-secure food exporters</p>
-          <p class="qdescriptor">Water surplus, calorie surplus</p>
-          <p class="qframing c2">An opportunity for global food security</p>
+          <p class="qdescriptor">Water and calorie surplus</p>
+          <p class="qframing">An opportunity for global food security</p>
           <ul class="qstrats">
             <li>Strategically and responsibly expand exports</li>
             <li>Pair AWM expansion with local and global value chains</li>
@@ -266,11 +387,28 @@
           </ul>
         </div>
 
+        <!-- BOTTOM-LEFT: high stress + importer = Context 4 (red) -->
+        <div class="qcard c4">
+          <div class="qbadge">4</div>
+          <p class="qcontext">Context 4</p>
+          <p class="qtitle">Water-stressed food importers</p>
+          <p class="qdescriptor">Water and calorie deficit</p>
+          <p class="qframing">Precarious dependence, structural change</p>
+          <ul class="qstrats">
+            <li>Shift to high-value crops that need limited water</li>
+            <li>Diversify the economy and protect transitions with safety nets</li>
+            <li>Augment supply with reused treated wastewater</li>
+            <li>Enforce water-use caps; diversify import sources</li>
+          </ul>
+        </div>
+
+        <!-- BOTTOM-RIGHT: high stress + exporter = Context 3 (orange) -->
         <div class="qcard c3">
           <div class="qbadge">3</div>
+          <p class="qcontext">Context 3</p>
           <p class="qtitle">Water-stressed food exporters</p>
           <p class="qdescriptor">Water deficit, calorie surplus</p>
-          <p class="qframing c3">An unsustainable contradiction</p>
+          <p class="qframing">An unsustainable contradiction</p>
           <ul class="qstrats">
             <li>Shift to crops with lower water use per unit return</li>
             <li>Modernize irrigation; incentivize sustainable practices</li>
@@ -278,17 +416,65 @@
             <li>Buffer transitions with financial, technical, policy support</li>
           </ul>
         </div>
+
+        <div class="axis-trade-right">Net food exporters</div>
       </div>
 
-      <div class="axis-x axis-x-bottom">
-        <span>Low freshwater stress</span>
-        <span>High freshwater stress</span>
-      </div>
+      <div class="axis-stress bottom">High freshwater stress</div>
     </div>
 
     <p class="footer-note">
-      Framework: <em>Nourish and Flourish</em>, Figure 3.1 - Four local contexts defined by water-food nexus framework. Water stress threshold: 40% (WRI Aqueduct). Trade position: net food calorie balance. <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+      Framework: <em>Nourish and Flourish</em>, Figure 3.1 - Four local contexts defined by the water-food nexus framework. Freshwater stress threshold: 40% (WRI Aqueduct 4.0). Trade position: net food calorie balance (FAO Food Balance Sheets). <a class="back-link" href="../index.html">&larr; Back to gallery</a>
     </p>
   </div>
+
+  <script>
+    // ----- Fullscreen toggle (Fullscreen API) --------------------------------
+    // Enlarges the whole document to fill the screen. The :fullscreen CSS rules
+    // above scale type and box height up so the viz genuinely grows.
+    const fsBtn = document.getElementById('fsBtn');
+    const fsLabel = document.getElementById('fsLabel');
+    function nativeFsElement() {
+      return document.fullscreenElement || document.webkitFullscreenElement || null;
+    }
+    function isEnlarged() {
+      return !!nativeFsElement() || document.body.classList.contains('fs-active');
+    }
+    function enterFs() {
+      const el = document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (req) {
+        try {
+          const p = req.call(el);
+          if (p && p.catch) p.catch(() => { document.body.classList.add('fs-active'); syncFsLabel(); });
+          // If after the call the API did not engage, use the fallback.
+          setTimeout(() => { if (!nativeFsElement()) { document.body.classList.add('fs-active'); syncFsLabel(); } }, 60);
+          return;
+        } catch (e) { /* fall through to fallback */ }
+      }
+      document.body.classList.add('fs-active');
+      syncFsLabel();
+    }
+    function exitFs() {
+      document.body.classList.remove('fs-active');
+      if (nativeFsElement()) {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+      syncFsLabel();
+    }
+    fsBtn.addEventListener('click', () => {
+      if (isEnlarged()) exitFs(); else enterFs();
+    });
+    function syncFsLabel() {
+      fsLabel.textContent = isEnlarged() ? 'Exit fullscreen' : 'Fullscreen';
+    }
+    document.addEventListener('fullscreenchange', syncFsLabel);
+    document.addEventListener('webkitfullscreenchange', syncFsLabel);
+    // Esc also exits the CSS-fallback enlargement.
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.body.classList.contains('fs-active')) exitFs();
+    });
+  </script>
 </body>
 </html>

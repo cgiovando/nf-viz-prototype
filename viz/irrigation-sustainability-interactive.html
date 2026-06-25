@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Global Irrigation: Sustainability and Expansion Potential - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { background: #ffffff; }
+    .viz-page { padding: 0; margin: 0; }
+
+    /* Full-bleed map fills the whole media pane (StoryMap iframe). */
+    .map-stage {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 380px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    #map { position: absolute; inset: 0; width: 100%; height: 100%; background: #ffffff; }
+    .maplibregl-canvas { background: #ffffff; }
+
+    /* Subtle title overlaid top-left so it works inside the StoryMap. */
+    .map-title {
+      position: absolute;
+      top: 12px; left: 14px;
+      z-index: 6;
+      max-width: min(56%, 520px);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(2px);
+      border: 1px solid #e2e7ec;
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .map-title h1 {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.25;
+      color: #002d54;
+      font-weight: 700;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+    }
+    .map-title p {
+      margin: 0.2rem 0 0;
+      font-size: 0.74rem;
+      color: #5a6a78;
+    }
+
+    /* Legend + toggles, bottom-left. */
+    .legend {
+      position: absolute;
+      left: 14px; bottom: 16px;
+      z-index: 6;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(2px);
+      border: 1px solid #e2e7ec;
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem 0.65rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+      color: #1a2733;
+      max-width: 250px;
+    }
+    .legend h2 {
+      margin: 0 0 0.45rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #5a6a78;
+      font-weight: 700;
+    }
+    .legend-group { margin-bottom: 0.5rem; }
+    .legend-group:last-child { margin-bottom: 0; }
+
+    /* Toggle rows (the 3 classes). */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 0.12rem 0;
+      font-size: 0.8rem;
+    }
+    .toggle-row input { display: none; }
+    .toggle-box {
+      width: 15px; height: 15px;
+      border-radius: 4px;
+      border: 1.5px solid #b9c3cd;
+      flex: 0 0 auto;
+      position: relative;
+      background: #fff;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .toggle-row input:checked + .toggle-box {
+      background: #002d54;
+      border-color: #002d54;
+    }
+    .toggle-row input:checked + .toggle-box::after {
+      content: "";
+      position: absolute;
+      left: 4px; top: 0.5px;
+      width: 4px; height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .toggle-row.disabled { opacity: 0.45; }
+    .toggle-swatch {
+      width: 13px; height: 13px;
+      border-radius: 3px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(0,0,0,0.12);
+    }
+    .toggle-label { line-height: 1.2; }
+
+    /* Green expansion ramp swatches. */
+    .ramp-title {
+      font-size: 0.74rem;
+      color: #1a2733;
+      margin: 0.1rem 0 0.3rem 0.05rem;
+      font-weight: 600;
+    }
+    .ramp {
+      display: flex;
+      align-items: stretch;
+      margin: 0 0 0.18rem;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .ramp span { flex: 1; height: 13px; }
+    .ramp-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      color: #5a6a78;
+      letter-spacing: -0.01em;
+    }
+    .ramp-ticks span { flex: 1; text-align: center; }
+    .ramp-ticks span:first-child { text-align: left; }
+    .ramp-ticks span:last-child { text-align: right; }
+    .ramp-note { font-size: 0.62rem; color: #8794a1; margin-top: 0.15rem; }
+
+    /* Fullscreen + zoom controls already provided by MapLibre, styled lightly. */
+    .maplibregl-ctrl-group { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
+    .maplibregl-ctrl button { color: #002d54; }
+
+    /* Attribution kept compact. */
+    .maplibregl-ctrl-attrib { font-size: 0.62rem; }
+
+    /* Embed mode (StoryMap iframe): trim the title chrome a touch. */
+    body[data-embed="storymap"] .map-title { top: 8px; left: 10px; padding: 0.4rem 0.6rem; }
+    body[data-embed="storymap"] .map-title h1 { font-size: 0.9rem; }
+    body[data-embed="storymap"] .legend { left: 10px; bottom: 12px; padding: 0.5rem 0.65rem; }
+
+    @media (max-width: 560px) {
+      .map-title { max-width: 70%; }
+      .legend { max-width: 200px; font-size: 0.74rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="viz-page">
+    <div class="map-stage">
+      <div id="map" aria-label="Interactive map of global irrigation sustainability and expansion potential"></div>
+
+      <div class="map-title">
+        <h1>Global Irrigation: Sustainability and Expansion Potential</h1>
+        <p>Where irrigation is sustainable, where it overdraws water, and where it could expand sustainably.</p>
+      </div>
+
+      <div class="legend" id="legend">
+        <h2>Map layers</h2>
+        <div class="legend-group">
+          <label class="toggle-row" data-layer="unsust">
+            <input type="checkbox" id="tg-unsust" checked />
+            <span class="toggle-box"></span>
+            <span class="toggle-swatch" style="background:#ff00c5"></span>
+            <span class="toggle-label">Unsustainable irrigation</span>
+          </label>
+          <label class="toggle-row" data-layer="sust">
+            <input type="checkbox" id="tg-sust" checked />
+            <span class="toggle-box"></span>
+            <span class="toggle-swatch" style="background:#0070ff"></span>
+            <span class="toggle-label">Sustainable irrigation</span>
+          </label>
+          <label class="toggle-row" data-layer="expansion">
+            <input type="checkbox" id="tg-expansion" checked />
+            <span class="toggle-box"></span>
+            <span class="toggle-swatch" style="background:#28924A"></span>
+            <span class="toggle-label">Sustainable expansion potential</span>
+          </label>
+        </div>
+
+        <div class="legend-group" id="ramp-group">
+          <div class="ramp-title">Expansion (% of cell area)</div>
+          <div class="ramp" aria-hidden="true">
+            <span style="background:#F4FBF2"></span>
+            <span style="background:#B1DFAA"></span>
+            <span style="background:#7FC97F"></span>
+            <span style="background:#4AAF61"></span>
+            <span style="background:#28924A"></span>
+            <span style="background:#0B7532"></span>
+            <span style="background:#00441B"></span>
+          </div>
+          <div class="ramp-ticks">
+            <span>1</span><span>5</span><span>10</span><span>20</span><span>35</span><span>50</span><span>100</span><span>&gt;100</span>
+          </div>
+          <div class="ramp-note">Cell ~83 km&sup2; (5 arcmin)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+
+    // Resolve tile + data paths relative to this file (absolute, for MapLibre tile URLs).
+    const BASE = 'irrigation-tiles/';
+    const ABS = location.href.replace(/[^/]*(?:\?.*)?$/, '');
+
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: {
+        version: 8,
+        // Glyphs only needed if we add labels; omitted for a label-free base.
+        sources: {
+          countries: {
+            type: 'geojson',
+            data: BASE + 'countries.geojson'
+          },
+          expansion: {
+            type: 'raster',
+            tiles: [ABS + BASE + 'expansion/{z}/{x}/{y}.png'],
+            tileSize: 256, minzoom: 0, maxzoom: 7, bounds: [-180, -56, 180, 84],
+            attribution: 'Data: Rosa et al. (sustainable irrigation). Boundaries: Natural Earth.'
+          },
+          sust: {
+            type: 'raster',
+            tiles: [ABS + BASE + 'sust/{z}/{x}/{y}.png'],
+            tileSize: 256, minzoom: 0, maxzoom: 7, bounds: [-180, -56, 180, 84]
+          },
+          unsust: {
+            type: 'raster',
+            tiles: [ABS + BASE + 'unsust/{z}/{x}/{y}.png'],
+            tileSize: 256, minzoom: 0, maxzoom: 7, bounds: [-180, -56, 180, 84]
+          }
+        },
+        layers: [
+          // White background.
+          { id: 'bg', type: 'background', paint: { 'background-color': '#ffffff' } },
+          // Subtle country fill to give faint land/sea separation (very light).
+          {
+            id: 'country-fill',
+            type: 'fill',
+            source: 'countries',
+            paint: { 'fill-color': '#fbfcfd', 'fill-opacity': 1 }
+          },
+          // Green expansion ramp at the bottom of the data stack.
+          {
+            id: 'expansion',
+            type: 'raster',
+            source: 'expansion',
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
+          },
+          // Sustainable + unsustainable on top (per README "overlay map-2 on map-1").
+          // Kept as two independent rasters so each class toggles on its own.
+          {
+            id: 'sust',
+            type: 'raster',
+            source: 'sust',
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
+          },
+          {
+            id: 'unsust',
+            type: 'raster',
+            source: 'unsust',
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
+          },
+          // Thin grey country outlines on top of everything.
+          {
+            id: 'country-line',
+            type: 'line',
+            source: 'countries',
+            paint: {
+              'line-color': '#9aa6b2',
+              'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.4, 4, 0.7, 7, 1.0],
+              'line-opacity': 0.85
+            }
+          }
+        ]
+      },
+      center: [30, 22],
+      zoom: 1.4,
+      minZoom: 0,
+      maxZoom: 7.5,
+      attributionControl: false,
+      renderWorldCopies: true
+    });
+
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+    map.dragRotate.disable();
+    map.touchZoomRotate.disableRotation();
+
+    // Each class is its own raster layer, so each checkbox shows/hides exactly one layer.
+    function bindToggle(id, layerId) {
+      const el = document.getElementById(id);
+      el.addEventListener('change', () => {
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(layerId, 'visibility', el.checked ? 'visible' : 'none');
+        }
+      });
+    }
+    map.on('load', () => {
+      bindToggle('tg-unsust', 'unsust');
+      bindToggle('tg-sust', 'sust');
+      bindToggle('tg-expansion', 'expansion');
+    });
+  </script>
+</body>
+</html>

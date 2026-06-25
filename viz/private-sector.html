@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The private sector by context - Nourish and Flourish</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <style>
+    body { background: #fff; }
+    .viz-page { padding: 1rem 1.05rem; max-width: 720px; margin: 0 auto; }
+
+    /* One stacked card per context (C1..C4), each colored by canonical
+       context color, with three independent reveals: opportunity / role /
+       in practice. Designed for the ~1/3 sidecar panel. */
+    .cards { display: flex; flex-direction: column; gap: 0.85rem; margin: 0.3rem 0 0.6rem; }
+
+    .card {
+      background: #fff; border: 1px solid var(--c-border); border-radius: 14px;
+      padding: 1rem 1.05rem 1.1rem; position: relative; overflow: hidden;
+      box-shadow: 0 2px 10px rgba(15, 79, 120, 0.06); min-width: 0;
+    }
+    .card::before {
+      content: ""; position: absolute; top: 0; left: 0;
+      width: 100%; height: 5px; background: var(--accent);
+    }
+    .card-num {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--accent); margin: 0 0 0.25rem; font-weight: 800;
+      font-family: "Open Sans", system-ui, sans-serif;
+    }
+    .card-title {
+      font-size: 1.18rem; font-weight: 700; margin: 0 0 0.1rem;
+      color: var(--c-text); line-height: 1.22;
+    }
+    .card-lead {
+      font-size: 0.95rem; font-style: italic; margin: 0.2rem 0 0.7rem;
+      line-height: 1.4; color: var(--accent-dark);
+    }
+
+    .reveals { display: flex; flex-direction: column; gap: 0.45rem; }
+    .reveal { border-top: 1px solid var(--c-border); padding-top: 0.45rem; }
+    .reveal-btn {
+      display: flex; align-items: center; gap: 0.55rem; width: 100%;
+      border: none; background: none; cursor: pointer; padding: 0.1rem 0;
+      text-align: left;
+      font-family: "Open Sans", system-ui, sans-serif;
+      font-size: 0.9rem; font-weight: 700; color: var(--c-text);
+    }
+    .reveal-btn .plus {
+      width: 24px; height: 24px; border-radius: 50%; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1rem; font-weight: 700; line-height: 1;
+      background: var(--accent);
+    }
+    .reveal-btn .rl { flex: 1; }
+    .reveal-btn .hint { font-size: 0.74rem; font-weight: 600; color: var(--c-muted); }
+    .reveal[data-open="true"] .hint { opacity: 0; }
+
+    .reveal-body {
+      font-size: 0.92rem; line-height: 1.55; color: var(--c-text);
+      max-height: 0; opacity: 0; overflow: hidden; margin: 0;
+      transition: max-height 0.45s ease, opacity 0.3s ease, margin 0.3s ease;
+    }
+    .reveal[data-open="true"] .reveal-body {
+      max-height: 1600px; opacity: 1; margin: 0.5rem 0 0.1rem;
+    }
+    .reveal-body p { margin: 0 0 0.6rem; }
+    .reveal-body p:last-child { margin-bottom: 0; }
+
+    .footer-note {
+      font-size: 0.76rem; color: var(--c-muted);
+      margin-top: 0.7rem; padding-top: 0.55rem;
+      border-top: 1px solid var(--c-border); line-height: 1.4;
+    }
+    body[data-embed="storymap"] .back-link { display: none; }
+    body[data-embed="storymap"] { margin: 0; }
+    body[data-embed="storymap"] .viz-page { box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <script>
+    const _qp = new URLSearchParams(location.search);
+    if (_qp.get('embed') === 'storymap') document.body.setAttribute('data-embed', 'storymap');
+  </script>
+
+  <script>
+    /* =====================================================================
+       ALL DISPLAY COPY lives in this DATA object. Swap text here after
+       author sign-off without touching markup/logic. Contexts keyed c1..c4
+       and rendered in order c1, c2, c3, c4. Each has canonical context
+       colors, a short lead, and three reveals: opportunity (Private sector
+       opportunity), role (Government role), practice (In practice). Reveal
+       values are arrays of paragraph strings.
+       NO em-dashes or en-dashes - plain hyphens only.
+       ===================================================================== */
+    const DATA = {
+      footer: "Source: <em>Nourish and Flourish</em>, World Bank 2026. The private sector opportunity, and the conditions needed to unlock it, differ by context.",
+      order: ["c1", "c2", "c3", "c4"],
+      revealLabels: {
+        opportunity: "Private sector opportunity",
+        role: "Government role",
+        practice: "In practice"
+      },
+      contexts: {
+        c1: {
+          accent: "#6a8aa8", accentDark: "#2f4663",
+          num: "Context 1", title: "Water-secure food importer",
+          lead: "Room to grow, and to build the markets that make growth viable.",
+          subs: { opportunity: "expansion and market development", role: "invest, de-risk, and connect" },
+          reveals: {
+            opportunity: ["Water-secure food importers have untapped irrigation potential and growing demand for food. That creates commercial opportunity across the full agricultural value chain: equipment supply, installation and maintenance, digital advisory services, processing, storage, transport, and trade. As production scales, so does the market."],
+            role: ["Invest in core infrastructure, de-risk farmer investment through subsidies and guarantees, strengthen market links between farmers and buyers, and create the regulatory clarity that allows private service providers to operate viably."],
+            practice: ["In Uganda, a farmer co-investment model combined targeted public subsidies with farmer co-contributions to finance 4,733 irrigation installations, mobilizing nearly 30 percent of total costs from private sources, while strengthening domestic equipment supply chains."]
+          }
+        },
+        c2: {
+          accent: "#469e6e", accentDark: "#1f543f",
+          num: "Context 2", title: "Water-secure food exporter",
+          lead: "Strengthen competitiveness and protect the resource base that makes it possible.",
+          subs: { opportunity: "modernization and value chain development", role: "enable long-term investment and market access" },
+          reveals: {
+            opportunity: ["Water-secure exporters already have functioning agricultural systems. The private sector opportunity is in making them more efficient, more competitive, and more connected to premium markets through modernization investment, renewable energy in irrigation, precision agriculture technology, and long-term service concessions."],
+            role: ["Create concession frameworks that give private operators predictable revenue, incentivize efficiency investment, and pair AWM modernization with complementary transport and cold storage infrastructure to maximize export potential."],
+            practice: ["Peru's Olmos-Tinajones project irrigated 43,500 hectares through a multistage PPP combining private financing, land auctions, a tax stability agreement, and a partial credit guarantee from the Development Bank of Latin America and the Caribbean. By enabling large-scale water transfers across the Andes, the project facilitated a shift from subsistence farming to high-value agro-exports. Implementation faced delays, legal disputes, and land acquisition challenges, with renewed efforts to resolve these as recently as 2024 - a reminder that large-scale irrigation PPPs require sustained political commitment and adaptive governance alongside financing."]
+          }
+        },
+        c3: {
+          accent: "#c46b3b", accentDark: "#7d4316",
+          num: "Context 3", title: "Water-stressed food exporter",
+          lead: "Generate more value from less water - and build businesses around doing it.",
+          subs: { opportunity: "efficiency, services, and water-smart production", role: "set limits, enforce them, and create markets for efficiency" },
+          reveals: {
+            opportunity: ["Tightening water constraints are driving demand for efficiency, and that demand is a market. Performance-based irrigation service contracts, water-saving technology, precision agriculture, and crops that generate higher value per unit of water are all growing commercial opportunities in water-stressed export contexts."],
+            role: ["Introduce and enforce water allocation frameworks, develop markets for less water-intensive crops, and create performance-based contracting mechanisms that allow private operators to take on service delivery with clear accountability."],
+            practice: [
+              "Spain's irrigation modernization program, structured through the public entity SEIASA, modernized 50 percent of the country's 3.7 million hectares of irrigated land between 1996 and 2017. SEIASA advanced half of total investment costs, with irrigators repaying the balance over time, complemented by EU and regional government contributions. The program improved efficiency, competitiveness, and environmental outcomes, and complementary investments in renewable energy reduced operating costs and emissions.",
+              "In India's Damodar Valley, performance-based contracts with nine private irrigation service providers are improving canal reliability and expanding irrigation coverage across multiple growing seasons, reducing groundwater dependence. The approach is still under implementation, but early results point to improved service delivery and stronger accountability."
+            ]
+          }
+        },
+        c4: {
+          accent: "#ad323c", accentDark: "#6b2424",
+          num: "Context 4", title: "Water-stressed food importer",
+          lead: "The tightest trade-offs and some of the most replicable financing models.",
+          subs: { opportunity: "de-risked investment in scarce-water solutions", role: "share risk explicitly and create frameworks for non-conventional sources" },
+          reveals: {
+            opportunity: ["Water-stressed food importers present the most constrained conditions, but also some of the clearest opportunities for structured private finance. Risk-sharing facilities, blended finance, long-term PPPs for non-conventional water sources, and technology financing for water-saving equipment all have demonstrated track records here."],
+            role: ["Share risk through guarantees and blended finance instruments, create regulatory frameworks for non-conventional water sources such as treated wastewater, and ensure cost recovery mechanisms are in place before seeking private investment."],
+            practice: ["In Morocco, a risk-sharing facility between the government, a commercial bank, and IFC enabled farmers and small enterprises to access financing for micro-irrigation and solar-powered systems, with nearly 30,000 farmers expected to benefit by 2027. In Jordan, a build-operate-transfer PPP for the As-Samra wastewater treatment plant demonstrated how political risk guarantees and long-term contracts can mobilize private capital for water reuse infrastructure in one of the world's most water-scarce countries."]
+          }
+        }
+      }
+    };
+  </script>
+
+  <div class="viz-page">
+    <div class="cards" id="cards"></div>
+    <p class="footer-note">
+      <span id="footer"></span>
+      <a class="back-link" href="../index.html">&larr; Back to gallery</a>
+    </p>
+  </div>
+
+  <script>
+    const cards = document.getElementById("cards");
+
+    DATA.order.forEach((key) => {
+      const c = DATA.contexts[key];
+      const rev = Object.keys(DATA.revealLabels).map((k) => {
+        const sub = c.subs && c.subs[k] ? `: ${c.subs[k]}` : "";
+        const body = c.reveals[k].map(p => `<p>${p}</p>`).join("");
+        return `
+          <div class="reveal" data-open="false">
+            <button class="reveal-btn" aria-expanded="false">
+              <span class="plus" aria-hidden="true">+</span>
+              <span class="rl">${DATA.revealLabels[k]}${sub}</span>
+              <span class="hint">Read more</span>
+            </button>
+            <div class="reveal-body">${body}</div>
+          </div>`;
+      }).join("");
+
+      cards.insertAdjacentHTML("beforeend", `
+        <div class="card" style="--accent:${c.accent};--accent-dark:${c.accentDark}">
+          <p class="card-num">${c.num}</p>
+          <p class="card-title">${c.title}</p>
+          <p class="card-lead">${c.lead}</p>
+          <div class="reveals">${rev}</div>
+        </div>`);
+    });
+
+    document.getElementById("footer").innerHTML = DATA.footer;
+
+    document.querySelectorAll(".reveal").forEach((r) => {
+      const btn = r.querySelector(".reveal-btn");
+      const plus = r.querySelector(".plus");
+      btn.addEventListener("click", () => {
+        const open = r.getAttribute("data-open") === "true";
+        r.setAttribute("data-open", open ? "false" : "true");
+        btn.setAttribute("aria-expanded", open ? "false" : "true");
+        plus.textContent = open ? "+" : "-"; // plain hyphen when open
+      });
+    });
+  </script>
+</body>
+</html>
