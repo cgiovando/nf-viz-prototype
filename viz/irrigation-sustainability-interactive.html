@@ -266,7 +266,7 @@
             id: 'expansion',
             type: 'raster',
             source: 'expansion',
-            paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' }
           },
           // Sustainable + unsustainable on top (per README "overlay map-2 on map-1").
           // Kept as two independent rasters so each class toggles on its own.
@@ -274,20 +274,20 @@
             id: 'sust',
             type: 'raster',
             source: 'sust',
-            paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' }
           },
           {
             id: 'unsust',
             type: 'raster',
             source: 'unsust',
-            paint: { 'raster-opacity': 1, 'raster-resampling': 'nearest' }
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' }
           }
         ]
       },
       center: [30, 22],
       zoom: 1.4,
       minZoom: 0,
-      maxZoom: 6,
+      maxZoom: 5,
       attributionControl: false,
       renderWorldCopies: true
     });
