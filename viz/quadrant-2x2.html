@@ -234,7 +234,7 @@
     </div>
 
     <div class="controls">
-      <button data-quad="all" class="active">All countries</button>
+      <button data-quad="all" class="active standalone-only">All countries</button>
       <button data-quad="ws-fi" class="standalone-only">Water-secure importers</button>
       <button data-quad="ws-fe" class="standalone-only">Water-secure exporters</button>
       <button data-quad="wst-fe" class="standalone-only">Water-stressed exporters</button>
@@ -247,7 +247,7 @@
     </div>
 
     <p class="selected-line standalone-only" id="selected">Hover a point for its profile, or search and click a quadrant label to zoom in.</p>
-    <button class="zoom-chip standalone-only" id="zoomChip" type="button">&larr; Back to all quadrants</button>
+    <button class="zoom-chip" id="zoomChip" type="button">&larr; Back to all quadrants</button>
 
     <div class="plot-card">
       <div id="plot"></div>
@@ -384,7 +384,7 @@
           labelAnchor: "center",
         },
         y: {
-          label: "↑ low freshwater stress   ·   high freshwater stress ↓",
+          label: "Freshwater stress: low at top, high at bottom",
           domain: yDomain,
           grid: true,
           tickFormat: d => `${d}%`,
