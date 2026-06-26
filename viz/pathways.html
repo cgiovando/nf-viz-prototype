@@ -51,10 +51,13 @@
     .p-sub { font-size: 0.86rem; font-style: italic; color: var(--accent-dark);
       margin: 0 0 0.6rem; flex: none; }
 
-    /* Two-column inner layout: priority + trade-off left, actions right. */
+    /* Two-column inner layout: priority + trade-off left, actions right.
+       Scrolls its own overflow so tall contexts (e.g. Context 4) never spill
+       over the "See:" line below - keeps the panel intact at any embed height. */
     .p-cols { flex: 1; min-height: 0; display: grid;
-      grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 620px) { .p-cols { grid-template-columns: 1fr; overflow-y: auto; } }
+      grid-template-columns: 1fr 1fr; gap: 1rem;
+      overflow-y: auto; align-content: start; padding-right: 0.25rem; }
+    @media (max-width: 620px) { .p-cols { grid-template-columns: 1fr; } }
     .p-col { min-height: 0; }
     .block { margin: 0 0 0.7rem; }
     .block:last-child { margin-bottom: 0; }
@@ -213,7 +216,8 @@
       t.addEventListener("click", () => render(t.dataset.key)));
 
     document.getElementById("footer").innerHTML = DATA.footer;
-    render(DATA.order[0]);
+    const _ctx = _qp.get("ctx");
+    render(DATA.order.includes(_ctx) ? _ctx : DATA.order[0]);
   </script>
 </body>
 </html>

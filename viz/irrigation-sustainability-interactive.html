@@ -145,6 +145,14 @@
     .ramp-ticks span:first-child { text-align: left; }
     .ramp-ticks span:last-child { text-align: right; }
     .ramp-note { font-size: 0.62rem; color: #8794a1; margin-top: 0.15rem; }
+    .legend-disclaimer {
+      margin: 0.5rem 0 0;
+      padding-top: 0.45rem;
+      border-top: 1px solid #e2e7ec;
+      font-size: 0.58rem;
+      line-height: 1.3;
+      color: #8794a1;
+    }
 
     /* Fullscreen + zoom controls already provided by MapLibre, styled lightly. */
     .maplibregl-ctrl-group { box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important; }
@@ -213,6 +221,8 @@
           </div>
           <div class="ramp-note">Cell ~83 km&sup2; (5 arcmin)</div>
         </div>
+
+        <p class="legend-disclaimer">Boundaries are the World Bank&rsquo;s official boundaries; dashed lines are indefinite. They do not imply any judgment on the legal status of any territory or endorsement or acceptance of such boundaries.</p>
       </div>
     </div>
   </div>
@@ -230,18 +240,18 @@
       container: 'map',
       style: {
         version: 8,
-        // Glyphs only needed if we add labels; omitted for a label-free base.
+        // No glyphs: the base is label-free (boundary lines + land fill only).
+        // Basemap boundaries come from the World Bank Official Boundaries
+        // (WB GAD, CC BY 4.0) - NOT a third-party basemap - so the only
+        // borders shown are WB-approved, including the disputed-area treatment.
         sources: {
-          osm: {
-            type: 'raster',
-            tiles: [
-              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256, maxzoom: 19,
-            attribution: '© OpenStreetMap contributors © CARTO | Data: Rosa et al. (sustainable irrigation)'
+          wbLand: {
+            type: 'geojson',
+            data: ABS + 'wb-boundaries/adm0.geojson',
+            attribution: 'Boundaries: World Bank Official Boundaries (CC BY 4.0). Data: Rosa et al. (sustainable irrigation).'
           },
+          wbLines: { type: 'geojson', data: ABS + 'wb-boundaries/adm0_lines.geojson' },
+          wbDisputes: { type: 'geojson', data: ABS + 'wb-boundaries/disputes.geojson' },
           expansion: {
             type: 'raster',
             tiles: [ABS + BASE + 'expansion/{z}/{x}/{y}.png'],
@@ -259,39 +269,45 @@
           }
         },
         layers: [
-          // Light OSM (CARTO Positron) basemap.
-          { id: 'osm', type: 'raster', source: 'osm', paint: { 'raster-opacity': 1 } },
-          // Green expansion ramp at the bottom of the data stack.
-          {
-            id: 'expansion',
-            type: 'raster',
-            source: 'expansion',
-            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' }
-          },
-          // Sustainable + unsustainable on top (per README "overlay map-2 on map-1").
-          // Kept as two independent rasters so each class toggles on its own.
-          {
-            id: 'sust',
-            type: 'raster',
-            source: 'sust',
-            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' }
-          },
-          {
-            id: 'unsust',
-            type: 'raster',
-            source: 'unsust',
-            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' }
-          }
+          // Ocean (page-wide background) + WB land fill = the boundary-free base.
+          { id: 'ocean', type: 'background', paint: { 'background-color': '#f4f8fb' } },
+          { id: 'wb-land', type: 'fill', source: 'wbLand',
+            paint: { 'fill-color': '#e6ebef' } },
+          // Thematic data stack on top of land.
+          { id: 'expansion', type: 'raster', source: 'expansion',
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' } },
+          { id: 'sust', type: 'raster', source: 'sust',
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' } },
+          { id: 'unsust', type: 'raster', source: 'unsust',
+            paint: { 'raster-opacity': 1, 'raster-resampling': 'linear' } },
+          // Disputed / Non-Determined Legal Status Areas: subtle fill so they
+          // read as not attributed to a sovereign.
+          { id: 'wb-disputes', type: 'fill', source: 'wbDisputes',
+            paint: { 'fill-color': '#8a98a6', 'fill-opacity': 0.14 } },
+          // WB official boundary lines on top: solid = definite,
+          // dashed = indefinite / disputed (WB 'Style' attribute).
+          { id: 'wb-lines-solid', type: 'line', source: 'wbLines',
+            filter: ['any', ['==', ['get', 'Style'], 'None'], ['!', ['has', 'Style']], ['==', ['get', 'Style'], null]],
+            paint: { 'line-color': '#8c98a4',
+              'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 4, 1.1] } },
+          { id: 'wb-lines-disputed', type: 'line', source: 'wbLines',
+            filter: ['all', ['has', 'Style'], ['!=', ['get', 'Style'], 'None'], ['!=', ['get', 'Style'], null]],
+            paint: { 'line-color': '#8c98a4',
+              'line-width': ['interpolate', ['linear'], ['zoom'], 0, 0.5, 4, 1.1],
+              'line-dasharray': [2, 1.6] } },
+          { id: 'wb-disputes-outline', type: 'line', source: 'wbDisputes',
+            paint: { 'line-color': '#8c98a4', 'line-width': 0.7, 'line-dasharray': [1.5, 1.5] } }
         ]
       },
       center: [30, 22],
       zoom: 1.4,
       minZoom: 0,
-      maxZoom: 5,
+      maxZoom: 4,
       attributionControl: false,
       renderWorldCopies: true
     });
 
+    window._map = map;  // debug handle (harmless)
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.addControl(new maplibregl.FullscreenControl(), 'top-right');
     map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
