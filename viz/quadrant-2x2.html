@@ -375,7 +375,10 @@
 
       const plot = Plot.plot({
         width, height,
-        marginLeft: 64, marginBottom: 46, marginTop: 30, marginRight: 30,
+        // Bump axis tick + label text up from Plot's 10px default for legibility
+        // in the embed (corner labels and dots set their own sizes, so unaffected).
+        style: { fontSize: "13px" },
+        marginLeft: 72, marginBottom: 52, marginTop: 30, marginRight: 30,
         x: {
           label: "← net food importer      net food trade balance      net food exporter →",
           domain: xDomain,
